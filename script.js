@@ -3,8 +3,8 @@ const person = {
     Name: "Emma",
     Email: "emmahsde@gmail.com",
     Area:"NY/NJ",
-    Aboutme:"Hi, my name is Emma",
-    ProExp: ["attend JS bootcamp","Worked as a chemical analyst"]
+    Aboutme:"Hi, my name is Emma.",
+    ProExp: ["Attend JS bootcamp.","Worked as a chemical analyst."]
 
 }
 
@@ -17,8 +17,8 @@ person_email.textContent = person.Email;
 const person_area = document.getElementById('area');
 person_area.textContent = person.Area;
 
-const person_intro = document.getElementById('intro');
-person_intro.textContent = person.Intro;
+const person_aboutme = document.getElementById('aboutme');
+person_aboutme.textContent = person.Aboutme;
 
 const person_proexp1 = document.getElementById('proexp1');
 person_proexp1.textContent = person.ProExp[0];
