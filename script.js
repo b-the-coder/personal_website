@@ -1,4 +1,3 @@
-console.log("script loaded");
 const person = {
   Name: "Emma",
   Email: "emmahsde@gmail.com",
