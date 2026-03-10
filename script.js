@@ -1,30 +1,30 @@
 const person = {
-  Name: "Emma",
-  Email: "emmahsde@gmail.com",
-  Area: "NY/NJ",
-  Aboutme: "Hi, my name is Emma.",
-  ProExp: ["Attend JS bootcamp.", "Worked as a chemical analyst."],
+  name: "Emma",
+  email: "emmahsde@gmail.com",
+  area: "NY/NJ",
+  aboutMe: "Hi, my name is Emma.",
+  proExp: ["Attend JS bootcamp.", "Worked as a chemical analyst."],
 };
 
-const person_name = document.getElementById("name");
-person_name.textContent = person.Name;
+const headerSection = document.querySelector(".header");
+const name = headerSection.querySelector("h1");
+name.textContent = person.name;
+const email = headerSection.querySelector("p#email");
+email.textContent = person.email;
+const area = headerSection.querySelector("p#area");
+area.textContent = person.area;
 
-const person_email = document.getElementById("email");
-person_email.textContent = person.Email;
+const aboutMeSection = document.querySelector(".aboutme");
+const aboutMe = aboutMeSection.querySelector("#aboutme");
+aboutMe.textContent = person.aboutMe;
 
-const person_area = document.getElementById("area");
-person_area.textContent = person.Area;
+const experienceListSection = document.querySelector(".experiencelist");
+const experienceList = experienceListSection.querySelectorAll("li");
+console.log(experienceList, typeof experienceList);
+experienceList.forEach((ele, i) => {
+  ele.textContent = person.proExp[i];
+});
 
-const person_aboutme = document.getElementById("aboutme");
-person_aboutme.textContent = person.Aboutme;
-
-const person_proexp1 = document.getElementById("proexp1");
-person_proexp1.textContent = person.ProExp[0];
-
-const person_proexp2 = document.getElementById("proexp2");
-person_proexp2.textContent = person.ProExp[1];
-
-const contact = document.getElementById("contactinfo");
-contact.textContent = contact.textContent + person.Email;
-
-const happy = "happywife, happylife"
+const contactSection = document.querySelector(".contact");
+const contactInfo = contactSection.querySelector("#contactinfo");
+contactInfo.textContent = person.email;
