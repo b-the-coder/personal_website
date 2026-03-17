@@ -7,11 +7,18 @@ body {
   flex-direction: column;
 }
 
-.header {
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 h1 {
@@ -38,11 +45,20 @@ section {
   margin-bottom: 1.5rem;
 }
 
-.aboutme span,
-.experiencelist li,
-.contact span {
+#aboutme span,
+#experiencelist li,
+#contact span {
   display: block;
   margin-left: 40px;
   font-family: "Patrick Hand", "Comic Sans MS", cursive;
   font-size: 0.875rem;
+}
+
+#contactinfo {
+  display: flex;
+  flex-direction: column;
+}
+
+html {
+  scroll-behavior: smooth;
 }

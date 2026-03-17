@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header class="header">
+    <nav>
+      <a href="#aboutme">About Me</a>
+      <a href="#experiencelist">Professional Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <header>
       <h1 id="name">Name</h1>
       <div>
         <p id="email">Email</p>
@@ -15,12 +20,12 @@
       </div>
     </header>
     <main>
-      <section class="aboutme">
+      <section id="aboutme">
         <h2>About me:</h2>
         <span id="aboutme"></span>
       </section>
 
-      <section class="experiencelist">
+      <section id="experiencelist">
         <h2>Professional Experience:</h2>
         <ul>
           <li id="proexp1"></li>
@@ -28,9 +33,13 @@
         </ul>
       </section>
 
-      <section class="contact">
+      <section id="contact">
         <h2>Get in touch with me:</h2>
-        <span id="contactinfo"></span>
+        <div id="contactinfo">
+          <a href="email">📧</a>
+          <a href="https://github.com/b-the-coder">github</a>
+          <a href="https://www.linkedin.com/in/binemmahe/">linkedin</a>
+        </div>
       </section>
     </main>
     <script src="script.js"></script>
