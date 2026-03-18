@@ -24,7 +24,3 @@ console.log(experienceList, typeof experienceList);
 experienceList.forEach((ele, i) => {
   ele.textContent = person.proExp[i];
 });
-
-const contactSection = document.querySelector("#contact");
-const contactInfo = contactSection.querySelector("#contactinfo");
-contactInfo.textContent = person.email;
