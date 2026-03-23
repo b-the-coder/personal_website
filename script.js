@@ -16,7 +16,7 @@ const area = headerSection.querySelector("p#area");
 area.textContent = person.area;
 
 const aboutMeSection = document.querySelector("#aboutme");
-const aboutMe = aboutMeSection.querySelector("#aboutme");
+const aboutMe = aboutMeSection.querySelector("#aboutme-text");
 aboutMe.textContent = person.aboutMe;
 
 const experienceListSection = document.querySelector("#experiencelist");
@@ -39,8 +39,13 @@ toggleInput.addEventListener("input", (e) => {
 });
 
 // Run on page load to restore preference
-const saved = localStorage.getItem("darkMode");
-if (saved === "true") {
+const savedPreference = localStorage.getItem("darkMode");
+if (savedPreference === "true") {
   toggleInput.checked = true;
   document.body.classList.add("dark-mode");
+} else if (savedPreference === null) {
+  // No saved preference — fall back to browser/OS setting(still use darkmode setup in css.style)
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.classList.toggle("dark-mode", prefersDark);
+  toggleInput.checked = prefersDark;
 }
