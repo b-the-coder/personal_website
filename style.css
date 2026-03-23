@@ -7,11 +7,10 @@ body {
   flex-direction: column;
 }
 
-header {
+#preference {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  margin-bottom: 2rem;
 }
 
 nav {
@@ -20,9 +19,15 @@ nav {
   align-items: center;
   margin-bottom: 1rem;
 }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
 
 h1 {
-  color: rgb(81 0 255 / 0.9);
+  color: rgba(180, 140, 255, 1);
   font-size: 2.25rem;
   margin: 0;
 }
@@ -54,9 +59,8 @@ a {
 a:hover {
   color: rgba(81, 0, 255, 0.75);
 }
-#aboutme span,
-#experiencelist li,
-#contact span {
+#aboutme p,
+#experiencelist li {
   display: block;
   margin-left: 40px;
   font-family: "Patrick Hand", "Comic Sans MS", cursive;
@@ -66,6 +70,67 @@ a:hover {
 #contactinfo {
   display: flex;
   flex-direction: column;
+}
+
+.toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.toggle-label {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  background: rgba(81, 0, 255, 0.15);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.toggle-text {
+  color: rgba(81, 0, 255, 0.45);
+}
+.toggle-label::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.25s ease;
+}
+.toggle-input:checked + .toggle-label {
+  background: rgba(180, 140, 255, 0.75);
+}
+.toggle-input:checked + .toggle-label::before {
+  transform: translateX(20px);
+}
+
+body.dark-mode {
+  background-color: #121212ac;
+}
+body.dark-mode p,
+body.dark-mode h2,
+body.dark-mode li {
+  color: white;
+}
+body.dark-mode .toggle-text {
+  color: rgba(180, 140, 255, 0.45);
+}
+
+body.dark-mode a {
+  color: rgba(180, 140, 255, 0.45);
+}
+
+body.dark-mode a:hover {
+  color: rgba(180, 140, 255, 0.75);
+}
+
+body.dark-mode h1 {
+  color: rgba(180, 140, 255, 0.9);
 }
 
 html {
