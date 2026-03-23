@@ -7,15 +7,22 @@ body {
   flex-direction: column;
 }
 
-.header {
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
 }
 
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 h1 {
-  color: rgb(81, 0, 255);
+  color: rgb(81 0 255 / 0.9);
   font-size: 2.25rem;
   margin: 0;
 }
@@ -38,11 +45,29 @@ section {
   margin-bottom: 1.5rem;
 }
 
-.aboutme span,
-.experiencelist li,
-.contact span {
+ion-icon {
+  font-size: 2rem;
+}
+a {
+  color: rgba(81, 0, 255, 0.45);
+}
+a:hover {
+  color: rgba(81, 0, 255, 0.75);
+}
+#aboutme span,
+#experiencelist li,
+#contact span {
   display: block;
   margin-left: 40px;
   font-family: "Patrick Hand", "Comic Sans MS", cursive;
   font-size: 0.875rem;
+}
+
+#contactinfo {
+  display: flex;
+  flex-direction: column;
+}
+
+html {
+  scroll-behavior: smooth;
 }
