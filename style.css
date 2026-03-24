@@ -1,3 +1,12 @@
+/* ==========================================================================
+   BASE & TYPOGRAPHY
+   Global resets, font styles, and text elements
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
   margin: 0;
@@ -5,25 +14,6 @@ body {
   font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
-}
-
-#preference {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
 }
 
 h1 {
@@ -42,6 +32,43 @@ p {
   margin: 0.25rem 0;
 }
 
+a {
+  color: rgba(81, 0, 255, 0.45);
+}
+
+a:hover {
+  color: rgba(81, 0, 255, 0.75);
+}
+
+ion-icon {
+  font-size: 2rem;
+}
+
+/* ==========================================================================
+     LAYOUT & STRUCTURE
+     Page sections, navigation, and structural components
+     ========================================================================== */
+
+#preference {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
 main {
   max-width: 720px;
 }
@@ -50,15 +77,12 @@ section {
   margin-bottom: 1.5rem;
 }
 
-ion-icon {
-  font-size: 2rem;
+#contactinfo {
+  display: flex;
+  flex-direction: column;
 }
-a {
-  color: rgba(81, 0, 255, 0.45);
-}
-a:hover {
-  color: rgba(81, 0, 255, 0.75);
-}
+
+/* Indented handwritten-style text for About and Experience */
 #aboutme p,
 #experiencelist li {
   display: block;
@@ -67,11 +91,12 @@ a:hover {
   font-size: 0.875rem;
 }
 
-#contactinfo {
-  display: flex;
-  flex-direction: column;
-}
+/* ==========================================================================
+     TOGGLE BAR
+     Dark mode toggle switch styles
+     ========================================================================== */
 
+/* Visually hidden input — keeps toggle accessible without showing native checkbox */
 .toggle-input {
   position: absolute;
   width: 1px;
@@ -79,6 +104,7 @@ a:hover {
   opacity: 0;
   pointer-events: none;
 }
+
 .toggle-label {
   position: relative;
   display: inline-block;
@@ -88,9 +114,12 @@ a:hover {
   border-radius: 999px;
   cursor: pointer;
 }
+
 .toggle-text {
   color: rgba(81, 0, 255, 0.45);
 }
+
+/* The sliding knob */
 .toggle-label::before {
   content: "";
   position: absolute;
@@ -102,23 +131,33 @@ a:hover {
   background: white;
   transition: transform 0.25s ease;
 }
+
+/* Checked state — filled track and shifted knob */
 .toggle-input:checked + .toggle-label {
   background: rgba(180, 140, 255, 0.75);
 }
+
 .toggle-input:checked + .toggle-label::before {
   transform: translateX(20px);
 }
 
+/* ==========================================================================
+     DARK MODE
+     Overrides applied when body.dark-mode is active
+     ========================================================================== */
+
 body.dark-mode {
   background-color: #121212ac;
 }
+
+body.dark-mode h1 {
+  color: rgba(180, 140, 255, 0.9);
+}
+
 body.dark-mode p,
 body.dark-mode h2,
 body.dark-mode li {
   color: white;
-}
-body.dark-mode .toggle-text {
-  color: rgba(180, 140, 255, 0.45);
 }
 
 body.dark-mode a {
@@ -129,10 +168,6 @@ body.dark-mode a:hover {
   color: rgba(180, 140, 255, 0.75);
 }
 
-body.dark-mode h1 {
-  color: rgba(180, 140, 255, 0.9);
-}
-
-html {
-  scroll-behavior: smooth;
+body.dark-mode .toggle-text {
+  color: rgba(180, 140, 255, 0.45);
 }
