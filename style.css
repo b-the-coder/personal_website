@@ -1,3 +1,12 @@
+/* ==========================================================================
+   BASE & TYPOGRAPHY
+   Global resets, font styles, and text elements
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
   margin: 0;
@@ -7,22 +16,8 @@ body {
   flex-direction: column;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
 h1 {
-  color: rgb(81 0 255 / 0.9);
+  color: rgba(180, 140, 255, 1);
   font-size: 2.25rem;
   margin: 0;
 }
@@ -37,6 +32,43 @@ p {
   margin: 0.25rem 0;
 }
 
+a {
+  color: rgba(81, 0, 255, 0.45);
+}
+
+a:hover {
+  color: rgba(81, 0, 255, 0.75);
+}
+
+ion-icon {
+  font-size: 2rem;
+}
+
+/* ==========================================================================
+     LAYOUT & STRUCTURE
+     Page sections, navigation, and structural components
+     ========================================================================== */
+
+#preference {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
 main {
   max-width: 720px;
 }
@@ -45,29 +77,97 @@ section {
   margin-bottom: 1.5rem;
 }
 
-ion-icon {
-  font-size: 2rem;
+#contactinfo {
+  display: flex;
+  flex-direction: column;
 }
-a {
-  color: rgba(81, 0, 255, 0.45);
-}
-a:hover {
-  color: rgba(81, 0, 255, 0.75);
-}
-#aboutme span,
-#experiencelist li,
-#contact span {
+
+/* Indented handwritten-style text for About and Experience */
+#aboutme p,
+#experiencelist li {
   display: block;
   margin-left: 40px;
   font-family: "Patrick Hand", "Comic Sans MS", cursive;
   font-size: 0.875rem;
 }
 
-#contactinfo {
-  display: flex;
-  flex-direction: column;
+/* ==========================================================================
+     TOGGLE BAR
+     Dark mode toggle switch styles
+     ========================================================================== */
+
+/* Visually hidden input — keeps toggle accessible without showing native checkbox */
+.toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
-html {
-  scroll-behavior: smooth;
+.toggle-label {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  background: rgba(81, 0, 255, 0.15);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.toggle-text {
+  color: rgba(81, 0, 255, 0.45);
+}
+
+/* The sliding knob */
+.toggle-label::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.25s ease;
+}
+
+/* Checked state — filled track and shifted knob */
+.toggle-input:checked + .toggle-label {
+  background: rgba(180, 140, 255, 0.75);
+}
+
+.toggle-input:checked + .toggle-label::before {
+  transform: translateX(20px);
+}
+
+/* ==========================================================================
+     DARK MODE
+     Overrides applied when body.dark-mode is active
+     ========================================================================== */
+
+body.dark-mode {
+  background-color: #121212ac;
+}
+
+body.dark-mode h1 {
+  color: rgba(180, 140, 255, 0.9);
+}
+
+body.dark-mode p,
+body.dark-mode h2,
+body.dark-mode li {
+  color: white;
+}
+
+body.dark-mode a {
+  color: rgba(180, 140, 255, 0.45);
+}
+
+body.dark-mode a:hover {
+  color: rgba(180, 140, 255, 0.75);
+}
+
+body.dark-mode .toggle-text {
+  color: rgba(180, 140, 255, 0.45);
 }
