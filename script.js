@@ -6,7 +6,7 @@ const person = {
   proExp: ["Attend JS bootcamp.", "Worked as a chemical analyst."],
 };
 
-// Populate header 
+// Populate header
 const headerSection = document.querySelector("header");
 const name = headerSection.querySelector("h1");
 name.textContent = person.name;
@@ -15,12 +15,12 @@ email.textContent = person.email;
 const area = headerSection.querySelector("p#area");
 area.textContent = person.area;
 
-// Populate about me  
+// Populate about me
 const aboutMeSection = document.querySelector("#aboutme");
 const aboutMe = aboutMeSection.querySelector("#aboutme-text");
 aboutMe.textContent = person.aboutMe;
 
-// Populate experience list 
+// Populate experience list
 // Assumes proExp items and <li> elements are in the same order
 const experienceListSection = document.querySelector("#experiencelist");
 const experienceList = experienceListSection.querySelectorAll("li");
@@ -28,7 +28,7 @@ experienceList.forEach((ele, i) => {
   ele.textContent = person.proExp[i];
 });
 
-// Dark mode 
+// Dark mode
 // Listen for toggle changes and persist the user's choice
 const toggleInput = document.querySelector(".toggle-input");
 
@@ -52,3 +52,48 @@ if (darkModeChosen === "true") {
   toggleInput.checked = prefersDark;
 }
 // Note: darkModeChosen === "false" is intentionally unhandled — light mode is the default
+
+//form submit
+
+//Get form values
+const contantForm = document.querySelector(".contactForm");
+
+const nameInput = contantForm.querySelector("#name");
+const emailInput = contantForm.querySelector("#email");
+const messageInput = contantForm.querySelector("#message");
+
+const submitbutton = document.querySelector("#submitbutton");
+
+function validateForm(values) {
+  // all fields non-empty
+  const allFilled = Object.values(values).every((val) => val.trim() !== "");
+
+  // simple email check
+  const validEmail = values.contactEmail.includes("@");
+
+  if (allFilled && validEmail) {
+    // return a copy of the object for payload
+    return { ...values };
+  } else {
+    return null; // invalid
+  }
+}
+
+submitbutton.addEventListener("click", (e) => {
+  e.preventDefault();
+  const formValues = {
+    contactName: nameInput.value,
+    contactEmail: emailInput.value,
+    contactMessage: messageInput.value,
+  };
+  console.log("formValues", formValues);
+
+  const payload = validateForm(formValues);
+  console.log("payload", payload);
+  if (payload) {
+    console.log("ready to fetch:", payload);
+    fetch("/test");
+  } else {
+    console.log("Invalid input");
+  }
+});
