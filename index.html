@@ -27,7 +27,7 @@
     <main>
       <section id="aboutme">
         <h2>About me:</h2>
-        <p id = "aboutme-text"></p>
+        <p id="aboutme-text"></p>
       </section>
 
       <section id="experiencelist">
@@ -52,6 +52,25 @@
           ></a>
         </div>
       </section>
+      <form class="contactForm">
+        <h2>Get in touch with me!</h2>
+        <div>
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+
+        <div>
+          <label for="message">Message:</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+
+        <button id="submitbutton" type="submit">Send</button>
+      </form>
     </main>
     <script src="script.js"></script>
     <script
