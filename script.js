@@ -80,7 +80,9 @@ function validateForm(values) {
 }
 
 submitbutton.addEventListener("click", (e) => {
+  // to prevent browser default form submission
   e.preventDefault();
+
   const formValues = {
     contactName: nameInput.value,
     contactEmail: emailInput.value,
@@ -92,8 +94,25 @@ submitbutton.addEventListener("click", (e) => {
   console.log("payload", payload);
   if (payload) {
     console.log("ready to fetch:", payload);
-    fetch("/test");
+    fetch("http://localhost:3000/test", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      //same as .then((res) => {return res.json();})  arrow function without {} → implicit return
+      .then((res) => {
+        if (!res.ok) {
+          return res.json().then((data) => {
+            throw data; // Throw backend errors to catch block
+          });
+        }
+        return res.json();
+      })
+      .then((data) => console.log(data))
+      .catch((err) => console.error("FETCH ERROR:", err));
   } else {
-    console.log("Invalid input");
+    alert("Invalid input");
   }
 });
