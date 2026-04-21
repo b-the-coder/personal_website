@@ -1,3 +1,15 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+function Resumeanno() {
+  // TODO: Actually implement a navigation bar
+  return <h2>Resume Annotation Session</h2>;
+}
+
+const domNode = document.getElementById('resumeanno');
+const root = createRoot(domNode);
+root.render(<Resumeanno />);
+
 const person = {
   name: "Emma",
   email: "emmahsde@gmail.com",
