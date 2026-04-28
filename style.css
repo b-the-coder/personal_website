@@ -69,10 +69,6 @@ header {
   margin-bottom: 2rem;
 }
 
-main {
-  max-width: 720px;
-}
-
 section {
   margin-bottom: 1.5rem;
 }
@@ -83,12 +79,12 @@ section {
 }
 
 /* Indented handwritten-style text for About and Experience */
-#aboutme p,
-#experiencelist li {
-  display: block;
-  margin-left: 40px;
+#aboutme p #experiencelist li {
   font-family: "Patrick Hand", "Comic Sans MS", cursive;
   font-size: 0.875rem;
+}
+#aboutme p {
+  margin-left: 40px;
 }
 
 /* ==========================================================================
@@ -147,7 +143,7 @@ section {
      ========================================================================== */
 
 body.dark-mode {
-  background-color: #121212ac;
+  background-color: #1212128f;
 }
 
 body.dark-mode h1 {
@@ -170,4 +166,63 @@ body.dark-mode a:hover {
 
 body.dark-mode .toggle-text {
   color: rgba(180, 140, 255, 0.45);
+}
+
+body.dark-mode #resume {
+  background-color: #777272b7;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .contact-links {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+/* ==========================================================================
+   RESUME SECTION
+   ========================================================================== */
+#resume {
+  background-color: #f7f7f5; /* 比页面背景稍微深一点/偏暖一点 */
+  border-radius: 12px;
+  /* “纸张浮起来”的关键 */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  /* 可选：让它更像纸 */
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  margin-left: 40px;
+  padding: 24px;
+  width: 70%;
+  /* include padding and border in the element's total width, so width 65% is dynamic */
+  box-sizing: border-box;
+}
+
+.resumeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-links {
+  display: flex;
+  justify-content: space-between;
+
+  border: 1px solid #7575637e;
+}
+
+.contact-item {
+  font-size: 0.9rem;
+}
+
+.resume-section-title {
+  border-bottom: 2px solid #e6e6e6;
+}
+
+.education-header,
+.project-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+#resume ul, #resume p {
+  margin: 0;
 }

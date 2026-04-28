@@ -1,13 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { Header, Skills, Experience, Projects, Education } from "./resumeAnno";
+import { Header, Contact, Skills, Experience, Projects, Education } from "./resumeAnno";
 
-function Resumeanno() {
+function Resume() {
   // TODO: Actually implement a navigation bar
   return (
-    <div>
-      <h2>Resume</h2>
-      <Header /> 
+    <div className="resume">
+      <Header />
+      <Contact />
       <Skills />
       <Experience />
       <Projects />
@@ -16,9 +16,9 @@ function Resumeanno() {
   );
 }
 
-const domNode = document.getElementById("resumeanno");
+const domNode = document.getElementById("resume");
 const root = createRoot(domNode);
-root.render(<Resumeanno />);
+root.render(<Resume />);
 
 const person = {
   name: "Emma",
