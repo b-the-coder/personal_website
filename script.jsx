@@ -1,14 +1,24 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { Header, Contact, Skills, Experience, Projects, Education } from "./resumeAnno";
 
-function Resumeanno() {
+function Resume() {
   // TODO: Actually implement a navigation bar
-  return <h2>Resume Annotation Session</h2>;
+  return (
+    <div className="resume">
+      <Header />
+      <Contact />
+      <Skills />
+      <Experience />
+      <Projects />
+      <Education />
+    </div>
+  );
 }
 
-const domNode = document.getElementById('resumeanno');
+const domNode = document.getElementById("resume");
 const root = createRoot(domNode);
-root.render(<Resumeanno />);
+root.render(<Resume />);
 
 const person = {
   name: "Emma",

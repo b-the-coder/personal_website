@@ -1,0 +1,134 @@
+{
+  "name": "Bin (Emma) He",
+  "contact": {
+    "email": "emmahsde@gmail.com",
+    "location": "Greater NYC Area",
+    "github": "https://github.com/b-the-coder",
+    "linkedin": "https://www.linkedin.com/in/bin-emma-he/"
+  },
+  "skills": [
+    {
+      "category": "frontend",
+      "items": [
+        "HTML5",
+        "CSS3",
+        "Sass",
+        "Material UI",
+        "JavaScript (ES6+)",
+        "TypeScript",
+        "React",
+        "HOC Patterns"
+      ]
+    },
+    {
+      "category": "stateSPA",
+      "items": [
+        "Redux",
+        "Redux Toolkit",
+        "Webpack",
+        "Babel",
+        "ESLint",
+        "Prettier"
+      ]
+    },
+    {
+      "category": "backend",
+      "items": ["Node.js", "Express.js", "RESTful APIs"]
+    },
+    {
+      "category": "databases",
+      "items": ["SQL (PostgreSQL)", "NoSQL (MongoDB)"]
+    },
+    { "category": "testing", "items": ["Jest", "React Testing Library"] },
+    {
+      "category": "devops",
+      "items": [
+        "Docker",
+        "AWS (EC2, S3, Beanstalk, Cognito)",
+        "Git/GitHub Flow (CI/CD)",
+        "npm",
+        "Bash Scripts"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "title": "Software Engineer",
+      "project": "SkyscrapperAWS EC2 instance visualizer",
+      "type": "OpenSource",
+      "startDate": "2024-03",
+      "endDate": "Present",
+      "bullets": [
+        "Designed and implemented a React-based dashboard using Chart.js to visualize AWS EC2 instance metrics, improving data readability and user experience.",
+        "Implemented Redux for centralized state management, handling user authentication (Auth0), AWS Cognito verification, and EC2 instance data visualization to eliminate prop drilling and ensure consistent state.",
+        "Streamlined State Management with Redux Toolkit, reduced boilerplate code, and improved code maintainability, enabling the team to focus on core application logic.",
+        "Optimized API interactions with RTK Query, reducing redundant network requests and improving front-end performance.",
+        "Built secure RESTful API endpoints using Express.js, implementing JWT-based authentication and AWS Cognito integration to protect user data and ensure authorized access.",
+        "Integrated AWS CloudWatch for real-time EC2 metrics retrieval, leveraging Promise.all to concurrently fetch multiple metrics and reduce API response time from 7 seconds to 1 second.",
+        "Conducted unit testing of frontend components using Jest and React Testing Library to ensure modular code structure and new feature development.",
+        "Performed as team Scrum Master, spearheaded the creation of a Jira workflow, facilitated daily stand-ups and Sprint planning."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Merchenwise",
+      "description": "a e-commerce webpage crawler using Python Scrapy Library",
+      "stack": ["Python", "Scrapy", "Matplotlib"],
+      "startDate": "2025-01",
+      "endDate": "2025-02",
+      "bullets": [
+        "Developed a Python Scrapy crawler with rotating proxy middleware to avoid IP blocking, implementing page parsing logic for structured data extraction.",
+        "Implemented data pipeline cleansing product metadata (prices, reviews) using regex/NLP techniques.",
+        "Built dynamic Matplotlib dashboards to visualize historical pricing trends of tracked merchandise, enabling users to identify price drops and optimal purchase times."
+      ]
+    },
+    {
+      "name": "BiteByte",
+      "description": "",
+      "stack": ["React", "TypeScript", "PostgreSQL"],
+      "startDate": "2024-03",
+      "endDate": "2024-06",
+      "bullets": [
+        "Implemented React Router for client-side routing, enabling seamless navigation between Login, Signup, and HomePage components.",
+        "Established a PostgreSQL database connection, defined and associated models with custom aliases for relationships, and exported the configured Sequelize instance and models."
+      ]
+    },
+    {
+      "name": "Dating Activity Recommender",
+      "description": "",
+      "stack": ["React", "Node.js", "OpenAI API"],
+      "startDate": "2024-03",
+      "endDate": "2024-06",
+      "bullets": [
+        "Utilized React Hooks (useState, useEffect) within a functional component to manage state and side effects, facilitating dynamic updates and asynchronous data fetching.",
+        "Implemented OpenAI's Chat API within Node.js environment to dynamically generate activity suggestions and restaurant options based on user queries."
+      ]
+    },
+    {
+      "name": "Recipe Finder",
+      "description": "a personal snack tracker built using React,TypeScript,Node.js and PostgreSQL",
+      "stack": ["Node.js", "Express", "MongoDB"],
+      "startDate": "2024-03",
+      "endDate": "2024-06",
+      "bullets": [
+        "Set up an Express server with defined endpoints and middleware to handle unknown routes, leveraging the modularity of Express.Router() for organized route handling.",
+        "Utilized Mongoose for MongoDB and Node.js to define and manage database schemas, ensuring data integrity and consistency across the application."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "school": "New Jersey Institute of Technology",
+      "degree": "M.S. in Engineering",
+      "gpa": "3.55",
+      "graduationDate": "2013-07"
+    },
+    {
+      "school": "The Capital University of Economics and Business",
+      "degree": "B.S. in Engineering",
+      "gpa": "3.49",
+      "graduationDate": "2011-07"
+    }
+  ]
+}
