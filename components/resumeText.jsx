@@ -1,4 +1,4 @@
-import resumeData from "./resumeData.json";
+import resumeData from "../resumeData.json";
 import React from "react";
 
 function Header() {

@@ -1,11 +1,23 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { Header, Contact, Skills, Experience, Projects, Education } from "./resumeAnno";
+import {
+  Header,
+  Contact,
+  Skills,
+  Experience,
+  Projects,
+  Education,
+} from "./components/resumeText";
+import {
+  AnnotationOfferer,
+  AnnotationDisplay,
+  AnnotationInput,
+} from "./components/resumeAnno";
 
-function Resume() {
+function ResumeText() {
   // TODO: Actually implement a navigation bar
   return (
-    <div className="resume">
+    <div className="resumeText">
       <Header />
       <Contact />
       <Skills />
@@ -15,10 +27,25 @@ function Resume() {
     </div>
   );
 }
-
-const domNode = document.getElementById("resume");
+function Annofeature() {
+  // TODO: Actually implement a navigation bar
+  return (
+    <div className="annoFeature">
+   <AnnotationOfferer/>
+   <AnnotationInput/>
+   <AnnotationDisplay/>
+    </div>
+  );
+}
+function ResumeAnno(){
+  return(<div className="resumeAnno">
+    <ResumeText/>
+    <Annofeature/>
+  </div>)
+}
+const domNode = document.getElementById("resumeAnno");
 const root = createRoot(domNode);
-root.render(<Resume />);
+root.render(<ResumeAnno />);
 
 const person = {
   name: "Emma",
