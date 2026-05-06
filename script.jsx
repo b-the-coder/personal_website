@@ -1,4 +1,5 @@
 import React from "react";
+import { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Header,
@@ -12,10 +13,41 @@ import {
   AnnotationOfferer,
   AnnotationDisplay,
   AnnotationInput,
-} from "./components/resumeAnno";
+} from "./components/annoFeature";
 
-function ResumeText() {
-  // TODO: Actually implement a navigation bar
+function ResumeText({
+  selectedText,
+  selectionPosition,
+  annotationList,
+  setSelectedText,
+  setSelectionPosition,
+}) {
+  useEffect(() => {
+    const handleSelection = () => {
+      // 调用 setSelectedText 和 setSelectionPosition
+      const selection = document.getSelection();
+      const selectionString = selection.toString();
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+
+      if (!selection || selectionString === "") {
+        setSelectedText("");
+        setSelectionPosition(null);
+        return;
+      }
+
+      setSelectedText(selectionString);
+
+      setSelectionPosition({ x: rect.right, y: rect.bottom });
+    };
+    document.addEventListener("mouseup", handleSelection);
+    return () => {
+      document.removeEventListener("mouseup", handleSelection);
+    };
+  }, []);
+  console.log("selectedText", selectedText);
+  console.log("selectionPosition", selectionPosition);
+
   return (
     <div className="resumeText">
       <Header />
@@ -27,21 +59,62 @@ function ResumeText() {
     </div>
   );
 }
-function Annofeature() {
-  // TODO: Actually implement a navigation bar
+
+function Annofeature({
+  selectedText,
+  setSelectedText,
+  activeAnnotationId,
+  selectionPosition,
+}) {
+  const [annotatingText, setAnnotatingText] = useState("");
+  const [isInputOpen, setIsInputOpen] = useState(false);
   return (
     <div className="annoFeature">
-   <AnnotationOfferer/>
-   <AnnotationInput/>
-   <AnnotationDisplay/>
+      <AnnotationOfferer
+        selectedText={selectedText}
+        selectionPosition={selectionPosition}
+        isInputOpen={isInputOpen}
+        annotatingText={annotatingText}
+        setAnnotatingText={setAnnotatingText}
+        setIsInputOpen={setIsInputOpen}
+      />
+      <AnnotationInput
+        setIsInputOpen={setIsInputOpen}
+        setSelectedText={setSelectedText}
+        isInputOpen={isInputOpen}
+        annotatingText={annotatingText}
+      />
+      <AnnotationDisplay
+        selectedText={selectedText}
+        activeAnnotationId={activeAnnotationId}
+      />
     </div>
   );
 }
-function ResumeAnno(){
-  return(<div className="resumeAnno">
-    <ResumeText/>
-    <Annofeature/>
-  </div>)
+
+function ResumeAnno() {
+  const [selectedText, setSelectedText] = useState(null);
+  const [selectionPosition, setSelectionPosition] = useState(null);
+  const [annotationList, setannotationList] = useState([]);
+  const [activeAnnotationId, setactiveAnnotationId] = useState("");
+
+  return (
+    <div className="resumeAnno">
+      <ResumeText
+        selectedText={selectedText}
+        selectionPosition={selectionPosition}
+        annotationList={annotationList}
+        setSelectedText={setSelectedText}
+        setSelectionPosition={setSelectionPosition}
+      />
+      <Annofeature
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
+        activeAnnotationId={activeAnnotationId}
+      />
+    </div>
+  );
 }
 const domNode = document.getElementById("resumeAnno");
 const root = createRoot(domNode);
