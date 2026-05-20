@@ -1,5 +1,5 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { use } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Header,
@@ -16,40 +16,35 @@ import {
 } from "./components/annoFeature";
 
 function ResumeText({
-  selectedText,
-  selectionPosition,
   annotationList,
+  setAnnotationList,
+  currentAnnotationId,
+  setCurrentAnnotationId,
+  mode,
+  setMode,
+  selectedText,
   setSelectedText,
+  selectionPosition,
   setSelectionPosition,
 }) {
-  useEffect(() => {
-    const handleSelection = () => {
-      // 调用 setSelectedText 和 setSelectionPosition
-      const selection = document.getSelection();
-      const selectionString = selection.toString();
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
+  const handleSelection = () => {
+    const userSelection = window.getSelection();
+    const selectedString = userSelection.toString();
+    const range = userSelection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    const position = { x: rect.right, y: rect.bottom };
+    if (selectedString === "" || selectedString === null) {
+      setMode("idle");
+      return;
+    }
 
-      if (!selection || selectionString === "") {
-        setSelectedText("");
-        setSelectionPosition(null);
-        return;
-      }
-
-      setSelectedText(selectionString);
-
-      setSelectionPosition({ x: rect.right, y: rect.bottom });
-    };
-    document.addEventListener("mouseup", handleSelection);
-    return () => {
-      document.removeEventListener("mouseup", handleSelection);
-    };
-  }, []);
-  console.log("selectedText", selectedText);
-  console.log("selectionPosition", selectionPosition);
+    setMode("text_selected");
+    setSelectedText(selectedString);
+    setSelectionPosition(position);
+  };
 
   return (
-    <div className="resumeText">
+    <div className="resumeText" onMouseUp={handleSelection}>
       <Header />
       <Contact />
       <Skills />
@@ -61,57 +56,92 @@ function ResumeText({
 }
 
 function Annofeature({
+  mode,
+  setMode,
+  annotationList,
+  setAnnotationList,
+  currentAnnotationId,
+  setCurrentAnnotationId,
   selectedText,
   setSelectedText,
-  activeAnnotationId,
   selectionPosition,
+  setSelectionPosition,
 }) {
-  const [annotatingText, setAnnotatingText] = useState("");
-  const [isInputOpen, setIsInputOpen] = useState(false);
   return (
     <div className="annoFeature">
       <AnnotationOfferer
+        mode={mode}
+        setMode={setMode}
         selectedText={selectedText}
+        setSelectedText={setSelectedText}
         selectionPosition={selectionPosition}
-        isInputOpen={isInputOpen}
-        annotatingText={annotatingText}
-        setAnnotatingText={setAnnotatingText}
-        setIsInputOpen={setIsInputOpen}
+        setSelectionPosition={setSelectionPosition}
       />
       <AnnotationInput
-        setIsInputOpen={setIsInputOpen}
+        mode={mode}
+        setMode={setMode}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        selectedText={selectedText}
         setSelectedText={setSelectedText}
-        isInputOpen={isInputOpen}
-        annotatingText={annotatingText}
+        selectionPosition={selectionPosition}
+        setSelectionPosition={setSelectionPosition}
       />
       <AnnotationDisplay
-        selectedText={selectedText}
-        activeAnnotationId={activeAnnotationId}
+        mode={mode}
+        setMode={setMode}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
       />
     </div>
   );
 }
 
 function ResumeAnno() {
-  const [selectedText, setSelectedText] = useState(null);
+  const annotationListinit = () => {
+    if (localStorage.getItem("annotationList") === null) {
+      return {};
+    } else {
+      return JSON.parse(localStorage.annotationList);
+    }
+  };
+  const [annotationList, setAnnotationList] = useState(annotationListinit());
+  const [currentAnnotationId, setCurrentAnnotationId] = useState("");
+  const [mode, setMode] = useState("idle");
+  const [selectedText, setSelectedText] = useState("");
   const [selectionPosition, setSelectionPosition] = useState(null);
-  const [annotationList, setannotationList] = useState([]);
-  const [activeAnnotationId, setactiveAnnotationId] = useState("");
+
+  useEffect(() => {
+    localStorage.annotationList = JSON.stringify(annotationList);
+  }, [annotationList]);
 
   return (
     <div className="resumeAnno">
       <ResumeText
+        mode={mode}
+        setMode={setMode}
         selectedText={selectedText}
-        selectionPosition={selectionPosition}
-        annotationList={annotationList}
         setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
         setSelectionPosition={setSelectionPosition}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
       />
       <Annofeature
+        mode={mode}
+        setMode={setMode}
         selectedText={selectedText}
         setSelectedText={setSelectedText}
         selectionPosition={selectionPosition}
-        activeAnnotationId={activeAnnotationId}
+        setSelectionPosition={setSelectionPosition}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
       />
     </div>
   );

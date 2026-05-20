@@ -1,6 +1,21 @@
 import resumeData from "../resumeData.json";
 import React from "react";
 
+const highlightText = (resumeTextSection, annotationList) => {
+  for (const annoObject of Object.values(annotationList)) {
+    if (resumeTextSection.includes(annoObject.annotatedText) === true) {
+      const parts = resumeTextSection.split(annoObject.annotatedText);
+      return (
+        <>
+          {parts[0]}
+          <span className="highlighted">{annoObject.annotatedText}</span>
+          {parts[1]}
+        </>
+      );
+    }
+  }
+};
+
 function Header() {
   return (
     <div className="resumeHeader">
@@ -62,25 +77,29 @@ function Experience() {
 }
 
 function Projects() {
-    return (
-      <div>
-        <h2 className="resume-section-title">Projects</h2>
-        {resumeData.projects.map((pro, index) => (
-          <div key={index}>
-            <p className="project-header">
-              <span><strong>{pro.name}</strong> | {pro.stack.join(", ")}</span>
-              <span>{pro.startDate} - {pro.endDate}</span>
-            </p>
-            <ul>
-              {pro.bullets.map((bullet, bulletIndex) => (
-                <li key={bulletIndex}>{bullet}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h2 className="resume-section-title">Projects</h2>
+      {resumeData.projects.map((pro, index) => (
+        <div key={index}>
+          <p className="project-header">
+            <span>
+              <strong>{pro.name}</strong> | {pro.stack.join(", ")}
+            </span>
+            <span>
+              {pro.startDate} - {pro.endDate}
+            </span>
+          </p>
+          <ul>
+            {pro.bullets.map((bullet, bulletIndex) => (
+              <li key={bulletIndex}>{bullet}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Education() {
   return (

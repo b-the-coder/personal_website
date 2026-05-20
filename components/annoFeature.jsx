@@ -1,32 +1,37 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
+
+const createAnnotation = (annotatedText, annotation) => ({
+  annotatedText: annotatedText,
+  annotation: annotation,
+  timestamp: Date.now(),
+});
+
+
 
 function AnnotationOfferer({
-  isInputOpen,
-  selectionPosition,
-  setIsInputOpen,
+  mode,
+  setMode,
   selectedText,
-  setAnnotatingText,
-  annotatingText,
+  setSelectedText,
+  selectionPosition,
+  setSelectedPosition,
 }) {
-  if (selectedText === null || isInputOpen === true) return null;
-
   const handleClick = () => {
-    console.log("offerer被点了！");
-    setAnnotatingText(selectedText);
-    console.log("annotatingText", annotatingText);
-    setIsInputOpen(true);
+    setMode("annotating");
   };
-
+  if (mode != "text_selected") {
+    return null;
+  }
   return (
     <span
+      onClick={handleClick}
       className="annotation-offerer"
       style={{
         position: "fixed",
-        top: selectionPosition.y,
-        left: selectionPosition.x,
+        left: selectionPosition.x + "px",
+        top: selectionPosition.y + "px",
       }}
-      onClick={handleClick}
     >
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
         <path
@@ -41,36 +46,62 @@ function AnnotationOfferer({
   );
 }
 
-function AnnotationInput({ setSelectedText, setIsInputOpen, isInputOpen, annotatingText }) {
-  if (isInputOpen === false) return null;
-  const handleCancelClick = () => {
-    setIsInputOpen(false);
-    setSelectedText(null);
+function AnnotationInput({
+  mode,
+  setMode,
+  annotationList,
+  setAnnotationList,
+  selectedText,
+  setSelectedText,
+  selectionPosition,
+  setSelectionPosition,
+}) {
+  //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
+  const annotationRef = useRef(null);
+
+  if (mode != "annotating") {
+    return null;
+  }
+  
+
+  const onPostClick = () => {
+    //用用户提交的annotation更新annotationList
+    const annoId = crypto.randomUUID();
+    const annoContent = annotationRef.current.value;
+    const annoObject = createAnnotation(selectedText, annoContent);
+    console.log("annoId",annoId)
+    console.log("annoObject", annoObject)
+    setAnnotationList((prevList) => ({ ...prevList, [annoId]: annoObject }));
+    //直接传更新后的state，不推荐
+    //setAnnotationList({...annotationList,[annoId]:annoObject});
+    // 状态回到 “idle”
+    setMode("idle");
+    //todo： 加一个alert告诉用户annotating被储存
   };
-  const handlePostClick = () => {};
+  const onCancelClick = () => {
+    setMode("idle");
+  };
   return (
     <div className="annotation-input">
-      <p className="annotation-input__title">Add annotation</p>
+      <p className="annotation-input__title">Add annotation on</p>
 
       <p className="annotation-input__selected-text">
-        On: <em>&ldquo;{annotatingText}&rdquo;</em>
+        On: <em>&ldquo;{selectedText}&rdquo;</em>
       </p>
 
       <textarea
+        ref={annotationRef}
         className="annotation-input__textarea"
         placeholder="Write your annotation..."
       />
 
       <div className="annotation-input__actions">
-        <button
-          className="annotation-input__post-btn"
-          onClick={handlePostClick}
-        >
+        <button onClick={onPostClick} className="annotation-input__post-btn">
           Post
         </button>
         <button
           className="annotation-input__cancel-btn"
-          onClick={handleCancelClick}
+          onClick={onCancelClick}
         >
           Cancel
         </button>
