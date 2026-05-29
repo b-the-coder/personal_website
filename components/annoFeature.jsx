@@ -1,13 +1,16 @@
 import React from "react";
 import { useState, useRef } from "react";
 
-const createAnnotation = (annotatedText, annotation) => ({
+const createAnnotation = (
+  annotatedText,
+  annotationContent,
+  annotationPosition
+) => ({
   annotatedText: annotatedText,
-  annotation: annotation,
+  annotationContent: annotationContent,
+  annotationPosition: annotationPosition,
   timestamp: Date.now(),
 });
-
-
 
 function AnnotationOfferer({
   mode,
@@ -29,8 +32,8 @@ function AnnotationOfferer({
       className="annotation-offerer"
       style={{
         position: "fixed",
-        left: selectionPosition.x + "px",
-        top: selectionPosition.y + "px",
+        left: selectionPosition.viewportposition.x + "px",
+        top: selectionPosition.viewportposition.y + "px",
       }}
     >
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
@@ -55,6 +58,8 @@ function AnnotationInput({
   setSelectedText,
   selectionPosition,
   setSelectionPosition,
+  currentAnnotationId,
+  setCurrentAnnotationId,
 }) {
   //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
   const annotationRef = useRef(null);
@@ -62,18 +67,27 @@ function AnnotationInput({
   if (mode != "annotating") {
     return null;
   }
-  
 
   const onPostClick = () => {
-    //用用户提交的annotation更新annotationList
-    const annoId = crypto.randomUUID();
+    //拿到用户输入的标注内容
     const annoContent = annotationRef.current.value;
-    const annoObject = createAnnotation(selectedText, annoContent);
-    console.log("annoId",annoId)
-    console.log("annoObject", annoObject)
-    setAnnotationList((prevList) => ({ ...prevList, [annoId]: annoObject }));
-    //直接传更新后的state，不推荐
-    //setAnnotationList({...annotationList,[annoId]:annoObject});
+    //先检查post是修改已有标注还是新增标注
+    if (currentAnnotationId === "") //用用户提交的annotation更新annotationList
+    {
+      const annoId = crypto.randomUUID();
+      const annoObject = createAnnotation(
+        selectedText,
+        annoContent,
+        selectionPosition.textposition
+      );
+      setAnnotationList((prevList) => ({ ...prevList, [annoId]: annoObject }));
+      //直接传更新后的state，不推荐
+      //setAnnotationList({...annotationList,[annoId]:annoObject});
+    } else {
+      const editedAnnotationList = { ...annotationList };
+      editedAnnotationList[currentAnnotationId].annotationContent = annoContent;
+      setAnnotationList(editedAnnotationList);
+    }
     // 状态回到 “idle”
     setMode("idle");
     //todo： 加一个alert告诉用户annotating被储存
@@ -81,18 +95,24 @@ function AnnotationInput({
   const onCancelClick = () => {
     setMode("idle");
   };
+
+  const isEditing = currentAnnotationId !== "";
+  const displayText = isEditing
+    ? annotationList[currentAnnotationId].annotatedText
+    : selectedText;
+  const placeholderText = isEditing
+    ? annotationList[currentAnnotationId].annotationContent
+    : "Write your annotation...";
+
   return (
     <div className="annotation-input">
-      <p className="annotation-input__title">Add annotation on</p>
-
       <p className="annotation-input__selected-text">
-        On: <em>&ldquo;{selectedText}&rdquo;</em>
+        On: <em>&ldquo;{displayText}&rdquo;</em>
       </p>
-
       <textarea
         ref={annotationRef}
         className="annotation-input__textarea"
-        placeholder="Write your annotation..."
+        placeholder={placeholderText}
       />
 
       <div className="annotation-input__actions">
@@ -110,20 +130,55 @@ function AnnotationInput({
   );
 }
 
-function AnnotationDisplay() {
+function AnnotationDisplay({
+  mode,
+  setMode,
+  annotationList,
+  setAnnotationList,
+  currentAnnotationId,
+  setCurrentAnnotationId,
+}) {
+  if (mode != "anno_display") {
+    return null;
+  }
+  const handleDeleteClick = () => {
+    setMode("idle");
+    const updatedAnnotationList = { ...annotationList };
+    delete updatedAnnotationList[currentAnnotationId];
+    setAnnotationList(updatedAnnotationList);
+  };
+  const handleEditClick = () => {
+    setMode("annotating");
+  };
+
   return (
     <div className="annotation-display">
       <p className="annotation-display__selected-text">
-        On: <em>&ldquo;selected text will appear here...&rdquo;</em>
+        <strong>
+          <em>On:</em>
+        </strong>{" "}
+        <em>{annotationList[currentAnnotationId].annotatedText}</em>
       </p>
-
       <p className="annotation-display__content">
-        Annotation content will appear here.
+        <strong>
+          <em>You annotated:</em>
+        </strong>{" "}
+        {annotationList[currentAnnotationId].annotationContent}
       </p>
 
       <div className="annotation-display__actions">
-        <button className="annotation-display__delete-btn">Delete</button>
-        <button className="annotation-display__edit-btn">Edit</button>
+        <button
+          className="annotation-display__edit-btn"
+          onClick={handleEditClick}
+        >
+          Edit
+        </button>
+        <button
+          className="annotation-display__delete-btn"
+          onClick={handleDeleteClick}
+        >
+          Delete
+        </button>
       </div>
     </div>
   );

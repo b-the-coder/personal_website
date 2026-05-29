@@ -370,3 +370,8 @@ body.dark-mode .contact-links {
 .resumeAnno {
   display: flex;
 }
+
+.highlighted {
+  background-color: rgb(241, 237, 25);
+  cursor: pointer;
+}

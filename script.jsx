@@ -1,5 +1,5 @@
-import React, { use } from "react";
-import { useState, useEffect, useRef } from "react";
+import React from "react";
+import { useState, useEffect} from "react";
 import { createRoot } from "react-dom/client";
 import {
   Header,
@@ -31,8 +31,15 @@ function ResumeText({
     const userSelection = window.getSelection();
     const selectedString = userSelection.toString();
     const range = userSelection.getRangeAt(0);
+    const textPositionNode =
+      range.startContainer.parentElement.closest("[data-text-id]");
+    const textPosition = textPositionNode.getAttribute("data-text-id");
     const rect = range.getBoundingClientRect();
-    const position = { x: rect.right, y: rect.bottom };
+    const position = {
+      viewportposition: { x: rect.right, y: rect.bottom },
+      textposition: textPosition,
+    };
+
     if (selectedString === "" || selectedString === null) {
       setMode("idle");
       return;
@@ -41,16 +48,28 @@ function ResumeText({
     setMode("text_selected");
     setSelectedText(selectedString);
     setSelectionPosition(position);
+    setCurrentAnnotationId("")
+  };
+  const handleClick = (e) => {
+    const annoId = e.target.dataset.annoId;
+    if (annoId) {
+      setCurrentAnnotationId(annoId);
+      setMode("anno_display");
+  }
   };
 
   return (
-    <div className="resumeText" onMouseUp={handleSelection}>
-      <Header />
-      <Contact />
-      <Skills />
-      <Experience />
-      <Projects />
-      <Education />
+    <div
+      className="resumeText"
+      onMouseUp={handleSelection}
+      onClick={handleClick}
+    >
+      <Header annotationList={annotationList} />
+      <Contact annotationList={annotationList} />
+      <Skills annotationList={annotationList} />
+      <Experience annotationList={annotationList} />
+      <Projects annotationList={annotationList} />
+      <Education annotationList={annotationList} />
     </div>
   );
 }
@@ -86,6 +105,8 @@ function Annofeature({
         setSelectedText={setSelectedText}
         selectionPosition={selectionPosition}
         setSelectionPosition={setSelectionPosition}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
       />
       <AnnotationDisplay
         mode={mode}
@@ -240,12 +261,12 @@ submitbutton.addEventListener("click", (e) => {
     contactEmail: emailInput.value,
     contactMessage: messageInput.value,
   };
-  console.log("formValues", formValues);
+ 
 
   const payload = validateForm(formValues);
-  console.log("payload", payload);
+ 
   if (payload) {
-    console.log("ready to fetch:", payload);
+    
     fetch("http://localhost:3000/test", {
       method: "POST",
       headers: {
