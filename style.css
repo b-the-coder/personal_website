@@ -33,11 +33,11 @@ p {
 }
 
 a {
-  color: rgba(81, 0, 255, 0.45);
+  color: rgba(180, 140, 255, 0.65);
 }
 
 a:hover {
-  color: rgba(81, 0, 255, 0.75);
+  color: rgba(180, 140, 255, 1);
 }
 
 ion-icon {
@@ -106,13 +106,13 @@ section {
   display: inline-block;
   width: 48px;
   height: 28px;
-  background: rgba(81, 0, 255, 0.15);
+  background: rgba(180, 140, 255, 0.45);
   border-radius: 999px;
   cursor: pointer;
 }
 
 .toggle-text {
-  color: rgba(81, 0, 255, 0.45);
+  color: rgba(180, 140, 255, 1);
 }
 
 /* The sliding knob */
@@ -141,13 +141,30 @@ section {
      DARK MODE
      Overrides applied when body.dark-mode is active
      ========================================================================== */
+body.dark-mode h1 {
+  color: #afa9ec;
+}
+
+/* 链接 */
+body.dark-mode a {
+  color: #534AB7;  
+}
+body.dark-mode a:hover {
+  color: #afa9ec;
+}
+
+/* toggle 文字 */
+body.dark-mode .toggle-text {
+  color: #534AB7;  
+}
+
+/* toggle track */
+body.dark-mode .toggle-label {
+  background: #534ab7;
+}
 
 body.dark-mode {
   background-color: #1212128f;
-}
-
-body.dark-mode h1 {
-  color: rgba(180, 140, 255, 0.9);
 }
 
 body.dark-mode p,
@@ -156,19 +173,7 @@ body.dark-mode li {
   color: white;
 }
 
-body.dark-mode a {
-  color: rgba(180, 140, 255, 0.45);
-}
-
-body.dark-mode a:hover {
-  color: rgba(180, 140, 255, 0.75);
-}
-
-body.dark-mode .toggle-text {
-  color: rgba(180, 140, 255, 0.45);
-}
-
-body.dark-mode #resume {
+body.dark-mode .resumeText {
   background-color: #777272b7;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -181,7 +186,7 @@ body.dark-mode .contact-links {
 /* ==========================================================================
    RESUME SECTION
    ========================================================================== */
-#resume {
+.resumeText {
   background-color: #f7f7f5; /* 比页面背景稍微深一点/偏暖一点 */
   border-radius: 12px;
   /* “纸张浮起来”的关键 */
@@ -202,12 +207,6 @@ body.dark-mode .contact-links {
   align-items: center;
 }
 
-.contact-links {
-  display: flex;
-  justify-content: space-between;
-
-  border: 1px solid #7575637e;
-}
 
 .contact-item {
   font-size: 0.9rem;
@@ -223,6 +222,156 @@ body.dark-mode .contact-links {
   justify-content: space-between;
 }
 
-#resume ul, #resume p {
+#resume ul,
+#resume p {
   margin: 0;
+}
+/* ==========================================================================
+   ANNOTATION COMPONENTS
+   ========================================================================== */
+/* AnnotationOfferer */
+.annotation-offerer {
+  font-size: 12px;
+  color: #555555;
+  background: rgba(180, 140, 255, 0.15);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+}
+
+/* AnnotationInput */
+.annotation-input {
+  background: rgba(180, 140, 255, 0.15);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  width: 300px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.annotation-input__title {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: var(--color-text-primary);
+}
+
+.annotation-input__selected-text {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin: 0 0 12px;
+}
+
+.annotation-input__textarea {
+  width: 100%;
+  min-height: 80px;
+  font-size: 13px;
+  resize: vertical;
+  box-sizing: border-box;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 8px;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  padding: 8px 10px;
+  font-family: inherit;
+  outline: none;
+  line-height: 1.6;
+}
+
+.annotation-input__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+.annotation-input__cancel-btn {
+  font-size: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+}
+
+.annotation-input__post-btn {
+  font-size: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  background: var(--color-text-primary);
+  color: var(--color-background-primary);
+  border: none;
+}
+
+/* AnnotationDisplay */
+.annotation-display {
+  background: rgba(180, 140, 255, 0.15);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  width: 300px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.annotation-display__selected-text {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin: 0 0 6px;
+}
+
+.annotation-display__content {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.annotation-display__actions {
+  display: flex;
+  gap: 8px;
+  border-top: 0.5px solid var(--color-border-tertiary);
+  padding-top: 10px;
+  justify-content: flex-end;
+}
+
+.annotation-display__delete-btn {
+  font-size: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-danger, #c0392b);
+  border: 0.5px solid var(--color-border-danger, #e74c3c);
+}
+
+.annotation-display__edit-btn {
+  font-size: 12px;
+  padding: 5px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+}
+
+/* ==========================================================================
+  Temporary style layout
+   ========================================================================== */
+
+.resumeAnno {
+  display: flex;
+}
+
+.highlighted {
+  background-color: rgb(241, 237, 25);
+  cursor: pointer;
 }

@@ -1,24 +1,175 @@
 import React from "react";
+import { useState, useEffect} from "react";
 import { createRoot } from "react-dom/client";
-import { Header, Contact, Skills, Experience, Projects, Education } from "./resumeAnno";
+import {
+  Header,
+  Contact,
+  Skills,
+  Experience,
+  Projects,
+  Education,
+} from "./components/resumeText";
+import {
+  AnnotationOfferer,
+  AnnotationDisplay,
+  AnnotationInput,
+} from "./components/annoFeature";
 
-function Resume() {
-  // TODO: Actually implement a navigation bar
+function ResumeText({
+  annotationList,
+  setAnnotationList,
+  currentAnnotationId,
+  setCurrentAnnotationId,
+  mode,
+  setMode,
+  selectedText,
+  setSelectedText,
+  selectionPosition,
+  setSelectionPosition,
+}) {
+  const handleSelection = () => {
+    const userSelection = window.getSelection();
+    const selectedString = userSelection.toString();
+    const range = userSelection.getRangeAt(0);
+    const textPositionNode =
+      range.startContainer.parentElement.closest("[data-text-id]");
+    const textPosition = textPositionNode.getAttribute("data-text-id");
+    const rect = range.getBoundingClientRect();
+    const position = {
+      viewportposition: { x: rect.right, y: rect.bottom },
+      textposition: textPosition,
+    };
+
+    if (selectedString === "" || selectedString === null) {
+      setMode("idle");
+      return;
+    }
+
+    setMode("text_selected");
+    setSelectedText(selectedString);
+    setSelectionPosition(position);
+    setCurrentAnnotationId("")
+  };
+  const handleClick = (e) => {
+    const annoId = e.target.dataset.annoId;
+    if (annoId) {
+      setCurrentAnnotationId(annoId);
+      setMode("anno_display");
+  }
+  };
+
   return (
-    <div className="resume">
-      <Header />
-      <Contact />
-      <Skills />
-      <Experience />
-      <Projects />
-      <Education />
+    <div
+      className="resumeText"
+      onMouseUp={handleSelection}
+      onClick={handleClick}
+    >
+      <Header annotationList={annotationList} />
+      <Contact annotationList={annotationList} />
+      <Skills annotationList={annotationList} />
+      <Experience annotationList={annotationList} />
+      <Projects annotationList={annotationList} />
+      <Education annotationList={annotationList} />
     </div>
   );
 }
 
-const domNode = document.getElementById("resume");
+function Annofeature({
+  mode,
+  setMode,
+  annotationList,
+  setAnnotationList,
+  currentAnnotationId,
+  setCurrentAnnotationId,
+  selectedText,
+  setSelectedText,
+  selectionPosition,
+  setSelectionPosition,
+}) {
+  return (
+    <div className="annoFeature">
+      <AnnotationOfferer
+        mode={mode}
+        setMode={setMode}
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
+        setSelectionPosition={setSelectionPosition}
+      />
+      <AnnotationInput
+        mode={mode}
+        setMode={setMode}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
+        setSelectionPosition={setSelectionPosition}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
+      />
+      <AnnotationDisplay
+        mode={mode}
+        setMode={setMode}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
+      />
+    </div>
+  );
+}
+
+function ResumeAnno() {
+  const annotationListinit = () => {
+    if (localStorage.getItem("annotationList") === null) {
+      return {};
+    } else {
+      return JSON.parse(localStorage.annotationList);
+    }
+  };
+  const [annotationList, setAnnotationList] = useState(annotationListinit());
+  const [currentAnnotationId, setCurrentAnnotationId] = useState("");
+  const [mode, setMode] = useState("idle");
+  const [selectedText, setSelectedText] = useState("");
+  const [selectionPosition, setSelectionPosition] = useState(null);
+
+  useEffect(() => {
+    localStorage.annotationList = JSON.stringify(annotationList);
+  }, [annotationList]);
+
+  return (
+    <div className="resumeAnno">
+      <ResumeText
+        mode={mode}
+        setMode={setMode}
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
+        setSelectionPosition={setSelectionPosition}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
+      />
+      <Annofeature
+        mode={mode}
+        setMode={setMode}
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
+        setSelectionPosition={setSelectionPosition}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
+      />
+    </div>
+  );
+}
+const domNode = document.getElementById("resumeAnno");
 const root = createRoot(domNode);
-root.render(<Resume />);
+root.render(<ResumeAnno />);
 
 const person = {
   name: "Emma",
@@ -110,12 +261,12 @@ submitbutton.addEventListener("click", (e) => {
     contactEmail: emailInput.value,
     contactMessage: messageInput.value,
   };
-  console.log("formValues", formValues);
+ 
 
   const payload = validateForm(formValues);
-  console.log("payload", payload);
+ 
   if (payload) {
-    console.log("ready to fetch:", payload);
+    
     fetch("http://localhost:3000/test", {
       method: "POST",
       headers: {
