@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Header,
@@ -15,6 +15,13 @@ import {
   AnnotationInput,
 } from "./components/annoFeature";
 
+const getNextModeOnSelection = (selectedString) => {
+  if (selectedString === "" || selectedString === null) {
+    return "idle";
+  }
+  return "text_selected";
+};
+
 function ResumeText({
   annotationList,
   setAnnotationList,
@@ -29,33 +36,36 @@ function ResumeText({
 }) {
   const handleSelection = () => {
     const userSelection = window.getSelection();
+
     const selectedString = userSelection.toString();
+
     const range = userSelection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+
     const textPositionNode =
       range.startContainer.parentElement.closest("[data-text-id]");
+
     const textPosition = textPositionNode.getAttribute("data-text-id");
-    const rect = range.getBoundingClientRect();
+
     const position = {
       viewportposition: { x: rect.right, y: rect.bottom },
       textposition: textPosition,
     };
 
-    if (selectedString === "" || selectedString === null) {
-      setMode("idle");
-      return;
-    }
-
-    setMode("text_selected");
+    const nextMode = getNextModeOnSelection(selectedString);
+    setMode(nextMode);
+    // console.log("空选的mode is", mode);
     setSelectedText(selectedString);
+    // console.log("空选 selectedText is", selectedText);
     setSelectionPosition(position);
-    setCurrentAnnotationId("")
+    setCurrentAnnotationId("");
   };
   const handleClick = (e) => {
     const annoId = e.target.dataset.annoId;
     if (annoId) {
       setCurrentAnnotationId(annoId);
       setMode("anno_display");
-  }
+    }
   };
 
   return (
@@ -129,7 +139,7 @@ function ResumeAnno() {
     }
   };
   const [annotationList, setAnnotationList] = useState(annotationListinit());
-  const [currentAnnotationId, setCurrentAnnotationId] = useState("");
+  const [currentAnnotationId, setCurrentAnnotationId] = useState(undefined);
   const [mode, setMode] = useState("idle");
   const [selectedText, setSelectedText] = useState("");
   const [selectionPosition, setSelectionPosition] = useState(null);
@@ -261,12 +271,10 @@ submitbutton.addEventListener("click", (e) => {
     contactEmail: emailInput.value,
     contactMessage: messageInput.value,
   };
- 
 
   const payload = validateForm(formValues);
- 
+
   if (payload) {
-    
     fetch("http://localhost:3000/test", {
       method: "POST",
       headers: {

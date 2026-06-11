@@ -5,7 +5,7 @@
   "main": "script.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
@@ -20,12 +20,18 @@
   "homepage": "https://github.com/b-the-coder/personal_website#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.0.2",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.4.0",
+    "jsdom": "^29.1.1",
     "prettier": "^3.8.1",
-    "vite": "^8.0.9"
+    "vite": "^8.0.9",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "react": "^19.2.5",

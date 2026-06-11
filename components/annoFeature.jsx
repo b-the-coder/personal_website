@@ -1,16 +1,43 @@
 import React from "react";
 import { useState, useRef } from "react";
 
-const createAnnotation = (
+// const createAnnotation = (newAnnoData) => ({
+//   annotatedText: newAnnoData.annotatedText,
+//   annotationContent: newAnnoData.annotationContent,
+//   annotationPosition: newAnnoData.annotationPosition,
+//   timestamp: Date.now(),
+// });
+
+//createAnnotation简写
+const createAnnotation = ({
   annotatedText,
   annotationContent,
-  annotationPosition
-) => ({
-  annotatedText: annotatedText,
-  annotationContent: annotationContent,
-  annotationPosition: annotationPosition,
+  annotationPosition,
+}) => ({
+  annotatedText,
+  annotationContent,
+  annotationPosition,
   timestamp: Date.now(),
 });
+
+const getUpdatedAnnotationList = (
+  annotationList,
+  currentAnnotationId,
+  newAnnoData
+) => {
+  // newAnnoData: { selectedText, annoContent, textPosition }
+  if (currentAnnotationId === undefined) {
+    const annoId = crypto.randomUUID();
+    return { ...annotationList, [annoId]: createAnnotation(newAnnoData) };
+  } else {
+    const updatedAnnotationList = { ...annotationList };
+    updatedAnnotationList[currentAnnotationId] = {
+      ...updatedAnnotationList[currentAnnotationId],
+      annotationContent: newAnnoData.annotationContent,
+    };
+    return updatedAnnotationList;
+  }
+};
 
 function AnnotationOfferer({
   mode,
@@ -71,32 +98,30 @@ function AnnotationInput({
   const onPostClick = () => {
     //拿到用户输入的标注内容
     const annoContent = annotationRef.current.value;
-    //先检查post是修改已有标注还是新增标注
-    if (currentAnnotationId === "") //用用户提交的annotation更新annotationList
-    {
-      const annoId = crypto.randomUUID();
-      const annoObject = createAnnotation(
-        selectedText,
-        annoContent,
-        selectionPosition.textposition
-      );
-      setAnnotationList((prevList) => ({ ...prevList, [annoId]: annoObject }));
-      //直接传更新后的state，不推荐
-      //setAnnotationList({...annotationList,[annoId]:annoObject});
-    } else {
-      const editedAnnotationList = { ...annotationList };
-      editedAnnotationList[currentAnnotationId].annotationContent = annoContent;
-      setAnnotationList(editedAnnotationList);
-    }
+    // 声明要传进createAnnotation里的新annodata
+    const newAnno = {
+      annotatedText: selectedText,
+      annotationContent: annoContent,
+      annotationPosition: selectionPosition,
+    };
+    //返回更新后的annotationlist
+    const updated = getUpdatedAnnotationList(
+      annotationList,
+      currentAnnotationId,
+      newAnno
+    );
+    setAnnotationList(updated);
+
     // 状态回到 “idle”
     setMode("idle");
+
     //todo： 加一个alert告诉用户annotating被储存
   };
   const onCancelClick = () => {
     setMode("idle");
   };
 
-  const isEditing = currentAnnotationId !== "";
+  const isEditing = currentAnnotationId !== undefined;
   const displayText = isEditing
     ? annotationList[currentAnnotationId].annotatedText
     : selectedText;
@@ -184,4 +209,9 @@ function AnnotationDisplay({
   );
 }
 
-export { AnnotationOfferer, AnnotationInput, AnnotationDisplay };
+export {
+  AnnotationOfferer,
+  AnnotationInput,
+  AnnotationDisplay,
+  getUpdatedAnnotationList,
+};
