@@ -15,12 +15,7 @@ import {
   AnnotationInput,
 } from "./components/annoFeature";
 
-const getNextModeOnSelection = (selectedString) => {
-  if (selectedString === "" || selectedString === null) {
-    return "idle";
-  }
-  return "text_selected";
-};
+import { getNextModeOnSelection } from "./utils";
 
 function ResumeText({
   annotationList,
@@ -58,8 +53,9 @@ function ResumeText({
     setSelectedText(selectedString);
     // console.log("空选 selectedText is", selectedText);
     setSelectionPosition(position);
-    setCurrentAnnotationId("");
+    setCurrentAnnotationId(undefined);
   };
+
   const handleClick = (e) => {
     const annoId = e.target.dataset.annoId;
     if (annoId) {
@@ -297,3 +293,4 @@ submitbutton.addEventListener("click", (e) => {
     alert("Invalid input");
   }
 });
+export { getNextModeOnSelection };

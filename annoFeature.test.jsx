@@ -2,15 +2,19 @@ import { describe, expect, test, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import React from "react";
-import {
-  AnnotationOfferer,
-  AnnotationInput,
-  getUpdatedAnnotationList,
-} from "./components/annoFeature";
+import { AnnotationOfferer, AnnotationInput } from "./components/annoFeature";
+import { getNextModeOnSelection, getUpdatedAnnotationList } from "./utils";
 
 afterEach(() => {
   cleanup();
 });
+
+const mockSelectedString = {
+  validSelection: "mockstring",
+  emptySelection: "",
+  nullSelection: null,
+};
+
 const mockPosition = {
   viewportposition: { x: 100, y: 100 },
   textposition: "1",
@@ -47,7 +51,21 @@ describe("AnnotationOfferer", () => {
     render(<AnnotationOfferer mode="idle" selectionPosition={mockPosition} />);
     expect(screen.queryByText("Add annotation")).toBeNull();
   });
+
+  test("mode setup is correct with selections", () => {
+    expect(getNextModeOnSelection(mockSelectedString.validSelection)).toBe(
+      "text_selected"
+    );
+    expect(getNextModeOnSelection(mockSelectedString.nullSelection)).toBe(
+      "idle"
+    );
+    expect(getNextModeOnSelection(mockSelectedString.emptySelection)).toBe(
+      "idle"
+    );
+  });
 });
+
+
 
 describe("AnnotationInput", () => {
   test("mode是annotating时input显示", () => {

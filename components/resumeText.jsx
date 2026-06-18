@@ -1,27 +1,6 @@
 import resumeData from "../resumeData.json";
 import React from "react";
-
-const highlightText = (textContent, annotationList, textId) => {
-  for (const [annoId, annoObject] of Object.entries(annotationList)) {
-    if (
-      textContent.includes(annoObject.annotatedText) === true &&
-      annoObject.annotationPosition === textId
-    ) {
-      const parts = textContent.split(annoObject.annotatedText);
-
-      return (
-        <>
-          {parts[0]}
-          <span className="highlighted" data-anno-id={annoId}>
-            {annoObject.annotatedText}
-          </span>
-          {parts[1]}
-        </>
-      );
-    }
-  }
-  return textContent;
-};
+import { highlightText } from "../utils";
 
 function Header({ annotationList }) {
   return (

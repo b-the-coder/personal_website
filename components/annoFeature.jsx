@@ -1,43 +1,6 @@
 import React from "react";
 import { useState, useRef } from "react";
-
-// const createAnnotation = (newAnnoData) => ({
-//   annotatedText: newAnnoData.annotatedText,
-//   annotationContent: newAnnoData.annotationContent,
-//   annotationPosition: newAnnoData.annotationPosition,
-//   timestamp: Date.now(),
-// });
-
-//createAnnotation简写
-const createAnnotation = ({
-  annotatedText,
-  annotationContent,
-  annotationPosition,
-}) => ({
-  annotatedText,
-  annotationContent,
-  annotationPosition,
-  timestamp: Date.now(),
-});
-
-const getUpdatedAnnotationList = (
-  annotationList,
-  currentAnnotationId,
-  newAnnoData
-) => {
-  // newAnnoData: { selectedText, annoContent, textPosition }
-  if (currentAnnotationId === undefined) {
-    const annoId = crypto.randomUUID();
-    return { ...annotationList, [annoId]: createAnnotation(newAnnoData) };
-  } else {
-    const updatedAnnotationList = { ...annotationList };
-    updatedAnnotationList[currentAnnotationId] = {
-      ...updatedAnnotationList[currentAnnotationId],
-      annotationContent: newAnnoData.annotationContent,
-    };
-    return updatedAnnotationList;
-  }
-};
+import { getUpdatedAnnotationList } from "../utils";
 
 function AnnotationOfferer({
   mode,
@@ -122,6 +85,7 @@ function AnnotationInput({
   };
 
   const isEditing = currentAnnotationId !== undefined;
+  console.log("isEditing", isEditing);
   const displayText = isEditing
     ? annotationList[currentAnnotationId].annotatedText
     : selectedText;
@@ -167,10 +131,10 @@ function AnnotationDisplay({
     return null;
   }
   const handleDeleteClick = () => {
-    setMode("idle");
     const updatedAnnotationList = { ...annotationList };
     delete updatedAnnotationList[currentAnnotationId];
     setAnnotationList(updatedAnnotationList);
+    setMode("idle");
   };
   const handleEditClick = () => {
     setMode("annotating");
