@@ -3,7 +3,11 @@ import { render, screen, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import React from "react";
 import { AnnotationOfferer, AnnotationInput } from "./components/annoFeature";
-import { getNextModeOnSelection, getUpdatedAnnotationList } from "./utils";
+import {
+  getNextModeOnSelection,
+  getUpdatedAnnotationList,
+  highlightText,
+} from "./utils";
 
 afterEach(() => {
   cleanup();
@@ -22,12 +26,35 @@ const mockPosition = {
 
 const mockAnnotationList = {
   "existing-id-123": {
-    annotatedText: "some resume text",
-    annotationContent: "this is a note",
-    annotationPosition: "exp",
+    annotatedText: "name and contact",
+    annotationContent: "this is a note for resume header",
+    annotationPosition: {
+      viewportposition: { x: 1, y: 2 },
+      textposition: "rsmHeader",
+    },
+    timestamp: 1234567890,
+  },
+  "existing-id-456": {
+    annotatedText: "links",
+    annotationContent: "this is a note for resume header",
+    annotationPosition: {
+      viewportposition: { x: 1, y: 2 },
+      textposition: "rsmHeader",
+    },
+    timestamp: 1234567890,
+  },
+  "existing-id-789": {
+    annotatedText: "location",
+    annotationContent: "this is a note for resume header",
+    annotationPosition: {
+      viewportposition: { x: 1, y: 2 },
+      textposition: "rsmHeader",
+    },
     timestamp: 1234567890,
   },
 };
+
+const mockTextContent = " name and contact links location";
 
 const mockNewAnnoData = {
   annotatedText: "newly selected text",
@@ -64,8 +91,6 @@ describe("AnnotationOfferer", () => {
     );
   });
 });
-
-
 
 describe("AnnotationInput", () => {
   test("mode是annotating时input显示", () => {
@@ -131,5 +156,75 @@ describe("AnnotationInput", () => {
     expect(result[mockCurrentAnnotationId].timestamp).toEqual(
       mockAnnotationList[mockCurrentAnnotationId].timestamp
     );
+  });
+});
+
+describe("highlightedText", () => {
+  test("case1: both match → highlight", () => {
+    const mockTextContent = "before name and contact after";
+    const mockTextId = "rsmHeader";
+    const processedTextContent = highlightText(
+      mockTextContent,
+      mockAnnotationList,
+      mockTextId
+    );
+    render(<>{processedTextContent}</>);
+    expect(document.querySelector(".highlighted")).toHaveTextContent(
+      "name and contact"
+    );
+    expect(screen.getByText(/before/)).toBeInTheDocument();
+    expect(screen.getByText(/after/)).toBeInTheDocument();
+  });
+  test("case2: textId matches but content does not", () => {
+    const mockTextContent = "random text";
+    const mockTextId = "rsmHeader";
+    const processedTextContent = highlightText(
+      mockTextContent,
+      mockAnnotationList,
+      mockTextId
+    );
+    render(<>{processedTextContent}</>);
+    expect(screen.getByText(/random text/)).toBeInTheDocument();
+
+    expect(document.querySelector(".highlighted")).toBeNull();
+  });
+  test("case3: content matches but textId does not", () => {
+    const mockTextContent = "name and contact info";
+    const mockTextId = "wrongId";
+    const processedTextContent = highlightText(
+      mockTextContent,
+      mockAnnotationList,
+      mockTextId
+    );
+    render(<>{processedTextContent}</>);
+    expect(screen.getByText(/name and contact info/)).toBeInTheDocument();
+    expect(document.querySelector(".highlighted")).toBeNull();
+  });
+  test("case4: no match at all", () => {
+    const mockTextContent = "random text";
+    const mockTextId = "wrongId";
+    const processedTextContent = highlightText(
+      mockTextContent,
+      mockAnnotationList,
+      mockTextId
+    );
+    render(<>{processedTextContent}</>);
+    expect(screen.getByText(/random text/)).toBeInTheDocument();
+    expect(document.querySelector(".highlighted")).toBeNull();
+  });
+  test("highlights all matching annotations in the same text", () => {
+    const mockTextId = "rsmHeader";
+    const processedTextContent = highlightText(
+      mockTextContent,
+      mockAnnotationList,
+      mockTextId
+    );
+    render(<>{processedTextContent}</>);
+    expect(
+      document.querySelectorAll(".highlighted")
+    ).toHaveLength(3);
+    expect(screen.getByText("name and contact")).toHaveClass("highlighted");
+expect(screen.getByText("links")).toHaveClass("highlighted");
+expect(screen.getByText("location")).toHaveClass("highlighted");
   });
 });
