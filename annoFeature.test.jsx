@@ -2,7 +2,11 @@ import { describe, expect, test, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import React from "react";
-import { AnnotationOfferer, AnnotationInput } from "./components/annoFeature";
+import {
+  AnnotationOfferer,
+  AnnotationInput,
+  AnnotationDisplay,
+} from "./components/annoFeature";
 import {
   getNextModeOnSelection,
   getUpdatedAnnotationList,
@@ -25,7 +29,7 @@ const mockPosition = {
 };
 
 const mockAnnotationList = {
-  "existing-id-123": {
+  "anno-123": {
     annotatedText: "name and contact",
     annotationContent: "this is a note for resume header",
     annotationPosition: {
@@ -34,7 +38,7 @@ const mockAnnotationList = {
     },
     timestamp: 1234567890,
   },
-  "existing-id-456": {
+  "anno-456": {
     annotatedText: "links",
     annotationContent: "this is a note for resume header",
     annotationPosition: {
@@ -43,7 +47,7 @@ const mockAnnotationList = {
     },
     timestamp: 1234567890,
   },
-  "existing-id-789": {
+  "anno-789": {
     annotatedText: "location",
     annotationContent: "this is a note for resume header",
     annotationPosition: {
@@ -61,10 +65,11 @@ const mockNewAnnoData = {
   annotationContent: "new note",
   annotationPosition: "skl",
 };
-const mockCurrentAnnotationId = "existing-id-123";
+
+const mockCurrentAnnotationId = "anno-123";
 
 describe("AnnotationOfferer", () => {
-  test("mode是text_selected时offerer显示", () => {
+  test("renders when mode is text_selected", () => {
     render(
       <AnnotationOfferer
         mode="text_selected"
@@ -74,11 +79,15 @@ describe("AnnotationOfferer", () => {
     expect(screen.queryByText("Add annotation")).toBeInTheDocument();
   });
 
-  test("mode不是text_selected时offerer不显示", () => {
-    render(<AnnotationOfferer mode="idle" selectionPosition={mockPosition} />);
+  test("does not renders when mode is not text_selected", () => {
+    render(
+      <AnnotationOfferer mode="random_mode" selectionPosition={mockPosition} />
+    );
     expect(screen.queryByText("Add annotation")).toBeNull();
   });
+});
 
+describe("ResumeText", () => {
   test("mode setup is correct with selections", () => {
     expect(getNextModeOnSelection(mockSelectedString.validSelection)).toBe(
       "text_selected"
@@ -220,11 +229,54 @@ describe("highlightedText", () => {
       mockTextId
     );
     render(<>{processedTextContent}</>);
-    expect(
-      document.querySelectorAll(".highlighted")
-    ).toHaveLength(3);
+    expect(document.querySelectorAll(".highlighted")).toHaveLength(3);
     expect(screen.getByText("name and contact")).toHaveClass("highlighted");
-expect(screen.getByText("links")).toHaveClass("highlighted");
-expect(screen.getByText("location")).toHaveClass("highlighted");
+    expect(screen.getByText("links")).toHaveClass("highlighted");
+    expect(screen.getByText("location")).toHaveClass("highlighted");
+  });
+});
+
+describe("AnnotationDisplay", () => {
+  test("renders when mode is anno_display", () => {
+    render(
+      <AnnotationDisplay
+        mode="anno_display"
+        annotationList={mockAnnotationList}
+        currentAnnotationId={mockCurrentAnnotationId}
+      />
+    );
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotatedText
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotationContent
+      )
+    ).toBeInTheDocument();
+  });
+
+  test("does not renders when mode is notanno_display", () => {
+    render(
+      <AnnotationDisplay
+        mode="random_mode"
+        annotationList={mockAnnotationList}
+        currentAnnotationId={mockCurrentAnnotationId}
+      />
+    );
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotatedText
+      )
+    ).toBeNull();
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotationContent
+      )
+    ).toBeNull();
+    expect(screen.queryByText("On:")).toBeNull();
+    expect(screen.queryByText("You annotated:")).toBeNull();
+
   });
 });
