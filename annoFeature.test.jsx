@@ -11,6 +11,7 @@ import {
   getNextModeOnSelection,
   getUpdatedAnnotationList,
   highlightText,
+  deleteAnnotation,
 } from "./utils";
 
 afterEach(() => {
@@ -87,19 +88,6 @@ describe("AnnotationOfferer", () => {
   });
 });
 
-describe("ResumeText", () => {
-  test("mode setup is correct with selections", () => {
-    expect(getNextModeOnSelection(mockSelectedString.validSelection)).toBe(
-      "text_selected"
-    );
-    expect(getNextModeOnSelection(mockSelectedString.nullSelection)).toBe(
-      "idle"
-    );
-    expect(getNextModeOnSelection(mockSelectedString.emptySelection)).toBe(
-      "idle"
-    );
-  });
-});
 
 describe("AnnotationInput", () => {
   test("mode是annotating时input显示", () => {
@@ -125,50 +113,81 @@ describe("AnnotationInput", () => {
     );
     expect(screen.queryByText(/On:/)).toBeNull();
   });
-  test("creates a new annotation", () => {
-    vi.spyOn(crypto, "randomUUID").mockReturnValue("mock-id");
-    const currentAnnotationId = undefined;
-    const result = getUpdatedAnnotationList(
-      mockAnnotationList,
-      currentAnnotationId,
-      mockNewAnnoData
-    );
+});
 
-    expect(result).toEqual({
-      ...mockAnnotationList,
-      "mock-id": expect.objectContaining({
-        annotatedText: mockNewAnnoData.annotatedText,
-        annotationContent: mockNewAnnoData.annotationContent,
-        annotationPosition: mockNewAnnoData.annotationPosition,
-      }),
-    });
-    vi.restoreAllMocks();
+describe("AnnotationDisplay", () => {
+  test("renders when mode is anno_display", () => {
+    render(
+      <AnnotationDisplay
+        mode="anno_display"
+        annotationList={mockAnnotationList}
+        currentAnnotationId={mockCurrentAnnotationId}
+      />
+    );
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotatedText
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotationContent
+      )
+    ).toBeInTheDocument();
   });
-  test("updates an existing annotation", () => {
-    const result = getUpdatedAnnotationList(
-      mockAnnotationList,
-      mockCurrentAnnotationId,
-      mockNewAnnoData
+
+  test("does not renders when mode is notanno_display", () => {
+    render(
+      <AnnotationDisplay
+        mode="random_mode"
+        annotationList={mockAnnotationList}
+        currentAnnotationId={mockCurrentAnnotationId}
+      />
     );
-    expect(Object.keys(result)).toHaveLength(
-      Object.keys(mockAnnotationList).length
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotatedText
+      )
+    ).toBeNull();
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotationContent
+      )
+    ).toBeNull();
+    expect(screen.queryByText("On:")).toBeNull();
+    expect(screen.queryByText("You annotated:")).toBeNull();
+  });
+});
+
+describe("getNextModeOnSelection", () => {
+  test("mode setup is correct with selections", () => {
+    expect(getNextModeOnSelection(mockSelectedString.validSelection)).toBe(
+      "text_selected"
     );
-    expect(result[mockCurrentAnnotationId].annotationContent).toEqual(
-      mockNewAnnoData.annotationContent
+    expect(getNextModeOnSelection(mockSelectedString.nullSelection)).toBe(
+      "idle"
     );
-    expect(result[mockCurrentAnnotationId].annotatedText).toEqual(
-      mockAnnotationList[mockCurrentAnnotationId].annotatedText
-    );
-    expect(result[mockCurrentAnnotationId].annotationPosition).toEqual(
-      mockAnnotationList[mockCurrentAnnotationId].annotationPosition
-    );
-    expect(result[mockCurrentAnnotationId].timestamp).toEqual(
-      mockAnnotationList[mockCurrentAnnotationId].timestamp
+    expect(getNextModeOnSelection(mockSelectedString.emptySelection)).toBe(
+      "idle"
     );
   });
 });
 
-describe("highlightedText", () => {
+
+describe("deleteAnnotation", () => {
+  test("deleteAnnotation removes the annotation with the given id", () => {
+    const result = deleteAnnotation(
+      mockAnnotationList,
+      mockCurrentAnnotationId
+    );
+    expect(Object.keys(result)).toHaveLength(
+      Object.keys(mockAnnotationList).length - 1
+    );
+    expect(result[mockCurrentAnnotationId]).toBeUndefined();
+  });
+});
+
+describe("highlightText", () => {
   test("case1: both match → highlight", () => {
     const mockTextContent = "before name and contact after";
     const mockTextId = "rsmHeader";
@@ -236,47 +255,46 @@ describe("highlightedText", () => {
   });
 });
 
-describe("AnnotationDisplay", () => {
-  test("renders when mode is anno_display", () => {
-    render(
-      <AnnotationDisplay
-        mode="anno_display"
-        annotationList={mockAnnotationList}
-        currentAnnotationId={mockCurrentAnnotationId}
-      />
+describe("getUpdatedAnnotationList", () => {
+  test("creates a new annotation", () => {
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("mock-id");
+    const currentAnnotationId = undefined;
+    const result = getUpdatedAnnotationList(
+      mockAnnotationList,
+      currentAnnotationId,
+      mockNewAnnoData
     );
-    expect(
-      screen.queryByText(
-        mockAnnotationList[mockCurrentAnnotationId].annotatedText
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        mockAnnotationList[mockCurrentAnnotationId].annotationContent
-      )
-    ).toBeInTheDocument();
+
+    expect(result).toEqual({
+      ...mockAnnotationList,
+      "mock-id": expect.objectContaining({
+        annotatedText: mockNewAnnoData.annotatedText,
+        annotationContent: mockNewAnnoData.annotationContent,
+        annotationPosition: mockNewAnnoData.annotationPosition,
+      }),
+    });
+    vi.restoreAllMocks();
   });
-
-  test("does not renders when mode is notanno_display", () => {
-    render(
-      <AnnotationDisplay
-        mode="random_mode"
-        annotationList={mockAnnotationList}
-        currentAnnotationId={mockCurrentAnnotationId}
-      />
+  test("updates an existing annotation", () => {
+    const result = getUpdatedAnnotationList(
+      mockAnnotationList,
+      mockCurrentAnnotationId,
+      mockNewAnnoData
     );
-    expect(
-      screen.queryByText(
-        mockAnnotationList[mockCurrentAnnotationId].annotatedText
-      )
-    ).toBeNull();
-    expect(
-      screen.queryByText(
-        mockAnnotationList[mockCurrentAnnotationId].annotationContent
-      )
-    ).toBeNull();
-    expect(screen.queryByText("On:")).toBeNull();
-    expect(screen.queryByText("You annotated:")).toBeNull();
-
+    expect(Object.keys(result)).toHaveLength(
+      Object.keys(mockAnnotationList).length
+    );
+    expect(result[mockCurrentAnnotationId].annotationContent).toEqual(
+      mockNewAnnoData.annotationContent
+    );
+    expect(result[mockCurrentAnnotationId].annotatedText).toEqual(
+      mockAnnotationList[mockCurrentAnnotationId].annotatedText
+    );
+    expect(result[mockCurrentAnnotationId].annotationPosition).toEqual(
+      mockAnnotationList[mockCurrentAnnotationId].annotationPosition
+    );
+    expect(result[mockCurrentAnnotationId].timestamp).toEqual(
+      mockAnnotationList[mockCurrentAnnotationId].timestamp
+    );
   });
 });

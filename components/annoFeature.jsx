@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useRef } from "react";
-import { getUpdatedAnnotationList } from "../utils";
+import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
 
 function AnnotationOfferer({
   mode,
@@ -131,8 +131,10 @@ function AnnotationDisplay({
     return null;
   }
   const handleDeleteClick = () => {
-    const updatedAnnotationList = { ...annotationList };
-    delete updatedAnnotationList[currentAnnotationId];
+    const updatedAnnotationList = deleteAnnotation(
+      annotationList,
+      currentAnnotationId
+    );
     setAnnotationList(updatedAnnotationList);
     setMode("idle");
   };

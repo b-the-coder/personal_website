@@ -46,6 +46,12 @@ const getUpdatedAnnotationList = (
   }
 };
 
+const deleteAnnotation = (annotationList,currentAnnotationId)=>{
+   const updatedAnnotationList = {...annotationList};
+   delete updatedAnnotationList[currentAnnotationId];
+   return updatedAnnotationList;
+}
+
 // const highlightText = (textContent, annotationList, textId) => {
 //   for (const [annoId, annoObject] of Object.entries(annotationList)) {
 //     if (
@@ -153,4 +159,5 @@ export {
   createAnnotation,
   getUpdatedAnnotationList,
   highlightText,
+  deleteAnnotation
 };
