@@ -59,8 +59,6 @@ const mockAnnotationList = {
   },
 };
 
-const mockTextContent = " name and contact links location";
-
 const mockNewAnnoData = {
   annotatedText: "newly selected text",
   annotationContent: "new note",
@@ -70,7 +68,7 @@ const mockNewAnnoData = {
 const mockCurrentAnnotationId = "anno-123";
 
 describe("AnnotationOfferer", () => {
-  test("renders when mode is text_selected", () => {
+  test("renders AnnotationOfferer at selected view port position when mode is text_selected", () => {
     render(
       <AnnotationOfferer
         mode="text_selected"
@@ -78,6 +76,11 @@ describe("AnnotationOfferer", () => {
       />
     );
     expect(screen.queryByText("Add annotation")).toBeInTheDocument();
+    expect(screen.queryByText("Add annotation")).toHaveStyle({
+      position: "fixed",
+      left: "100px",
+      top: "100px",
+    });
   });
 
   test("does not renders when mode is not text_selected", () => {
@@ -88,9 +91,8 @@ describe("AnnotationOfferer", () => {
   });
 });
 
-
 describe("AnnotationInput", () => {
-  test("mode是annotating时input显示", () => {
+  test("render when mode is annotating", () => {
     render(
       <AnnotationInput
         mode="annotating"
@@ -102,7 +104,7 @@ describe("AnnotationInput", () => {
     expect(screen.queryByText(/On:/)).toBeInTheDocument();
   });
 
-  test("mode不是annotating时input不显示", () => {
+  test("does not renders when mode is not annotating", () => {
     render(
       <AnnotationInput
         mode="idle"
@@ -112,6 +114,40 @@ describe("AnnotationInput", () => {
       />
     );
     expect(screen.queryByText(/On:/)).toBeNull();
+  });
+  test("Show the right annotated text and place holder when add new annotation", () => {
+    render(
+      <AnnotationInput
+        mode="annotating"
+        selectedText="some text"
+        currentAnnotationId={undefined}
+        annotationList={{}}
+      />
+    );
+    expect(screen.queryByText(/some text/)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Write your annotation...")
+    ).toBeInTheDocument();
+  });
+  test("Show the right annotated text and place holder when edit existing annotation", () => {
+    render(
+      <AnnotationInput
+        mode="annotating"
+        selectedText="some text"
+        currentAnnotationId={mockCurrentAnnotationId}
+        annotationList={mockAnnotationList}
+      />
+    );
+    expect(
+      screen.queryByText(
+        `${mockAnnotationList[mockCurrentAnnotationId].annotatedText}`
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(
+        mockAnnotationList[mockCurrentAnnotationId].annotationContent
+      )
+    ).toBeInTheDocument();
   });
 });
 
@@ -157,6 +193,26 @@ describe("AnnotationDisplay", () => {
     expect(screen.queryByText("On:")).toBeNull();
     expect(screen.queryByText("You annotated:")).toBeNull();
   });
+
+  test("Show the right annotated text and annotation content when render", () => {
+    render(
+      <AnnotationDisplay
+        mode="anno_display"
+        annotationList={mockAnnotationList}
+        currentAnnotationId={mockCurrentAnnotationId}
+      />
+    );
+    expect(
+      screen.queryByText(
+        `${mockAnnotationList[mockCurrentAnnotationId].annotatedText}`
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        mockAnnotationList[mockCurrentAnnotationId].annotationContent
+      )
+    ).toBeInTheDocument();
+  });
 });
 
 describe("getNextModeOnSelection", () => {
@@ -172,7 +228,6 @@ describe("getNextModeOnSelection", () => {
     );
   });
 });
-
 
 describe("deleteAnnotation", () => {
   test("deleteAnnotation removes the annotation with the given id", () => {
@@ -213,11 +268,10 @@ describe("highlightText", () => {
     );
     render(<>{processedTextContent}</>);
     expect(screen.getByText(/random text/)).toBeInTheDocument();
-
     expect(document.querySelector(".highlighted")).toBeNull();
   });
   test("case3: content matches but textId does not", () => {
-    const mockTextContent = "name and contact info";
+    const mockTextContent = "before name and contact after";
     const mockTextId = "wrongId";
     const processedTextContent = highlightText(
       mockTextContent,
@@ -225,7 +279,7 @@ describe("highlightText", () => {
       mockTextId
     );
     render(<>{processedTextContent}</>);
-    expect(screen.getByText(/name and contact info/)).toBeInTheDocument();
+    expect(screen.getByText(/name and contact/)).toBeInTheDocument();
     expect(document.querySelector(".highlighted")).toBeNull();
   });
   test("case4: no match at all", () => {
@@ -240,7 +294,9 @@ describe("highlightText", () => {
     expect(screen.getByText(/random text/)).toBeInTheDocument();
     expect(document.querySelector(".highlighted")).toBeNull();
   });
-  test("highlights all matching annotations in the same text", () => {
+  test("highlights all matching annotations with the corrected annotation Id in the same text", () => {
+    const mockTextContent =
+      " before name and contact middle1 links middle2 location after";
     const mockTextId = "rsmHeader";
     const processedTextContent = highlightText(
       mockTextContent,
@@ -252,6 +308,18 @@ describe("highlightText", () => {
     expect(screen.getByText("name and contact")).toHaveClass("highlighted");
     expect(screen.getByText("links")).toHaveClass("highlighted");
     expect(screen.getByText("location")).toHaveClass("highlighted");
+    expect(screen.getByText("name and contact")).toHaveAttribute(
+      "data-anno-id",
+      "anno-123"
+    );
+    expect(screen.getByText("links")).toHaveAttribute(
+      "data-anno-id",
+      "anno-456"
+    );
+    expect(screen.getByText("location")).toHaveAttribute(
+      "data-anno-id",
+      "anno-789"
+    );
   });
 });
 

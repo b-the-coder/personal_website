@@ -139,7 +139,7 @@ const highlightText = (textContent, annotationList, textId) => {
 
   return (
     <>
-      {result.map((segment, index) => {
+      {result.map((segment, index) => { 
         if (segment.type === "highlight") {
           return (
             <span key={index} className="highlighted" data-anno-id={segment.id}>

@@ -96,7 +96,7 @@ function AnnotationInput({
   return (
     <div className="annotation-input">
       <p className="annotation-input__selected-text">
-        On: <em>&ldquo;{displayText}&rdquo;</em>
+        On: <em>{displayText}</em>
       </p>
       <textarea
         ref={annotationRef}
