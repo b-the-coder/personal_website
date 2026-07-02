@@ -213,6 +213,7 @@ const toggleInput = document.querySelector(".toggle-input");
 
 toggleInput.addEventListener("input", (e) => {
   const isDark = e.target.checked;
+  // classList.toogle("class", condition). If the condition is true, add the class. If the condition is false, remove the class.
   document.body.classList.toggle("dark-mode", isDark);
   localStorage.setItem("darkMode", isDark);
 });
@@ -293,4 +294,6 @@ submitbutton.addEventListener("click", (e) => {
     alert("Invalid input");
   }
 });
-export { getNextModeOnSelection };
+
+
+
