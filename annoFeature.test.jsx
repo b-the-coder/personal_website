@@ -521,6 +521,17 @@ describe("highlightText", () => {
       "anno-789"
     );
   });
+  test("highlight only the annotated text when there multiple same text in a sentence ", () => {
+    const mockTextContent = " 1st name and contact 2nd name and contact";
+    const mockTextId = "rsmHeader";
+    const processedTextContent = highlightText(
+      mockTextContent,
+      mockAnnotationList,
+      mockTextId
+    );
+    render(<>{processedTextContent}</>);
+    expect(document.querySelectorAll(".highlighted")).toHaveLength(1);
+  });
 });
 
 describe("getUpdatedAnnotationList", () => {

@@ -22,8 +22,8 @@ function AnnotationOfferer({
       className="annotation-offerer"
       style={{
         position: "fixed",
-        left: selectionPosition.viewportposition.x + "px",
-        top: selectionPosition.viewportposition.y + "px",
+        left: selectionPosition.viewportPosition.x + "px",
+        top: selectionPosition.viewportPosition.y + "px",
       }}
     >
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
@@ -65,7 +65,7 @@ function AnnotationInput({
     const newAnno = {
       annotatedText: selectedText,
       annotationContent: annoContent,
-      annotationPosition: selectionPosition,
+      selectionPosition: selectionPosition,
     };
     //返回更新后的annotationlist
     const updated = getUpdatedAnnotationList(
@@ -130,6 +130,9 @@ function AnnotationDisplay({
   if (mode != "anno_display") {
     return null;
   }
+
+  const annotationNeedtobeDisplayed = currentAnnotationId.split(",");
+
   const handleDeleteClick = () => {
     const updatedAnnotationList = deleteAnnotation(
       annotationList,
@@ -142,19 +145,19 @@ function AnnotationDisplay({
     setMode("annotating");
   };
 
-  return (
-    <div className="annotation-display">
+  return annotationNeedtobeDisplayed.map((annoId) => (
+    <div className="annotation-display" key={annoId}>
       <p className="annotation-display__selected-text">
         <strong>
           <em>On:</em>
         </strong>{" "}
-        <em>{annotationList[currentAnnotationId].annotatedText}</em>
+        <em>{annotationList[annoId].annotatedText}</em>
       </p>
       <p className="annotation-display__content">
         <strong>
           <em>You annotated:</em>
         </strong>{" "}
-        {annotationList[currentAnnotationId].annotationContent}
+        {annotationList[annoId].annotationContent}
       </p>
 
       <div className="annotation-display__actions">
@@ -172,7 +175,7 @@ function AnnotationDisplay({
         </button>
       </div>
     </div>
-  );
+  ));
 }
 
 export {

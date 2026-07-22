@@ -18,12 +18,11 @@ const getNextModeOnSelection = (selectedString) => {
 const createAnnotation = ({
   annotatedText,
   annotationContent,
-  annotationPosition,
+  selectionPosition,
 }) => ({
   annotatedText,
-
   annotationContent,
-  annotationPosition,
+  selectionPosition,
   timestamp: Date.now(),
 });
 
@@ -46,118 +45,132 @@ const getUpdatedAnnotationList = (
   }
 };
 
-const deleteAnnotation = (annotationList,currentAnnotationId)=>{
-   const updatedAnnotationList = {...annotationList};
-   delete updatedAnnotationList[currentAnnotationId];
-   return updatedAnnotationList;
-}
-
-// const highlightText = (textContent, annotationList, textId) => {
-//   for (const [annoId, annoObject] of Object.entries(annotationList)) {
-//     if (
-//       textContent.includes(annoObject.annotatedText) === true &&
-//       annoObject.annotationPosition.textposition === textId
-//     ) {
-//       const parts = textContent.split(annoObject.annotatedText);
-
-//       return (
-//         <>
-//           {parts[0]}
-//           <span className="highlighted" data-anno-id={annoId}>
-//             {annoObject.annotatedText}
-//           </span>
-//           {parts[1]}
-//         </>
-//       );
-//     }
-//   }
-//   return textContent;
-// };
-
-const highlightText = (textContent, annotationList, textId) => {
-  let cursor = 0;
-  let result = [];
-
-  while (cursor < textContent.length) {
-    let nextMatch = null;
-
-    // 扫描所有 annotation
-    for (const [annoId, annoObject] of Object.entries(annotationList)) {
-      // 业务逻辑1：
-      // 只处理属于当前 textId 的 annotation
-      if (annoObject.annotationPosition.textposition !== textId) {
-        continue;
-      }
-
-      // 从 cursor 之后查找 annotatedText
-      let index = textContent.indexOf(annoObject.annotatedText, cursor);
-
-      // 没找到
-      if (index === -1) {
-        continue;
-      }
-
-      // 找到更靠前的 match
-      if (nextMatch === null || index < nextMatch.startIndex) {
-        nextMatch = {
-          startIndex: index,
-          endIndex: index + annoObject.annotatedText.length,
-          text: annoObject.annotatedText,
-          id: annoId,
-        };
-      }
-    }
-
-    // 没有任何 match
-    if (nextMatch === null) {
-      result.push({
-        type: "text",
-        value: textContent.slice(cursor),
-      });
-
-      break;
-    }
-
-    // match 前面的普通文本
-    if (nextMatch.startIndex > cursor) {
-      result.push({
-        type: "text",
-        value: textContent.slice(cursor, nextMatch.startIndex),
-      });
-    }
-
-    // highlight
-    result.push({
-      type: "highlight",
-      value: nextMatch.text,
-      id: nextMatch.id,
-    });
-
-    // 跳到 match 末尾
-    cursor = nextMatch.endIndex;
-  }
-
-  return (
-    <>
-      {result.map((segment, index) => { 
-        if (segment.type === "highlight") {
-          return (
-            <span key={index} className="highlighted" data-anno-id={segment.id}>
-              {segment.value}
-            </span>
-          );
-        }
-
-        return segment.value;
-      })}
-    </>
-  );
+const deleteAnnotation = (annotationList, currentAnnotationId) => {
+  const updatedAnnotationList = { ...annotationList };
+  delete updatedAnnotationList[currentAnnotationId];
+  return updatedAnnotationList;
 };
 
+const groupAnnotationsByTextId = (annotationList) => {
+  const grouped = {};
+
+  Object.entries(annotationList).forEach(([annotationId, annotation]) => {
+    const textId = annotation.selectionPosition.textPosition;
+    if (!grouped[textId]) {
+      grouped[textId] = {};
+    }
+    grouped[textId][annotationId] = annotation.selectionPosition.range;
+  });
+
+  return grouped;
+};
+
+// utils.jsx
+const computeSegments = (
+  text,
+  annotationsById,
+  extraBoundaries = []
+) => {
+  const entries = Object.entries(annotationsById ?? {});
+
+  const points = new Set([
+    0,
+    text.length,
+    ...extraBoundaries,
+  ]);
+
+  entries.forEach(([, [start, end]]) => {
+    points.add(start);
+    points.add(end);
+  });
+
+  const sorted = [...points].sort((a, b) => a - b);
+
+  const segments = [];
+
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const segStart = sorted[i];
+    const segEnd = sorted[i + 1];
+
+    if (segStart === segEnd) continue;
+
+    const coveringIds = entries
+      .filter(
+        ([, [start, end]]) =>
+          start <= segStart && end >= segEnd
+      )
+      .map(([id]) => id);
+
+    segments.push({
+      start: segStart,
+      end: segEnd,
+      count: coveringIds.length,
+      ids: coveringIds,
+    });
+  }
+
+  return segments;
+};
+
+const getHighlightLevel = (count) => {
+  if (count === 0) return 0;
+  if (count === 1) return 1;
+  if (count === 2) return 2;
+  return 3; // count >= 3
+};
+
+
+
+function highlightFlatText(text, annotationsById) {
+
+  const segments = computeSegments(text, annotationsById);
+  
+
+  return segments.map((seg, i) => {
+    if (seg.count === 0) {
+      return <React.Fragment key={i}>{text.slice(seg.start, seg.end)}</React.Fragment>;
+    }
+
+    const level = getHighlightLevel(seg.count);
+
+    return (
+      <span key={i} className={`highlight highlight-${level}`} data-annotation-ids={seg.ids.join(",")}>
+        {text.slice(seg.start, seg.end)}
+      </span>
+    );
+  });
+}
+//function renderSegments(segs, fullText) {
+  //return segs.map((seg, i) => {
+    //const content = fullText.slice(seg.start, seg.end);
+    //if (seg.count === 0)
+      //return <React.Fragment key={i}>{content}</React.Fragment>;
+
+    //const level = getHighlightLevel(seg.count);
+    //return (
+      //<span
+        //key={i}
+        //className={`highlight highlight-${level}`}
+        //data-annotation-ids={seg.ids.join(",")}
+      //>
+        //{content}
+      //</span>
+   // );
+ // });
+  
+//}
+
+
+
+
+
 export {
+  computeSegments,
+  getHighlightLevel,
   getNextModeOnSelection,
   createAnnotation,
   getUpdatedAnnotationList,
-  highlightText,
-  deleteAnnotation
+  groupAnnotationsByTextId,
+  deleteAnnotation,
+  highlightFlatText,
 };

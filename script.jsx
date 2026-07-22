@@ -13,9 +13,10 @@ import {
   AnnotationOfferer,
   AnnotationDisplay,
   AnnotationInput,
+
 } from "./components/annoFeature";
 
-import { getNextModeOnSelection } from "./utils";
+import { getNextModeOnSelection,groupAnnotationsByTextId } from "./utils";
 
 function ResumeText({
   annotationList,
@@ -29,6 +30,9 @@ function ResumeText({
   selectionPosition,
   setSelectionPosition,
 }) {
+
+  const groupedAnnotation = groupAnnotationsByTextId(annotationList);
+  console.log("groupedAnnotation",groupedAnnotation)
   const handleSelection = () => {
     const userSelection = window.getSelection();
 
@@ -39,25 +43,46 @@ function ResumeText({
 
     const textPositionNode =
       range.startContainer.parentElement.closest("[data-text-id]");
+    console.log("textPositionNode", textPositionNode);
+    const preCaretRange = range.cloneRange();
 
+    // 让克隆出来的选区，起点固定在最外层大容器的开头
+    preCaretRange.selectNodeContents(textPositionNode);
+    // 让克隆选区的终点，等于用户实际选中的起点
+    preCaretRange.setEnd(range.startContainer, range.startOffset);
+
+    // 此时，克隆选区内包含的所有文本字符长度，就是绝对的全局起始位置！
+    // 注意：toString() 会自动平铺所有子元素的文本
+    const globalStartIndex = preCaretRange.toString().length;
+
+    // 同理，计算全局结束位置
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    const globalEndIndex = preCaretRange.toString().length;
+    const startIndex = globalStartIndex;
+    const endIndex = globalEndIndex;
+    console.log(
+      `你选中的 ${selectedString} 的具体位置是从索引 ${startIndex} 到 ${endIndex}`
+    );
     const textPosition = textPositionNode.getAttribute("data-text-id");
+    console.log("textPosition", textPosition);
 
-    const position = {
-      viewportposition: { x: rect.right, y: rect.bottom },
-      textposition: textPosition,
+    const selectionPosition = {
+      viewportPosition: { x: rect.right, y: rect.bottom },
+      textPosition: textPosition,
+      range: [startIndex,endIndex],
     };
+   
 
     const nextMode = getNextModeOnSelection(selectedString);
+
     setMode(nextMode);
-    // console.log("空选的mode is", mode);
     setSelectedText(selectedString);
-    // console.log("空选 selectedText is", selectedText);
-    setSelectionPosition(position);
+    setSelectionPosition(selectionPosition);
     setCurrentAnnotationId(undefined);
   };
 
   const handleClick = (e) => {
-    const annoId = e.target.dataset.annoId;
+    const annoId = e.target.dataset.annotationIds;
     if (annoId) {
       setCurrentAnnotationId(annoId);
       setMode("anno_display");
@@ -70,12 +95,13 @@ function ResumeText({
       onMouseUp={handleSelection}
       onClick={handleClick}
     >
-      <Header annotationList={annotationList} />
-      <Contact annotationList={annotationList} />
-      <Skills annotationList={annotationList} />
-      <Experience annotationList={annotationList} />
-      <Projects annotationList={annotationList} />
-      <Education annotationList={annotationList} />
+      <Header annotationList={groupedAnnotation} />
+      <Contact annotationList={groupedAnnotation} />
+      <Skills annotationList={groupedAnnotation} />
+      <Experience annotationList={groupedAnnotation} />
+      <Projects annotationList={groupedAnnotation} />
+      <Education annotationList={groupedAnnotation} />
+     
     </div>
   );
 }
@@ -139,6 +165,7 @@ function ResumeAnno() {
   const [mode, setMode] = useState("idle");
   const [selectedText, setSelectedText] = useState("");
   const [selectionPosition, setSelectionPosition] = useState(null);
+ 
 
   useEffect(() => {
     localStorage.annotationList = JSON.stringify(annotationList);
@@ -294,6 +321,3 @@ submitbutton.addEventListener("click", (e) => {
     alert("Invalid input");
   }
 });
-
-
-
