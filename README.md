@@ -55,7 +55,6 @@ Run the tests and generate a coverage report:
 npm run test:coverage
 ```
 
-
 ## Demo
 
 1. Select the text you want to annotate and post an annotation.
@@ -72,17 +71,11 @@ npm run test:coverage
 ![Selecting text for annotation](screenshots/select_text.png)
 ![Adding an annotation](screenshots/post_annotation.png)
 
-### Add an Annotation
 
-![Adding an annotation](screenshots/annotation-form.png)
-
-### Different level of highlight and View/Edit Annotations 
+### Different level of highlight and View/Edit Annotations
 
 ![Viewing existing annotations](screenshots/highlightcolor&display.png)
 
 ## Use Your Own Resume
 
 Update the values in `resumeData.json` with your own resume information.
-
-
-
