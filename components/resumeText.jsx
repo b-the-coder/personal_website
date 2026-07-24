@@ -1,30 +1,7 @@
 import resumeData from "../resumeData.json";
 import React from "react";
 
-import {
-  highlightFlatText,
-  computeSegments,
-  getHighlightLevel,
-} from "../utils";
-
-function renderSegments(segs, fullText) {
-  return segs.map((seg, i) => {
-    const content = fullText.slice(seg.start, seg.end);
-    if (seg.count === 0)
-      return <React.Fragment key={i}>{content}</React.Fragment>;
-
-    const level = getHighlightLevel(seg.count);
-    return (
-      <span
-        key={i}
-        className={`highlight highlight-${level}`}
-        data-annotation-ids={seg.ids.join(",")}
-      >
-        {content}
-      </span>
-    );
-  });
-}
+import { computeSegments, renderSegments } from "../utils";
 
 function Header({ annotationList }) {
   const headerAnnotations = annotationList["resume-header"];

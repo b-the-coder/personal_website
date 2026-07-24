@@ -13,10 +13,9 @@ import {
   AnnotationOfferer,
   AnnotationDisplay,
   AnnotationInput,
-
 } from "./components/annoFeature";
 
-import { getNextModeOnSelection,groupAnnotationsByTextId } from "./utils";
+import { getNextModeOnSelection, groupAnnotationsByTextId } from "./utils";
 
 function ResumeText({
   annotationList,
@@ -30,9 +29,9 @@ function ResumeText({
   selectionPosition,
   setSelectionPosition,
 }) {
-
   const groupedAnnotation = groupAnnotationsByTextId(annotationList);
-  console.log("groupedAnnotation",groupedAnnotation)
+  console.log("groupedAnnotation", groupedAnnotation);
+  
   const handleSelection = () => {
     const userSelection = window.getSelection();
 
@@ -63,20 +62,26 @@ function ResumeText({
     console.log(
       `你选中的 ${selectedString} 的具体位置是从索引 ${startIndex} 到 ${endIndex}`
     );
+    console.log({
+      value: selectedString,
+      type: typeof selectedString,
+      json: JSON.stringify(selectedString),
+      length: selectedString?.length,
+    });
     const textPosition = textPositionNode.getAttribute("data-text-id");
     console.log("textPosition", textPosition);
 
     const selectionPosition = {
       viewportPosition: { x: rect.right, y: rect.bottom },
       textPosition: textPosition,
-      range: [startIndex,endIndex],
+      range: [startIndex, endIndex],
     };
-   
 
     const nextMode = getNextModeOnSelection(selectedString);
 
     setMode(nextMode);
     setSelectedText(selectedString);
+    console.log("selectedText",selectedString)
     setSelectionPosition(selectionPosition);
     setCurrentAnnotationId(undefined);
   };
@@ -101,7 +106,6 @@ function ResumeText({
       <Experience annotationList={groupedAnnotation} />
       <Projects annotationList={groupedAnnotation} />
       <Education annotationList={groupedAnnotation} />
-     
     </div>
   );
 }
@@ -165,7 +169,6 @@ function ResumeAnno() {
   const [mode, setMode] = useState("idle");
   const [selectedText, setSelectedText] = useState("");
   const [selectionPosition, setSelectionPosition] = useState(null);
- 
 
   useEffect(() => {
     localStorage.annotationList = JSON.stringify(annotationList);

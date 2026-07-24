@@ -65,19 +65,44 @@ const groupAnnotationsByTextId = (annotationList) => {
   return grouped;
 };
 
-// utils.jsx
-const computeSegments = (
-  text,
-  annotationsById,
-  extraBoundaries = []
-) => {
+const computeSegments = (text, annotationsById, extraBoundaries = []) => {
+  if (typeof text !== "string" || text.trim().length === 0) {
+    //to-do: add log
+    throw new TypeError("computeSegments: text must be a non-empty string.");
+  }
+  if (!Array.isArray(extraBoundaries)) {
+    //to-do: add log
+    throw new TypeError("computeSegments: extraBoundaries must be an array.");
+  }
+
+  if (extraBoundaries.some((boundary) => boundary > text.length)) {
+    //to-do: add log
+    throw new RangeError(
+      "computeSegments: extraBoundaries must not contain values greater than text.length."
+    );
+  }
   const entries = Object.entries(annotationsById ?? {});
 
-  const points = new Set([
-    0,
-    text.length,
-    ...extraBoundaries,
-  ]);
+  const invalidAnnotation = entries.find(
+    ([, [start, end]]) =>
+      start < 0 ||
+      end < 0 ||
+      start >= end ||
+      start > text.length ||
+      end > text.length
+  );
+
+  if (invalidAnnotation) {
+    const [id, [start, end]] = invalidAnnotation;
+
+    throw new RangeError(
+      `computeSegments: annotation "${id}" has an invalid range ` +
+        `[${start}, ${end}]. Range must satisfy ` +
+        `0 <= start < end <= text.length (${text.length}).`
+    );
+  }
+
+  const points = new Set([0, text.length, ...extraBoundaries]);
 
   entries.forEach(([, [start, end]]) => {
     points.add(start);
@@ -95,10 +120,7 @@ const computeSegments = (
     if (segStart === segEnd) continue;
 
     const coveringIds = entries
-      .filter(
-        ([, [start, end]]) =>
-          start <= segStart && end >= segEnd
-      )
+      .filter(([, [start, end]]) => start <= segStart && end >= segEnd)
       .map(([id]) => id);
 
     segments.push({
@@ -119,52 +141,27 @@ const getHighlightLevel = (count) => {
   return 3; // count >= 3
 };
 
-
-
-function highlightFlatText(text, annotationsById) {
-
-  const segments = computeSegments(text, annotationsById);
-  
-
-  return segments.map((seg, i) => {
-    if (seg.count === 0) {
-      return <React.Fragment key={i}>{text.slice(seg.start, seg.end)}</React.Fragment>;
-    }
+const renderSegments = (segs, fullText) => {
+  return segs.map((seg, i) => {
+    const content = fullText.slice(seg.start, seg.end);
+    if (seg.count === 0)
+      return <React.Fragment key={i}>{content}</React.Fragment>;
 
     const level = getHighlightLevel(seg.count);
-
     return (
-      <span key={i} className={`highlight highlight-${level}`} data-annotation-ids={seg.ids.join(",")}>
-        {text.slice(seg.start, seg.end)}
+      <span
+        key={i}
+        className={`highlight highlight-${level}`}
+        data-annotation-ids={seg.ids.join(",")}
+      >
+        {content}
       </span>
     );
   });
-}
-//function renderSegments(segs, fullText) {
-  //return segs.map((seg, i) => {
-    //const content = fullText.slice(seg.start, seg.end);
-    //if (seg.count === 0)
-      //return <React.Fragment key={i}>{content}</React.Fragment>;
-
-    //const level = getHighlightLevel(seg.count);
-    //return (
-      //<span
-        //key={i}
-        //className={`highlight highlight-${level}`}
-        //data-annotation-ids={seg.ids.join(",")}
-      //>
-        //{content}
-      //</span>
-   // );
- // });
-  
-//}
-
-
-
-
+};
 
 export {
+  renderSegments,
   computeSegments,
   getHighlightLevel,
   getNextModeOnSelection,
@@ -172,5 +169,4 @@ export {
   getUpdatedAnnotationList,
   groupAnnotationsByTextId,
   deleteAnnotation,
-  highlightFlatText,
 };
