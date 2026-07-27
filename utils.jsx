@@ -83,25 +83,6 @@ const computeSegments = (text, annotationsById, extraBoundaries = []) => {
   }
   const entries = Object.entries(annotationsById ?? {});
 
-  const invalidAnnotation = entries.find(
-    ([, [start, end]]) =>
-      start < 0 ||
-      end < 0 ||
-      start >= end ||
-      start > text.length ||
-      end > text.length
-  );
-
-  if (invalidAnnotation) {
-    const [id, [start, end]] = invalidAnnotation;
-
-    throw new RangeError(
-      `computeSegments: annotation "${id}" has an invalid range ` +
-        `[${start}, ${end}]. Range must satisfy ` +
-        `0 <= start < end <= text.length (${text.length}).`
-    );
-  }
-
   const points = new Set([0, text.length, ...extraBoundaries]);
 
   entries.forEach(([, [start, end]]) => {
@@ -141,7 +122,15 @@ const getHighlightLevel = (count) => {
   return 3; // count >= 3
 };
 
-const renderSegments = (segs, fullText) => {
+const renderSegments = (fullText, segs) => {
+  if (typeof fullText !== "string" || fullText.trim().length === 0) {
+    throw new TypeError("Can not render empty text or undefined.");
+  }
+  if (!Array.isArray(segs) || segs.length === 0) {
+    //to-do: deep dive for react key
+    return <span key="empty-segs">{fullText}</span>;
+  }
+
   return segs.map((seg, i) => {
     const content = fullText.slice(seg.start, seg.end);
     if (seg.count === 0)

@@ -27,10 +27,10 @@ function Header({ annotationList }) {
 
   return (
     <div className="resumeHeader" data-text-id="resume-header">
-      <h2>{renderSegments(nameSegments, fullText)}</h2>
+      <h2>{renderSegments(fullText, nameSegments)}</h2>
       <div>
-        <p>{renderSegments(emailSegments, fullText)}</p>
-        <p>{renderSegments(locationSegments, fullText)}</p>
+        <p>{renderSegments(fullText, emailSegments)}</p>
+        <p>{renderSegments(fullText, locationSegments)}</p>
       </div>
     </div>
   );
@@ -55,9 +55,9 @@ function Contact({ annotationList }) {
 
   return (
     <div className="contact-links" data-text-id="resume-links">
-      <p className="contact-item">{renderSegments(githubSegments, fullText)}</p>
+      <p className="contact-item">{renderSegments(fullText, githubSegments)}</p>
       <p className="contact-item">
-        {renderSegments(linkedinSegments, fullText)}
+        {renderSegments(fullText, linkedinSegments)}
       </p>
     </div>
   );
@@ -71,13 +71,14 @@ function Skills({ annotationList }) {
   return (
     <div className="skills">
       <h2 className="resume-section-title" data-text-id="skl">
-        {renderSegments(titleSegments, sectionTitle)}
+        {renderSegments(sectionTitle, titleSegments)}
       </h2>
       {resumeData.skills.map(({ category, items }, index) => {
         const formattedCategory =
           category.charAt(0).toUpperCase() + category.slice(1);
         const itemsText = items.join(", ");
         const textId = `skl-${index}`;
+
         const skillAnnotations = annotationList[textId];
 
         const lineText = `${formattedCategory}: ${itemsText}`;
@@ -91,8 +92,8 @@ function Skills({ annotationList }) {
 
         return (
           <p key={index} data-text-id={textId}>
-            <strong>{renderSegments(categorySegments, lineText)}</strong>
-            <span> {renderSegments(itemsSegments, lineText)}</span>
+            <strong>{renderSegments(lineText, categorySegments)}</strong>
+            <span> {renderSegments(lineText, itemsSegments)}</span>
           </p>
         );
       })}
@@ -109,7 +110,7 @@ function Experience({ annotationList }) {
   return (
     <div>
       <h2 className="resume-section-title" data-text-id="exp">
-        {renderSegments(titleSegments, sectionTitle)}
+        {renderSegments(sectionTitle, titleSegments)}
       </h2>
 
       {resumeData.experience.map((exp, index) => {
@@ -138,8 +139,8 @@ function Experience({ annotationList }) {
         return (
           <div key={index}>
             <p data-text-id={titleTextId}>
-              <strong>{renderSegments(jobTitleSegments, titleLineText)}</strong>
-              {renderSegments(detailsSegments, titleLineText)}
+              <strong>{renderSegments(titleLineText, jobTitleSegments)}</strong>
+              {renderSegments(titleLineText, detailsSegments)}
             </p>
 
             <ul>
@@ -155,7 +156,7 @@ function Experience({ annotationList }) {
 
                 return (
                   <li key={bulletIndex} data-text-id={bulletTextId}>
-                    {renderSegments(bulletSegments, bullet)}
+                    {renderSegments(bullet, bulletSegments)}
                   </li>
                 );
               })}
@@ -176,7 +177,7 @@ function Projects({ annotationList }) {
   return (
     <div>
       <h2 className="resume-section-title" data-text-id="pjt">
-        {renderSegments(titleSegments, sectionTitle)}
+        {renderSegments(sectionTitle, titleSegments)}
       </h2>
 
       {resumeData.projects.map((pro, index) => {
@@ -214,11 +215,11 @@ function Projects({ annotationList }) {
           <div key={index}>
             <p className="project-header" data-text-id={titleTextId}>
               <span>
-                <strong>{renderSegments(nameSegments, fullText)}</strong>
-                {renderSegments(stackSegments, fullText)}
+                <strong>{renderSegments(fullText, nameSegments)}</strong>
+                {renderSegments(fullText, stackSegments)}
               </span>
 
-              <span>{renderSegments(timeSegments, fullText)}</span>
+              <span>{renderSegments(fullText, timeSegments)}</span>
             </p>
 
             <ul>
@@ -234,7 +235,7 @@ function Projects({ annotationList }) {
 
                 return (
                   <li key={bulletIndex} data-text-id={bulletTextId}>
-                    {renderSegments(bulletSegments, bullet)}
+                    {renderSegments(bullet, bulletSegments)}
                   </li>
                 );
               })}
@@ -255,7 +256,7 @@ function Education({ annotationList }) {
   return (
     <div>
       <h2 className="resume-section-title" data-text-id="edu">
-        {renderSegments(titleSegments, sectionTitle)}
+        {renderSegments(sectionTitle, titleSegments)}
       </h2>
 
       {resumeData.education.map((edu, index) => {
@@ -297,15 +298,15 @@ function Education({ annotationList }) {
             <p className="education-header" data-text-id={headerTextId}>
               <span>
                 <strong>
-                  {renderSegments(schoolSegments, headerFullText)}
+                  {renderSegments(headerFullText, schoolSegments)}
                 </strong>
               </span>
 
-              <span>{renderSegments(graduationSegments, headerFullText)}</span>
+              <span>{renderSegments(headerFullText, graduationSegments)}</span>
             </p>
 
             <p data-text-id={degreeTextId}>
-              {renderSegments(degreeSegments, degreeText)}
+              {renderSegments(degreeText, degreeSegments)}
             </p>
           </div>
         );

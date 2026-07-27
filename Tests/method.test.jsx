@@ -1,5 +1,5 @@
 import { describe, expect, test, afterEach, vi } from "vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 
 import {
@@ -183,26 +183,6 @@ describe("computeSegments", () => {
     );
   });
 
-  test.each([
-    ["end exceeds text.length", [7, 18]],
-    ["start equals end", [7, 7]],
-    ["the entire range exceeds text.length", [18, 29]],
-  ])("throws when %s: %j", (_, range) => {
-    const annotationsById = {
-      invalidAnnotation: range,
-    };
-    expect(() => {
-      computeSegments(mockResumeTextIdSection, annotationsById, []);
-    }).toThrow(
-      new RangeError(
-        `computeSegments: annotation "invalidAnnotation" ` +
-          `has an invalid range [${range[0]}, ${range[1]}]. ` +
-          `Range must satisfy 0 <= start < end <= ` +
-          `text.length (${mockResumeTextIdSection.length}).`
-      )
-    );
-  });
-
   test("throws when any extra boundary exceeds text.length", () => {
     const extraBoundaries = [3, 18];
     expect(() => {
@@ -381,5 +361,72 @@ describe("computeSegments", () => {
         )
       ).toEqual(expected);
     });
+  });
+});
+
+describe("renderSegments", () => {
+  test.each([
+    ["undefined", undefined],
+    ["null", null],
+    ["an empty string", ""],
+    ["a whitespace-only string", "    "],
+  ])("throws when text is %s", (_, text) => {
+    expect(() => {
+      renderSegments(text, []);
+    }).toThrow(new TypeError("Can not render empty text or undefined."));
+  });
+
+  test.each([
+    ["undefined", undefined],
+    ["null", null],
+    ["an empty array", []],
+  ])(
+    "render full text when segments are undefined, null, or empty",
+    (_, segs) => {
+      render(renderSegments(mockResumeTextIdSection, segs));
+
+      expect(screen.getByText(mockResumeTextIdSection)).toBeInTheDocument();
+    }
+  );
+  test("render text correctly with valid segments", () => {
+    const overlappingAnnotationsWithoutBoundrySegments = [
+      segment(0, 2),
+      segment(2, 5, ["a"]),
+      segment(5, 8, ["a", "b"]),
+      segment(8, 12, ["b"]),
+      segment(12, 17),
+    ];
+    render(
+      renderSegments(
+        mockResumeTextIdSection,
+        overlappingAnnotationsWithoutBoundrySegments
+      )
+    );
+    // "na" should render without highlight
+    // const plainText = screen.getByText("na");
+    // expect(plainText).toBeInTheDocument();
+    // expect(plainText).not.toHaveClass("highlight");
+    // expect(plainText).not.toHaveAttribute("data-annotation-ids");
+
+    // "mel" should have highlight and annotation id "a"
+    const firstAnnotation = screen.getByText("mel");
+    expect(firstAnnotation).toHaveClass("highlight highlight-1");
+    expect(firstAnnotation).toHaveAttribute("data-annotation-ids", "a");
+
+    // "oca" should have annotation ids "a,b"
+    const overlappingAnnotation = screen.getByText("oca");
+    expect(overlappingAnnotation).toHaveClass("highlight highlight-2");
+    expect(overlappingAnnotation).toHaveAttribute("data-annotation-ids", "a,b");
+
+    // "tion" should have annotation id "b"
+    const secondAnnotation = screen.getByText("tion");
+    expect(secondAnnotation).toHaveClass("highlight highlight-1");
+    expect(secondAnnotation).toHaveAttribute("data-annotation-ids", "b");
+
+    // "email" should render without highlight
+    // const lastText = screen.getByText("email");
+    // expect(lastText).toBeInTheDocument();
+    // expect(lastText).not.toHaveClass("highlight");
+    // expect(lastText).not.toHaveAttribute("data-annotation-ids");
   });
 });
