@@ -8,6 +8,7 @@
 - [ ] New feature
 - [ ] Refactor / Cleanup
 - [ ] Documentation
+- [ ] Project Tooling & Workflow Setup
 
 ## Test
 
