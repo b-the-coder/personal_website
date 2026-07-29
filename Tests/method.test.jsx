@@ -8,7 +8,6 @@ import {
   deleteAnnotation,
   groupAnnotationsByTextId,
   renderSegments,
-  getHighlightLevel,
   computeSegments,
 } from "../utils";
 

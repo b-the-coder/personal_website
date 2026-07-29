@@ -85,7 +85,7 @@ function AnnotationInput({
   };
 
   const isEditing = currentAnnotationId !== undefined;
-  console.log("isEditing", isEditing);
+  
   const displayText = isEditing
     ? annotationList[currentAnnotationId].annotatedText
     : selectedText;
@@ -134,6 +134,7 @@ function AnnotationDisplay({
   const annotationNeedtobeDisplayed = currentAnnotationId.split(",");
 
   const handleDeleteClick = () => {
+ 
     const updatedAnnotationList = deleteAnnotation(
       annotationList,
       currentAnnotationId
