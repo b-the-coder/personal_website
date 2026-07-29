@@ -2,7 +2,7 @@
 
 ---
 
-# File Structure
+## File Structure
 
 ```text
 Project Root
@@ -24,7 +24,7 @@ Project Root
 
 ---
 
-# Data Flow
+## Data Flow
 
 Resume components load resume content from `resumeData.json` and render the resume based on the required layout and user annotations.
 
@@ -32,7 +32,7 @@ User annotations are managed through the `annotationList` state. Any annotation 
 
 ---
 
-# Annotation Object Structure
+## Annotation Object Structure
 
 ```ts
 {
@@ -78,15 +78,15 @@ User annotations are managed through the `annotationList` state. Any annotation 
 
 ---
 
-# Key Features
+## Key Features
 
-## 1. Highlight Text Based on Annotation Count
+### 1. Highlight Text Based on Annotation Count
 
-### Behavior
+#### Behavior
 
 When an annotation is added to a piece of text, that text is highlighted. The highlight color darkens through up to three levels as the annotation count increases.
 
-### Workflow
+#### Workflow
 
 1. Highlighting is implemented by applying background-color styles while the resume is rendered.
 
@@ -109,10 +109,14 @@ When an annotation is added to a piece of text, that text is highlighted. The hi
    - the entire `textId`, or
    - only specific segments within it.
 
-### Limitation
+## Boundary Case Handling
 
 This feature does not support annotations spanning multiple `textId` units.
 
-If a user selects text across multiple `textId` units, only the portion within the first `textId` will be highlighted. However, the saved annotation object will still preserve the user's complete selection.
+1. Cross `textId` selections produce a single range calculated from the start unit, where end includes all characters across intermediate text units.
+
+2. `computeSegment()` will still generate segment elements when annotation ranges exceed the length of the provided text, because it does not validate annotation boundaries against text.length.
+
+3. When a segment contains start/end values beyond the text boundary, `renderSegment()` creates the corresponding React element but the rendered content is an empty string ("").
 
 ---
