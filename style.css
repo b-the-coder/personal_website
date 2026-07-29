@@ -147,7 +147,7 @@ body.dark-mode h1 {
 
 /* 链接 */
 body.dark-mode a {
-  color: #534AB7;  
+  color: #534ab7;
 }
 body.dark-mode a:hover {
   color: #afa9ec;
@@ -155,7 +155,7 @@ body.dark-mode a:hover {
 
 /* toggle 文字 */
 body.dark-mode .toggle-text {
-  color: #534AB7;  
+  color: #534ab7;
 }
 
 /* toggle track */
@@ -206,7 +206,6 @@ body.dark-mode .contact-links {
   justify-content: space-between;
   align-items: center;
 }
-
 
 .contact-item {
   font-size: 0.9rem;
@@ -371,7 +370,16 @@ body.dark-mode .contact-links {
   display: flex;
 }
 
-.highlighted {
-  background-color: rgb(241, 237, 25);
+.highlight {
   cursor: pointer;
+}
+.highlight-3 {
+  background-color: #ffc107;
+}
+
+.highlight-2 {
+  background-color: #ffe066;
+}
+.highlight-1 {
+  background-color: #fff9c4;
 }

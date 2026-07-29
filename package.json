@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "build": "vite build",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
