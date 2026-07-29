@@ -1,18 +1,19 @@
-## What does this PR do?
-<!-- A short description of the change -->
+## Description
 
-## Why?
-<!-- Context, motivation, or linked issue -->
-Closes #
+<!-- A short description of this PR, go into details if complex logic involved or necessary -->
 
-## Type of change
+## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
-- [ ] Refactor
-- [ ] Other
+- [ ] Refactor / Cleanup
+- [ ] Documentation
+- [ ] Project Tooling & Workflow Setup
 
-## Checklist
-- [ ] I tested this locally
-- [ ] No console errors or warnings
-- [ ] Proper code comments added
-- [ ] Ready to review
+## Test
+
+<!-- How to test your code/change -->
+
+## Risk Level
+
+<!-- If not none, describe impact if fails/problem occurs -->
