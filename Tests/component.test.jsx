@@ -9,6 +9,8 @@ import {
   AnnotationDisplay,
 } from "../components/annoFeature";
 
+import * as utils from "../utils";
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -28,7 +30,7 @@ const mockPosition = {
 
 const mockAnnotation1 = {
   annotatedText: "name and contact",
-  annotationContent: "this is a note for resume header",
+  annotationContent: "this is a note1 for name and contact",
   selectionPosition: {
     viewportPosition: { x: 100, y: 200 },
     textPosition: "paragraph one",
@@ -59,10 +61,22 @@ const mockAnnotation3 = {
   timestamp: 1234567890,
 };
 
+const mockAnnotation4 = {
+  annotatedText: "name and contact",
+  annotationContent: "this is a note2 for name and contact",
+  selectionPosition: {
+    viewportPosition: { x: 100, y: 200 },
+    textPosition: "paragraph one",
+    range: [0, 1],
+  },
+  timestamp: 1234567890,
+};
+
 const mockAnnotationList = {
   "anno-1": mockAnnotation1,
   "anno-2": mockAnnotation2,
   "anno-3": mockAnnotation3,
+  "anno-4": mockAnnotation4,
 };
 
 const mockAnnotationListafterDeletion = {
@@ -71,6 +85,7 @@ const mockAnnotationListafterDeletion = {
 };
 
 const mockCurrentAnnotationId = "anno-1";
+const mockAnnotationIdString = "anno-1,anno-4";
 
 describe("AnnotationOfferer", () => {
   test("renders AnnotationOfferer at selected view port position when mode is text_selected", () => {
@@ -330,7 +345,7 @@ describe("AnnotationDisplay", () => {
       expect(screen.queryByText("You annotated:")).toBeNull();
     });
   });
-
+ //to-do: update test to verify multiple annotations display
   describe("displayed content", () => {
     test("Show the right annotated text and annotation content when render", () => {
       render(
@@ -356,51 +371,68 @@ describe("AnnotationDisplay", () => {
   describe("Edit and Delete behavior", () => {
     let user;
     let setMode;
+    let setCurrentAnnotationId;
 
     beforeEach(() => {
       user = userEvent.setup();
       setMode = vi.fn();
+      setCurrentAnnotationId = vi.fn();
     });
 
-    test("Set correct mode when Edit been clicked", async () => {
+    test("Sets current annotation and switches mode when Edit been clicked", async () => {
       render(
         <AnnotationDisplay
           mode="anno_display"
           setMode={setMode}
           annotationList={mockAnnotationList}
-          currentAnnotationId={mockCurrentAnnotationId}
+          currentAnnotationId={mockAnnotationIdString}
+          setCurrentAnnotationId={setCurrentAnnotationId}
         />
       );
 
-      await user.click(
-        screen.getByRole("button", {
-          name: /edit/i,
-        })
-      );
+      const editButtons = screen.getAllByRole("button", {
+        name: /edit/i,
+      });
 
+      await user.click(editButtons[0]);
+      expect(setCurrentAnnotationId).toHaveBeenCalledWith("anno-1");
+      expect(setMode).toHaveBeenCalledWith("annotating");
+
+      await user.click(editButtons[1]);
+      expect(setCurrentAnnotationId).toHaveBeenCalledWith("anno-4");
       expect(setMode).toHaveBeenCalledWith("annotating");
     });
 
-    test("Delete annotation and resets mode when Delete been clicked", async () => {
+    test("Delete correct annotation and switchs mode when Delete been clicked", async () => {
       const setAnnotationList = vi.fn();
+      vi.spyOn(utils, "deleteAnnotation").mockReturnValue(
+        mockAnnotationListafterDeletion
+      );
       render(
         <AnnotationDisplay
           mode="anno_display"
           setMode={setMode}
           annotationList={mockAnnotationList}
           setAnnotationList={setAnnotationList}
-          currentAnnotationId={mockCurrentAnnotationId}
+          currentAnnotationId={mockAnnotationIdString}
         />
       );
 
-      await user.click(
-        screen.getByRole("button", {
-          name: /delete/i,
-        })
+      const deleteButtons = screen.getAllByRole("button", {
+        name: /delete/i,
+      });
+
+      await user.click(deleteButtons[0]);
+      expect(utils.deleteAnnotation).toHaveBeenCalledWith(
+        mockAnnotationList,
+        "anno-1"
       );
-      const updatedAnnotationList = setAnnotationList.mock.calls[0][0];
-      expect(updatedAnnotationList).toMatchObject(
-        mockAnnotationListafterDeletion
+      expect(setMode).toHaveBeenCalledWith("idle");
+
+      await user.click(deleteButtons[1]);
+      expect(utils.deleteAnnotation).toHaveBeenCalledWith(
+        mockAnnotationList,
+        "anno-4"
       );
       expect(setMode).toHaveBeenCalledWith("idle");
     });
