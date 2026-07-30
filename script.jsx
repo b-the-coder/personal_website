@@ -79,9 +79,9 @@ function ResumeText({
   };
 
   const handleClick = (e) => {
-    const annoId = e.target.dataset.annotationIds;
-    if (annoId) {
-      setCurrentAnnotationId(annoId);
+    const annotationIdsString = e.target.dataset.annotationIds;
+    if (annotationIdsString) {
+      setCurrentAnnotationId(annotationIdsString);
       setMode("anno_display");
     }
   };

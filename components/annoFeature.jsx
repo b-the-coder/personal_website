@@ -49,7 +49,7 @@ function AnnotationInput({
   selectionPosition,
   setSelectionPosition,
   currentAnnotationId,
-  setCurrentAnnotationId,
+  setcurrentAnnotationId,
 }) {
   //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
   const annotationRef = useRef(null);
@@ -85,7 +85,7 @@ function AnnotationInput({
   };
 
   const isEditing = currentAnnotationId !== undefined;
-  
+
   const displayText = isEditing
     ? annotationList[currentAnnotationId].annotatedText
     : selectedText;
@@ -131,22 +131,19 @@ function AnnotationDisplay({
     return null;
   }
 
-  const annotationNeedtobeDisplayed = currentAnnotationId.split(",");
+  const displayAnnotationIds = currentAnnotationId.split(",");
 
-  const handleDeleteClick = () => {
- 
-    const updatedAnnotationList = deleteAnnotation(
-      annotationList,
-      currentAnnotationId
-    );
+  const handleDeleteClick = (annoId) => {
+    const updatedAnnotationList = deleteAnnotation(annotationList, annoId);
     setAnnotationList(updatedAnnotationList);
     setMode("idle");
   };
-  const handleEditClick = () => {
+  const handleEditClick = (annoId) => {
+    setCurrentAnnotationId(annoId);
     setMode("annotating");
   };
 
-  return annotationNeedtobeDisplayed.map((annoId) => (
+  return displayAnnotationIds.map((annoId) => (
     <div className="annotation-display" key={annoId}>
       <p className="annotation-display__selected-text">
         <strong>
@@ -164,13 +161,17 @@ function AnnotationDisplay({
       <div className="annotation-display__actions">
         <button
           className="annotation-display__edit-btn"
-          onClick={handleEditClick}
+          onClick={() => {
+            handleEditClick(annoId);
+          }}
         >
           Edit
         </button>
         <button
           className="annotation-display__delete-btn"
-          onClick={handleDeleteClick}
+          onClick={() => {
+            handleDeleteClick(annoId);
+          }}
         >
           Delete
         </button>
