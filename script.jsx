@@ -30,8 +30,7 @@ function ResumeText({
   setSelectionPosition,
 }) {
   const groupedAnnotation = groupAnnotationsByTextId(annotationList);
- 
-  
+
   const handleSelection = () => {
     const userSelection = window.getSelection();
 
@@ -42,7 +41,7 @@ function ResumeText({
 
     const textPositionNode =
       range.startContainer.parentElement.closest("[data-text-id]");
-    
+
     const preCaretRange = range.cloneRange();
 
     // 让克隆出来的选区，起点固定在最外层大容器的开头
@@ -59,13 +58,12 @@ function ResumeText({
     const globalEndIndex = preCaretRange.toString().length;
     const startIndex = globalStartIndex;
     const endIndex = globalEndIndex;
-   
-    const textPosition = textPositionNode.getAttribute("data-text-id");
-   
+
+    const textId = textPositionNode.getAttribute("data-text-id");
 
     const selectionPosition = {
       viewportPosition: { x: rect.right, y: rect.bottom },
-      textPosition: textPosition,
+      textPosition: textId,
       range: [startIndex, endIndex],
     };
 
@@ -73,7 +71,6 @@ function ResumeText({
 
     setMode(nextMode);
     setSelectedText(selectedString);
-    
     setSelectionPosition(selectionPosition);
     setCurrentAnnotationId(undefined);
   };
