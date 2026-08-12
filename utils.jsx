@@ -1,7 +1,10 @@
 import React from "react";
 
 const getNextModeOnSelection = (selectedString) => {
-  if (selectedString === "" || selectedString === null) {
+  if (
+    selectedString === "" ||
+    selectedString === null 
+  ) {
     return "idle";
   }
   return "text_selected";
