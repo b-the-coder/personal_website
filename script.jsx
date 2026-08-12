@@ -35,6 +35,7 @@ function ResumeText({
     const userSelection = window.getSelection();
 
     const selectedString = userSelection.toString();
+    console.log("selectionString", typeof selectedString);
 
     const range = userSelection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
@@ -66,7 +67,7 @@ function ResumeText({
       textPosition: textId,
       range: [startIndex, endIndex],
     };
-
+    console.log("viewportPosition", selectionPosition.viewportPosition);
     const nextMode = getNextModeOnSelection(selectedString);
 
     setMode(nextMode);
