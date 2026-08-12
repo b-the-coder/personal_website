@@ -1,4 +1,4 @@
-import { test, expect } from "playwright@test";
+import { test, expect } from "playwright/test";
 
 test.describe("annotations creation", () => {
   test("single annotation creation", async ({ page }) => {
@@ -7,7 +7,8 @@ test.describe("annotations creation", () => {
     const count = await locator.count();
     const idx = Math.floor(Math.random() * count);
     const target = locator.nth(idx);
-
+    // scroll target in viewport
+    await target.scrollIntoViewIfNeeded();
     const selectionInfo = await target.evaluate((el) => {
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       let node;
@@ -21,8 +22,8 @@ test.describe("annotations creation", () => {
           window.getSelection().removeAllRanges();
           window.getSelection().addRange(range);
 
-          const rect = range.getBoundingClientRect(); 
-          const selectedText = window.getSelection().toString(); 
+          const rect = range.getBoundingClientRect();
+          const selectedText = window.getSelection().toString();
 
           return {
             selectedText: selectedText,
@@ -32,6 +33,8 @@ test.describe("annotations creation", () => {
       }
       return null; // 没找到的情况也要处理,不然函数隐式返回undefined
     });
+    console.log("selectionInfo", selectionInfo);
+    console.log(page.viewportSize());
     // mimic mouseup in the resume section
     await page.locator(".resumeText").dispatchEvent("mouseup");
     //check if annotation offerer visible and at expected position
@@ -44,7 +47,7 @@ test.describe("annotations creation", () => {
     await page.locator(".annotation-offerer").click();
     await expect(page.locator(".annotation-input")).toBeVisible();
     await expect(
-      page.getByText("On: ${selectionInfo.selectedText}")
+      page.getByText(`On: ${selectionInfo.selectedText}`)
     ).toBeVisible();
 
     //mimic user input annotation content and post
@@ -54,7 +57,6 @@ test.describe("annotations creation", () => {
     await page.locator(".annotation-input__post-btn").click();
   });
 
-//verify the correct word is being highlighted
-const highlights = page.locator('.resume-text .highlight');
-
+  //verify the correct word is being highlighted
+  // const highlights = page.locator('.resume-text .highlight');
 });
