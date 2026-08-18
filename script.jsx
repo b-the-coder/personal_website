@@ -15,7 +15,11 @@ import {
   AnnotationInput,
 } from "./components/annoFeature";
 
-import { getNextModeOnSelection, groupAnnotationsByTextId } from "./utils";
+import {
+  getRelativeOffsets,
+  getNextModeOnSelection,
+  groupAnnotationsByTextId,
+} from "./utils";
 
 function ResumeText({
   annotationList,
@@ -33,41 +37,24 @@ function ResumeText({
 
   const handleSelection = () => {
     const userSelection = window.getSelection();
-
     const selectedString = userSelection.toString();
-    console.log("selectionString", typeof selectedString);
-
     const range = userSelection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
 
     const textPositionNode =
       range.startContainer.parentElement.closest("[data-text-id]");
-
-    const preCaretRange = range.cloneRange();
-
-    // 让克隆出来的选区，起点固定在最外层大容器的开头
-    preCaretRange.selectNodeContents(textPositionNode);
-    // 让克隆选区的终点，等于用户实际选中的起点
-    preCaretRange.setEnd(range.startContainer, range.startOffset);
-
-    // 此时，克隆选区内包含的所有文本字符长度，就是绝对的全局起始位置！
-    // 注意：toString() 会自动平铺所有子元素的文本
-    const globalStartIndex = preCaretRange.toString().length;
-
-    // 同理，计算全局结束位置
-    preCaretRange.setEnd(range.endContainer, range.endOffset);
-    const globalEndIndex = preCaretRange.toString().length;
-    const startIndex = globalStartIndex;
-    const endIndex = globalEndIndex;
-
+    const offsetsRelativeToTextPositionNode = getRelativeOffsets(
+      range,
+      textPositionNode
+    );
     const textId = textPositionNode.getAttribute("data-text-id");
+    const rect = range.getBoundingClientRect();
 
     const selectionPosition = {
       viewportPosition: { x: rect.right, y: rect.bottom },
       textPosition: textId,
-      range: [startIndex, endIndex],
+      range: offsetsRelativeToTextPositionNode,
     };
-    console.log("viewportPosition", selectionPosition.viewportPosition);
+
     const nextMode = getNextModeOnSelection(selectedString);
 
     setMode(nextMode);

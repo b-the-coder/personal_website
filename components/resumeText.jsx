@@ -218,7 +218,6 @@ function Projects({ annotationList }) {
                 <strong>{renderSegments(fullText, nameSegments)}</strong>
                 {renderSegments(fullText, stackSegments)}
               </span>
-
               <span>{renderSegments(fullText, timeSegments)}</span>
             </p>
 

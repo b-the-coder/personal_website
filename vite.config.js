@@ -8,7 +8,9 @@ export default defineConfig({
     exclude: ["e2e/**", "node_modules/**"],
     coverage: {
       provider: "v8",
-      
+      all: true,
+      include: ["**/*.{js,jsx}"],
+      exclude: ["**/*.test.*", "**/*.config.*", "dist/**"],
       thresholds: {
         statements: 80,
         branches: 80,
