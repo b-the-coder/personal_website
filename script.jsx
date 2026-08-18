@@ -42,6 +42,9 @@ function ResumeText({
 
     const textPositionNode =
       range.startContainer.parentElement.closest("[data-text-id]");
+    console.log("选中空白内容时的textPositionNode", textPositionNode);
+    console.log("双击空白处时的textPositionNode", textPositionNode);
+    console.log("选中空白内容时的range",range)
     const offsetsRelativeToTextPositionNode = getRelativeOffsets(
       range,
       textPositionNode
@@ -61,6 +64,10 @@ function ResumeText({
     setSelectedText(selectedString);
     setSelectionPosition(selectionPosition);
     setCurrentAnnotationId(undefined);
+
+    if (typeof window !== "undefined" && window.playwright) {
+      window.__LAST_CALCULATED_RANGE__ = offsetsRelativeToTextPositionNode;
+    }
   };
 
   const handleClick = (e) => {
