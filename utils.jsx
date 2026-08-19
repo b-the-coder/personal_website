@@ -23,6 +23,7 @@ const getRelativeOffsets = (range,textPositionNode)=>{
 }
 
 const getNextModeOnSelection = (selectedString) => {
+  
   if (
     selectedString === "" ||
     selectedString === null 
