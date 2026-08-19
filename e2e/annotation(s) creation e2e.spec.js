@@ -33,8 +33,7 @@ test.describe("annotations creation", () => {
       }
       return null; // 没找到的情况也要处理,不然函数隐式返回undefined
     });
-    console.log("selectionInfo", selectionInfo);
-    console.log(page.viewportSize());
+
     // mimic mouseup in the resume section
     await page.locator(".resumeText").dispatchEvent("mouseup");
     //check if annotation offerer visible and at expected position

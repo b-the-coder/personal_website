@@ -1,8 +1,10 @@
 import { describe, expect, test, afterEach, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import { JSDOM } from "jsdom";
 import "@testing-library/jest-dom/vitest";
 
 import {
+  getRelativeOffsets,
   getNextModeOnSelection,
   getUpdatedAnnotationList,
   deleteAnnotation,
@@ -85,6 +87,44 @@ const mockNewAnnoData = {
 };
 
 const mockCurrentAnnotationId = "anno-1";
+
+describe("getRelativeOffsets", () => {
+  test("should calculate correct relative offsets for ranges", () => {
+    const dom = new JSDOM(`<div className="resumeHeader" data-text-id="resume-header"><h2>abcdefg</h2><div><p>hijklmn</p><p>opqrst</p></div></div>`);
+    const document = dom.window.document;
+    const container = document.querySelector('[data-text-id="resume-header"]');
+    const h2Text = container.querySelector("h2").firstChild;
+    const p1Text = container.querySelectorAll("p")[0].firstChild;
+    const p2Text = container.querySelectorAll("p")[1].firstChild;
+
+    const range1 = document.createRange();
+    range1.setStart(h2Text, 0);
+    range1.setEnd(h2Text, 3);
+
+    const range2 = document.createRange();
+    range2.setStart(h2Text, 2);
+    range2.setEnd(p1Text, 3);
+
+    const range3 = document.createRange();
+    range3.setStart(h2Text, 2);
+    range3.setEnd(p2Text, 2);
+
+    const range4 = document.createRange();
+    range4.setStart(p1Text, 0);
+    range4.setEnd(p2Text, 2);
+
+    const range5 = document.createRange();
+    range5.setStart(p2Text, 1);
+    range5.setEnd(p2Text, 4);
+
+    expect(getRelativeOffsets(range1, container)).toEqual([0, 3]);
+    expect(getRelativeOffsets(range2, container)).toEqual([2, 10]);
+    expect(getRelativeOffsets(range3, container)).toEqual([2, 16]);
+    expect(getRelativeOffsets(range4, container)).toEqual([7, 16]);
+    expect(getRelativeOffsets(range5, container)).toEqual([15, 18]);
+  });
+});
+
 
 describe("groupAnnotationsByTextId", () => {
   test("group annotations by textId and keep only their ranges", () => {

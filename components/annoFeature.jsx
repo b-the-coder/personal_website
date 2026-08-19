@@ -2,6 +2,51 @@ import React from "react";
 import { useState, useRef } from "react";
 import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
 
+function Annofeature({
+  mode,
+  setMode,
+  annotationList,
+  setAnnotationList,
+  currentAnnotationId,
+  setCurrentAnnotationId,
+  selectedText,
+  setSelectedText,
+  selectionPosition,
+  setSelectionPosition,
+}) {
+  return (
+    <div className="annoFeature">
+      <AnnotationOfferer
+        mode={mode}
+        setMode={setMode}
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
+        setSelectionPosition={setSelectionPosition}
+      />
+      <AnnotationInput
+        mode={mode}
+        setMode={setMode}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        selectionPosition={selectionPosition}
+        setSelectionPosition={setSelectionPosition}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
+      />
+      <AnnotationDisplay
+        mode={mode}
+        setMode={setMode}
+        annotationList={annotationList}
+        setAnnotationList={setAnnotationList}
+        currentAnnotationId={currentAnnotationId}
+        setCurrentAnnotationId={setCurrentAnnotationId}
+      />
+    </div>
+  );
+}
 function AnnotationOfferer({
   mode,
   setMode,
@@ -181,6 +226,7 @@ function AnnotationDisplay({
 }
 
 export {
+  Annofeature,
   AnnotationOfferer,
   AnnotationInput,
   AnnotationDisplay,

@@ -1,7 +1,79 @@
 import resumeData from "../resumeData.json";
 import React from "react";
+import {
+  computeSegments,
+  renderSegments,
+  getRelativeOffsets,
+  getNextModeOnSelection,
+  groupAnnotationsByTextId,
+} from "../utils";
 
-import { computeSegments, renderSegments } from "../utils";
+function ResumeText({
+  annotationList,
+  setCurrentAnnotationId,
+  setMode,
+  setSelectedText,
+  setSelectionPosition,
+}) {
+  const groupedAnnotation = groupAnnotationsByTextId(annotationList);
+
+  const handleSelection = () => {
+    
+    const userSelection = window.getSelection();
+    const selectedString = userSelection.toString();
+    const range = userSelection.getRangeAt(0);
+
+    const textPositionNode =
+      range.startContainer.parentElement.closest("[data-text-id]");
+
+    const offsetsRelativeToTextPositionNode = getRelativeOffsets(
+      range,
+      textPositionNode
+    );
+    const textId = textPositionNode.getAttribute("data-text-id");
+    const rect = range.getBoundingClientRect();
+    const selectionPosition = {
+      viewportPosition: { x: rect.right, y: rect.bottom },
+      textPosition: textId,
+      range: offsetsRelativeToTextPositionNode,
+    };
+
+    const nextMode = getNextModeOnSelection(selectedString);
+    
+
+    setMode(nextMode);
+    setSelectedText(selectedString);
+    setSelectionPosition(selectionPosition);
+    setCurrentAnnotationId(undefined);
+
+    if (typeof window !== "undefined" && window.playwright) {
+      window.__LAST_CALCULATED_RANGE__ = offsetsRelativeToTextPositionNode;
+    }
+  };
+
+  const handleClick = (e) => {
+    const annotationIdsString = e.target.dataset.annotationIds;
+    if (annotationIdsString) {
+      setCurrentAnnotationId(annotationIdsString);
+      setMode("anno_display");
+    }
+  };
+
+  return (
+    <div
+      className="resumeText"
+      onMouseUp={handleSelection}
+      onClick={handleClick}
+    >
+      <Header annotationList={groupedAnnotation} />
+      <Contact annotationList={groupedAnnotation} />
+      <Skills annotationList={groupedAnnotation} />
+      <Experience annotationList={groupedAnnotation} />
+      <Projects annotationList={groupedAnnotation} />
+      <Education annotationList={groupedAnnotation} />
+    </div>
+  );
+}
 
 function Header({ annotationList }) {
   const headerAnnotations = annotationList["resume-header"];
@@ -218,7 +290,6 @@ function Projects({ annotationList }) {
                 <strong>{renderSegments(fullText, nameSegments)}</strong>
                 {renderSegments(fullText, stackSegments)}
               </span>
-
               <span>{renderSegments(fullText, timeSegments)}</span>
             </p>
 
@@ -315,4 +386,4 @@ function Education({ annotationList }) {
   );
 }
 
-export { Header, Contact, Skills, Experience, Projects, Education };
+export { ResumeText, Header, Contact, Skills, Experience, Projects, Education };
