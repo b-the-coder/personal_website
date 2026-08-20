@@ -3,15 +3,9 @@ import { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { ResumeText } from "./resumeText";
 import { Annofeature } from "./annoFeature";
+import { annotationListinit } from "../utils";
 
 function ResumeAnno() {
-  const annotationListinit = () => {
-    if (localStorage.getItem("annotationList") === null) {
-      return {};
-    } else {
-      return JSON.parse(localStorage.annotationList);
-    }
-  };
   const [annotationList, setAnnotationList] = useState(annotationListinit());
   const [currentAnnotationId, setCurrentAnnotationId] = useState(undefined);
   const [mode, setMode] = useState("idle");

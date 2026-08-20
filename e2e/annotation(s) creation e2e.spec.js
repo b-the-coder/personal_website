@@ -3,12 +3,22 @@ import { test, expect } from "playwright/test";
 test.describe("annotations creation", () => {
   test("single annotation creation", async ({ page }) => {
     await page.goto("/");
+
+    const preCreationStorage = await page.evaluate(() => {
+      const data = window.localStorage.getItem("annotationList");
+      // 如果找不到，返回 null，避免 JSON.parse 解析或后续链式调用崩溃
+      return data ? JSON.parse(data) : null;
+    });
+    expect(preCreationStorage).toEqual({});
+
+
     const locator = page.getByText(/react/i);
     const count = await locator.count();
     const idx = Math.floor(Math.random() * count);
     const target = locator.nth(idx);
     // scroll target in viewport
     await target.scrollIntoViewIfNeeded();
+
     const selectionInfo = await target.evaluate((el) => {
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       let node;
@@ -54,8 +64,23 @@ test.describe("annotations creation", () => {
       .locator(".annotation-input__textarea")
       .fill("mock e2e annotation content");
     await page.locator(".annotation-input__post-btn").click();
-  });
 
-  //verify the correct word is being highlighted
-  // const highlights = page.locator('.resume-text .highlight');
+    //localStorage should be updated when annotationList changed.
+    const postCreationStorage = await page.evaluate(() => {
+      return JSON.parse(window.localStorage.getItem("annotationList"));
+    }); 
+
+    expect(postCreationStorage).not.toBeNull();
+    const annotations = Object.values(postCreationStorage);
+    expect(annotations).toHaveLength(1);
+
+    expect(annotations).toContainEqual(
+      expect.objectContaining({
+        annotatedText: selectionInfo.selectedText,
+      })
+    );
+
+    //verify the correct word is being highlighted
+    // const highlights = page.locator('.resume-text .highlight');
+  });
 });
