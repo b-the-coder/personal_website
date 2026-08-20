@@ -120,7 +120,7 @@ test.describe("Text Selection & Click Interaction Behavior", () => {
     // );
 
     // // expect(calculatedRange).toBeUndefined();
-    await expect(page.locator(".annotation-offerer")).not.toBeVisible();
+    await expect(page.locator(".annotation-offerer")).toBeHidden();
   });
   test("should not offer annotation when dragging on white space", async ({
     page,
@@ -153,7 +153,7 @@ test.describe("Text Selection & Click Interaction Behavior", () => {
     // );
 
     // expect(calculatedRange).toBeUndefined();
-    await expect(page.locator(".annotation-offerer")).not.toBeVisible();
+    await expect(page.locator(".annotation-offerer")).toBeHidden()
   });
   test("should not offer annotation when dbclicking with out selection on white space", async ({
     page,
@@ -179,6 +179,6 @@ test.describe("Text Selection & Click Interaction Behavior", () => {
     // );
 
     // expect(calculatedRange).toBeUndefined();
-    // await expect(page.locator(".annotation-offerer")).not.toBeVisible();
+    // await expect(page.locator(".annotation-offerer")).toBeHidden();
   });
 });

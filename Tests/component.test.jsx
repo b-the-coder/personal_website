@@ -2,7 +2,9 @@ import { describe, expect, test, afterEach, vi, beforeEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { userEvent } from "@testing-library/user-event";
+
 import React from "react";
+
 import {
   AnnotationOfferer,
   AnnotationInput,

@@ -1,5 +1,15 @@
 import React from "react";
 
+const annotationListinit = () => {
+  const data = localStorage.getItem("annotationList");
+  if (data === null) {
+    return {};
+  } else {
+    return JSON.parse(data);
+  }
+};
+
+
 const getRelativeOffsets = (range,textPositionNode)=>{
   const preCaretRange = range.cloneRange();
 
@@ -176,6 +186,7 @@ const renderSegments = (fullText, segs) => {
 };
 
 export {
+  annotationListinit,
   getRelativeOffsets,
   renderSegments,
   computeSegments,

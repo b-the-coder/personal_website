@@ -1,9 +1,10 @@
-import { describe, expect, test, afterEach, vi } from "vitest";
+import { describe, expect, test, afterEach, vi, beforeEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { JSDOM } from "jsdom";
 import "@testing-library/jest-dom/vitest";
 
 import {
+  annotationListinit,
   getRelativeOffsets,
   getNextModeOnSelection,
   getUpdatedAnnotationList,
@@ -90,7 +91,9 @@ const mockCurrentAnnotationId = "anno-1";
 
 describe("getRelativeOffsets", () => {
   test("should calculate correct relative offsets for ranges", () => {
-    const dom = new JSDOM(`<div className="resumeHeader" data-text-id="resume-header"><h2>abcdefg</h2><div><p>hijklmn</p><p>opqrst</p></div></div>`);
+    const dom = new JSDOM(
+      `<div className="resumeHeader" data-text-id="resume-header"><h2>abcdefg</h2><div><p>hijklmn</p><p>opqrst</p></div></div>`
+    );
     const document = dom.window.document;
     const container = document.querySelector('[data-text-id="resume-header"]');
     const h2Text = container.querySelector("h2").firstChild;
@@ -124,7 +127,6 @@ describe("getRelativeOffsets", () => {
     expect(getRelativeOffsets(range5, container)).toEqual([15, 18]);
   });
 });
-
 
 describe("groupAnnotationsByTextId", () => {
   test("group annotations by textId and keep only their ranges", () => {
@@ -467,5 +469,22 @@ describe("renderSegments", () => {
     // expect(lastText).toBeInTheDocument();
     // expect(lastText).not.toHaveClass("highlight");
     // expect(lastText).not.toHaveAttribute("data-annotation-ids");
+  });
+});
+
+describe("annotationListinit", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  test("return annotatonList if it's exists", () => {
+    localStorage.setItem("annotationList", JSON.stringify(mockAnnotationList));
+    const result = annotationListinit();
+    expect(result).toEqual(mockAnnotationList);
+  });
+
+  test("return '{}' if annotaitonList not exists ", () => {
+    const result = annotationListinit();
+    expect(result).toEqual({});
   });
 });
