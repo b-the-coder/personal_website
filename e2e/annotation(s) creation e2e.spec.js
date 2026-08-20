@@ -68,7 +68,7 @@ test.describe("annotations creation", () => {
     //localStorage should be updated when annotationList changed.
     const postCreationStorage = await page.evaluate(() => {
       return JSON.parse(window.localStorage.getItem("annotationList"));
-    });
+    }); 
 
     expect(postCreationStorage).not.toBeNull();
     const annotations = Object.values(postCreationStorage);
