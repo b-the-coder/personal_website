@@ -12,6 +12,7 @@ import {
   groupAnnotationsByTextId,
   renderSegments,
   computeSegments,
+  processTextSegments,
 } from "../utils";
 
 afterEach(() => {
@@ -75,6 +76,10 @@ const mockAnnotationList = {
   "anno-1": mockAnnotation1,
   "anno-2": mockAnnotation2,
   "anno-3": mockAnnotation3,
+};
+const selectedGroupAnnotations = {
+  "anno-1": mockAnnotation1,
+  "anno-2": mockAnnotation2,
 };
 
 const mockNewAnnoData = {
@@ -487,4 +492,29 @@ describe("annotationListinit", () => {
     const result = annotationListinit();
     expect(result).toEqual({});
   });
+});
+
+describe("processTextSegments", () => {
+  const fakeComputeFn = () => [];
+
+  test.each([[], undefined])(
+    "throw TypeError when textChunks is %p",
+    (invalidInput) => {
+      expect(() => {
+        processTextSegments(
+          invalidInput,
+          selectedGroupAnnotations,
+          fakeComputeFn
+        );
+      }).toThrow("Can not process empty text or undefined.");
+    }
+  );
+
+  // test("handle no annotationById", () => {
+  //   const mockTextChuck = ["mockTextChuck"];
+  //   expect(processTextSegments(mockTextChuck, fakeComputeFn)).toEqual({
+  //     fullText: "mockTextChuck",
+  //     segmentList: [],
+  //   });
+  // });
 });

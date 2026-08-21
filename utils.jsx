@@ -9,8 +9,7 @@ const annotationListinit = () => {
   }
 };
 
-
-const getRelativeOffsets = (range,textPositionNode)=>{
+const getRelativeOffsets = (range, textPositionNode) => {
   const preCaretRange = range.cloneRange();
 
   // 让克隆出来的选区，起点固定在最外层大容器的开头
@@ -25,19 +24,15 @@ const getRelativeOffsets = (range,textPositionNode)=>{
   // 同理，计算全局结束位置
   preCaretRange.setEnd(range.endContainer, range.endOffset);
   const globalEndIndex = preCaretRange.toString().length;
-  
+
   const startIndex = globalStartIndex;
   const endIndex = globalEndIndex;
 
-  return [startIndex, endIndex]
-}
+  return [startIndex, endIndex];
+};
 
 const getNextModeOnSelection = (selectedString) => {
-  
-  if (
-    selectedString === "" ||
-    selectedString === null 
-  ) {
+  if (selectedString === "" || selectedString === null) {
     return "idle";
   }
   return "text_selected";
@@ -185,11 +180,72 @@ const renderSegments = (fullText, segs) => {
   });
 };
 
+const processTextSegments = ( textChunks, annotationsById, computeSegmentsFn ) => {
+  // 1. 严格拦截 textChunks
+  if (!Array.isArray(textChunks) || textChunks.length === 0) {
+    throw new TypeError("Can not process empty text or undefined.");
+  }
+
+  const fullText = textChunks.join("");
+
+  // 🌟 核心优化：提前判断没有标注的情况（包含忘了传、传入 null、传入 undefined）
+  if (!annotationsById) {
+    // 根本不需要做任何复杂计算，直接把每个 chunk 映射成一个完整的 segment 即可
+    let currentStart = 0;
+    const segmentList = textChunks.map(chunk => {
+      const segEnd = currentStart + chunk.length;
+      const chunkSegments = chunk.length > 0 ? [{
+        start: currentStart,
+        end: segEnd,
+        count: 0,
+        ids: []
+      }] : [];
+      currentStart = segEnd;
+      return chunkSegments;
+    });
+
+    return { fullText, segmentList };
+  }
+
+  // 2. 以下是有标注时，才去跑的原本的复杂运算（保持你原有的逻辑不变）
+  if (textChunks.length === 1) {
+    const allSegments = computeSegmentsFn(fullText, annotationsById, []);
+    return { fullText, segmentList: [allSegments] };
+  }
+
+  const boundaries = [];
+  let currentLength = 0;
+  for (let i = 0; i < textChunks.length; i++) {
+    currentLength += textChunks[i].length;
+    if (i < textChunks.length - 1) {
+      boundaries.push(currentLength);
+    }
+  }
+
+  const allSegments = computeSegmentsFn(fullText, annotationsById, boundaries);
+  const allBoundaries = [...boundaries, fullText.length];
+  const segmentList = [];
+  let prevBoundary = 0;
+
+  for (let i = 0; i < allBoundaries.length; i++) {
+    const currentBoundary = allBoundaries[i];
+    const currentSegments = allSegments.filter(
+      (seg) => seg.start >= prevBoundary && seg.end <= currentBoundary
+    );
+    segmentList.push(currentSegments);
+    prevBoundary = currentBoundary;
+  }
+
+  return { fullText, segmentList };
+};
+
+
 export {
   annotationListinit,
   getRelativeOffsets,
   renderSegments,
   computeSegments,
+  processTextSegments,
   getHighlightLevel,
   getNextModeOnSelection,
   createAnnotation,
