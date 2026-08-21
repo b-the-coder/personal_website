@@ -6,6 +6,7 @@ import {
   getRelativeOffsets,
   getNextModeOnSelection,
   groupAnnotationsByTextId,
+  processTextSegments,
 } from "../utils";
 
 function ResumeText({
@@ -18,7 +19,6 @@ function ResumeText({
   const groupedAnnotation = groupAnnotationsByTextId(annotationList);
 
   const handleSelection = () => {
-    
     const userSelection = window.getSelection();
     const selectedString = userSelection.toString();
     const range = userSelection.getRangeAt(0);
@@ -39,7 +39,6 @@ function ResumeText({
     };
 
     const nextMode = getNextModeOnSelection(selectedString);
-    
 
     setMode(nextMode);
     setSelectedText(selectedString);
@@ -81,21 +80,11 @@ function Header({ annotationList }) {
   const name = resumeData.name;
   const email = resumeData.contact.email;
   const location = resumeData.contact.location;
-  const fullText = `${name}${email}${location}`;
-
-  const nameBoundary = name.length;
-  const emailBoundary = name.length + email.length;
-
-  const segments = computeSegments(fullText, headerAnnotations, [
-    nameBoundary,
-    emailBoundary,
-  ]);
-
-  const nameSegments = segments.filter((seg) => seg.end <= nameBoundary);
-  const emailSegments = segments.filter(
-    (seg) => seg.start >= nameBoundary && seg.end <= emailBoundary
-  );
-  const locationSegments = segments.filter((seg) => seg.start >= emailBoundary);
+  const headerTextChuck = [name, email, location];
+  const {
+    fullText,
+    segmentList: [nameSegments, emailSegments, locationSegments],
+  } = processTextSegments(headerTextChuck, headerAnnotations, computeSegments);
 
   return (
     <div className="resumeHeader" data-text-id="resume-header">
@@ -113,16 +102,15 @@ function Contact({ annotationList }) {
 
   const github = resumeData.contact.github;
   const linkedin = resumeData.contact.linkedin;
-  const fullText = `${github}${linkedin}`;
-  const githubBoundary = github.length;
 
-  const segments = computeSegments(fullText, contactAnnotations, [
-    githubBoundary,
-  ]);
-
-  const githubSegments = segments.filter((seg) => seg.end <= githubBoundary);
-  const linkedinSegments = segments.filter(
-    (seg) => seg.start >= githubBoundary
+  const contactTextChuck = [github, linkedin];
+  const {
+    fullText,
+    segmentList: [githubSegments, linkedinSegments],
+  } = processTextSegments(
+    contactTextChuck,
+    contactAnnotations,
+    computeSegments
   );
 
   return (
@@ -153,19 +141,20 @@ function Skills({ annotationList }) {
 
         const skillAnnotations = annotationList[textId];
 
-        const lineText = `${formattedCategory}: ${itemsText}`;
-        const boundary = formattedCategory.length + 1; // "Frontend" + ":" 的长度
-
-        const segments = computeSegments(lineText, skillAnnotations, [
-          boundary,
-        ]);
-        const categorySegments = segments.filter((seg) => seg.end <= boundary);
-        const itemsSegments = segments.filter((seg) => seg.start >= boundary);
+        const skillTextChuck = [formattedCategory, itemsText];
+        const {
+          fullText,
+          segmentList: [categorySegments, itemsSegments],
+        } = processTextSegments(
+          skillTextChuck,
+          skillAnnotations,
+          computeSegments
+        );
 
         return (
           <p key={index} data-text-id={textId}>
-            <strong>{renderSegments(lineText, categorySegments)}</strong>
-            <span> {renderSegments(lineText, itemsSegments)}</span>
+            <strong>{renderSegments(fullText, categorySegments)}</strong>
+            <span> {renderSegments(fullText, itemsSegments)}</span>
           </p>
         );
       })}
@@ -187,48 +176,43 @@ function Experience({ annotationList }) {
 
       {resumeData.experience.map((exp, index) => {
         const titleTextId = `exp-${index}-title`;
+        const expPosition = exp.title;
+        const expDetail = ` - ${exp.project} (${exp.type}) | ${exp.startDate} - ${exp.endDate}`;
 
-        const detailsText = ` - ${exp.project} (${exp.type}) | ${exp.startDate} - ${exp.endDate}`;
+        const expTitleLineTextChuck = [expPosition, expDetail];
+        const expTitleAnnotations = annotationList[titleTextId];
 
-        const titleLineText = exp.title + detailsText;
-        const titleBoundary = exp.title.length;
-
-        const titleAnnotations = annotationList[titleTextId];
-
-        const titleLineSegments = computeSegments(
-          titleLineText,
-          titleAnnotations,
-          [titleBoundary]
+        const {
+          fullText: expTitleLineText,
+          segmentList: [expPositionSegments, expDetailSegments],
+        } = processTextSegments(
+          expTitleLineTextChuck,
+          expTitleAnnotations,
+          computeSegments
         );
-        const jobTitleSegments = titleLineSegments.filter(
-          (seg) => seg.end <= titleBoundary
-        );
-
-        const detailsSegments = titleLineSegments.filter(
-          (seg) => seg.start >= titleBoundary
-        );
+        
 
         return (
           <div key={index}>
             <p data-text-id={titleTextId}>
-              <strong>{renderSegments(titleLineText, jobTitleSegments)}</strong>
-              {renderSegments(titleLineText, detailsSegments)}
+              <strong>
+                {renderSegments(expTitleLineText, expPositionSegments)}
+              </strong>
+              {renderSegments(expTitleLineText, expDetailSegments)}
             </p>
 
             <ul>
               {exp.bullets.map((bullet, bulletIndex) => {
-                const bulletTextId = `exp-${index}-bullet-${bulletIndex}`;
-
-                const bulletAnnotations = annotationList[bulletTextId];
-
-                const bulletSegments = computeSegments(
+                const expBulletTextId = `exp-${index}-bullet-${bulletIndex}`;
+                const expBulletAnnotations = annotationList[expBulletTextId];
+                const expBulletSegments = computeSegments(
                   bullet,
-                  bulletAnnotations
+                  expBulletAnnotations
                 );
 
                 return (
-                  <li key={bulletIndex} data-text-id={bulletTextId}>
-                    {renderSegments(bullet, bulletSegments)}
+                  <li key={bulletIndex} data-text-id={expBulletTextId}>
+                    {renderSegments(bullet, expBulletSegments)}
                   </li>
                 );
               })}
@@ -253,39 +237,26 @@ function Projects({ annotationList }) {
       </h2>
 
       {resumeData.projects.map((pro, index) => {
-        const titleTextId = `pjt-${index}-title`;
-        const titleAnnotations = annotationList[titleTextId];
+        const proTitleTextId = `pjt-${index}-title`;
+        const proTitleAnnotations = annotationList[proTitleTextId];
 
         const nameText = pro.name;
         const stackText = ` | ${pro.stack.join(", ")}`;
         const timeText = `${pro.startDate} - ${pro.endDate}`;
 
-        const fullText = nameText + stackText + timeText;
-
-        const nameBoundary = nameText.length;
-        const stackBoundary = nameText.length + stackText.length;
-
-        const projectTitleSegments = computeSegments(
+        const proTitleTextChuck = [nameText, stackText, timeText];
+        const {
           fullText,
-          titleAnnotations,
-          [nameBoundary, stackBoundary]
-        );
-
-        const nameSegments = projectTitleSegments.filter(
-          (seg) => seg.end <= nameBoundary
-        );
-
-        const stackSegments = projectTitleSegments.filter(
-          (seg) => seg.start >= nameBoundary && seg.end <= stackBoundary
-        );
-
-        const timeSegments = projectTitleSegments.filter(
-          (seg) => seg.start >= stackBoundary
+          segmentList: [nameSegments, stackSegments, timeSegments],
+        } = processTextSegments(
+          proTitleTextChuck,
+          proTitleAnnotations,
+          computeSegments
         );
 
         return (
           <div key={index}>
-            <p className="project-header" data-text-id={titleTextId}>
+            <p className="project-header" data-text-id={proTitleTextId}>
               <span>
                 <strong>{renderSegments(fullText, nameSegments)}</strong>
                 {renderSegments(fullText, stackSegments)}
@@ -296,9 +267,7 @@ function Projects({ annotationList }) {
             <ul>
               {pro.bullets.map((bullet, bulletIndex) => {
                 const bulletTextId = `pjt-${index}-bullet-${bulletIndex}`;
-
                 const bulletAnnotations = annotationList[bulletTextId];
-
                 const bulletSegments = computeSegments(
                   bullet,
                   bulletAnnotations
@@ -331,53 +300,49 @@ function Education({ annotationList }) {
       </h2>
 
       {resumeData.education.map((edu, index) => {
-        const headerTextId = `edu-${index}-school-gradudation-date`;
+        const eduHeaderTextId = `edu-${index}-school-gradudation-date`;
         const degreeTextId = `edu-${index}-degree-grade`;
 
-        const headerAnnotations = annotationList[headerTextId];
-
+        const eduHeaderAnnotations = annotationList[eduHeaderTextId];
         const degreeAnnotations = annotationList[degreeTextId];
 
         const schoolText = edu.school;
         const graduationText = `Graduated ${edu.graduationDate}`;
 
-        const headerFullText = schoolText + graduationText;
+        const eduHeaderTextChuck = [schoolText, graduationText];
 
-        const schoolBoundary = schoolText.length;
-
-        const headerSegments = computeSegments(
-          headerFullText,
-          headerAnnotations,
-          [schoolBoundary]
-        );
-
-        const schoolSegments = headerSegments.filter(
-          (seg) => seg.end <= schoolBoundary
-        );
-
-        const graduationSegments = headerSegments.filter(
-          (seg) => seg.start >= schoolBoundary
+        const {
+          fullText: eduHeaderFullText,
+          segmentList: [schoolSegments, graduationSegments],
+        } = processTextSegments(
+          eduHeaderTextChuck,
+          eduHeaderAnnotations,
+          computeSegments
         );
 
         // degree 和 GPA 没有不同 HTML 格式，可以一起渲染
-        const degreeText = `${edu.degree} | GPA: ${edu.gpa}`;
+        const academicsText = `${edu.degree} | GPA: ${edu.gpa}`;
 
-        const degreeSegments = computeSegments(degreeText, degreeAnnotations);
+        const academicsSegments = computeSegments(
+          academicsText,
+          degreeAnnotations
+        );
 
         return (
           <div key={index}>
-            <p className="education-header" data-text-id={headerTextId}>
+            <p className="education-header" data-text-id={eduHeaderTextId}>
               <span>
                 <strong>
-                  {renderSegments(headerFullText, schoolSegments)}
+                  {renderSegments(eduHeaderFullText, schoolSegments)}
                 </strong>
               </span>
-
-              <span>{renderSegments(headerFullText, graduationSegments)}</span>
+              <span>
+                {renderSegments(eduHeaderFullText, graduationSegments)}
+              </span>
             </p>
 
             <p data-text-id={degreeTextId}>
-              {renderSegments(degreeText, degreeSegments)}
+              {renderSegments(academicsText, academicsSegments)}
             </p>
           </div>
         );
