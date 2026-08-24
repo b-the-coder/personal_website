@@ -77,10 +77,7 @@ const mockAnnotationList = {
   "anno-2": mockAnnotation2,
   "anno-3": mockAnnotation3,
 };
-const selectedGroupAnnotations = {
-  "anno-1": mockAnnotation1,
-  "anno-2": mockAnnotation2,
-};
+const paragraphoneAnnotations = { "anno-1": [0, 1], "anno-2": [0, 1] };
 
 const mockNewAnnoData = {
   annotatedText: "newly selected text",
@@ -495,26 +492,197 @@ describe("annotationListinit", () => {
 });
 
 describe("processTextSegments", () => {
-  const fakeComputeFn = () => [];
-
-  test.each([[], undefined])(
-    "throw TypeError when textChunks is %p",
-    (invalidInput) => {
+  test.each([undefined, {}, []])(
+    "throw TypeError when textChunks is %s",
+    (invalidTextChunk) => {
       expect(() => {
-        processTextSegments(
-          invalidInput,
-          selectedGroupAnnotations,
-          fakeComputeFn
-        );
+        processTextSegments({
+          textChunks: invalidTextChunk,
+          annotationsById: paragraphoneAnnotations,
+          computeSegmentsFn: vi.fn(() => {}),
+        });
       }).toThrow("Can not process empty text or undefined.");
     }
   );
 
-  // test("handle no annotationById", () => {
-  //   const mockTextChuck = ["mockTextChuck"];
-  //   expect(processTextSegments(mockTextChuck, fakeComputeFn)).toEqual({
-  //     fullText: "mockTextChuck",
-  //     segmentList: [],
-  //   });
-  // });
+  test("handle text chuck with no annotations", () => {
+    const mockTextChuck = ["mockTextChunk1,", "mockTextChunk2"];
+    expect(
+      processTextSegments({
+        textChunks: mockTextChuck,
+        annotationsById: undefined,
+        computeSegmentsFn: vi.fn(() => {}),
+      })
+    ).toEqual({
+      fullText: "mockTextChunk1,mockTextChunk2",
+      segmentList: [
+        [
+          {
+            start: 0,
+            end: 15,
+            count: 0,
+            ids: [],
+          },
+        ],
+        [
+          {
+            start: 15,
+            end: 29,
+            count: 0,
+            ids: [],
+          },
+        ],
+      ],
+    });
+  });
+
+  test("handle single text chuck with annotaitons", () => {
+    const singleMockTextChuck = ["mockTextChunk1,"];
+    const mockAnnotationsById = { anno1: [0, 3], anno2: [2, 8], anno3: [6, 8] };
+    const fakeComputeFn = vi.fn(() => {
+      return [
+        { start: 0, end: 2, count: 1, ids: ["anno1"] },
+        { start: 2, end: 3, count: 2, ids: ["anno1", "anno2"] },
+        { start: 3, end: 6, count: 1, ids: ["anno2"] },
+        { start: 6, end: 8, count: 2, ids: ["anno2", "anno3"] },
+        { start: 8, end: 15, count: 0, ids: [] },
+      ];
+    });
+
+    const result = {
+      fullText: "mockTextChunk1,",
+      segmentList: [
+        [
+          { start: 0, end: 2, count: 1, ids: ["anno1"] },
+          { start: 2, end: 3, count: 2, ids: ["anno1", "anno2"] },
+          { start: 3, end: 6, count: 1, ids: ["anno2"] },
+          { start: 6, end: 8, count: 2, ids: ["anno2", "anno3"] },
+          { start: 8, end: 15, count: 0, ids: [] },
+        ],
+      ],
+    };
+
+    expect(
+      processTextSegments({
+        textChunks: singleMockTextChuck,
+        annotationsById: mockAnnotationsById,
+        computeSegmentsFn: fakeComputeFn,
+      })
+    ).toEqual(result);
+    expect(fakeComputeFn).toHaveBeenCalledWith(
+      "mockTextChunk1,",
+      mockAnnotationsById
+    );
+  });
+
+  test("handle multiple text chuck with annotaitons", () => {
+    const multipleMockTextChuck = [
+      "mockTextChunk1,",
+      "mockTextChunk2",
+      "mockTextChunk3",
+    ];
+    const mockAnnotationsById = {
+      anno1: [0, 8],
+      anno2: [9, 23],
+      anno3: [10, 33],
+      anno4: [0, 43],
+      anno5: [2, 5],
+      anno6: [12, 18],
+      anno7: [9, 23],
+    };
+    const fakeComputeFn = vi.fn(() => {
+      return [
+        { start: 0, end: 2, count: 2, ids: ["anno1", "anno4"] },
+        { start: 2, end: 5, count: 3, ids: ["anno1", "anno4", "anno5"] },
+        { start: 5, end: 8, count: 2, ids: ["anno1", "anno4"] },
+        { start: 8, end: 9, count: 1, ids: ["anno4"] },
+        { start: 9, end: 10, count: 3, ids: ["anno2", "anno4", "anno7"] },
+        {
+          start: 10,
+          end: 12,
+          count: 4,
+          ids: ["anno2", "anno3", "anno4", "anno7"],
+        },
+        {
+          start: 12,
+          end: 15,
+          count: 5,
+          ids: ["anno2", "anno3", "anno4", "anno6", "anno7"],
+        },
+        {
+          start: 15,
+          end: 18,
+          count: 5,
+          ids: ["anno2", "anno3", "anno4", "anno6", "anno7"],
+        },
+        {
+          start: 18,
+          end: 23,
+          count: 4,
+          ids: ["anno2", "anno3", "anno4", "anno7"],
+        },
+        { start: 23, end: 29, count: 2, ids: ["anno3", "anno4"] },
+        { start: 29, end: 33, count: 2, ids: ["anno3", "anno4"] },
+        { start: 33, end: 43, count: 1, ids: ["anno4"] },
+      ];
+    });
+
+    const result = {
+      fullText: "mockTextChunk1,mockTextChunk2mockTextChunk3",
+      segmentList: [
+        [
+          { start: 0, end: 2, count: 2, ids: ["anno1", "anno4"] },
+          { start: 2, end: 5, count: 3, ids: ["anno1", "anno4", "anno5"] },
+          { start: 5, end: 8, count: 2, ids: ["anno1", "anno4"] },
+          { start: 8, end: 9, count: 1, ids: ["anno4"] },
+          { start: 9, end: 10, count: 3, ids: ["anno2", "anno4", "anno7"] },
+          {
+            start: 10,
+            end: 12,
+            count: 4,
+            ids: ["anno2", "anno3", "anno4", "anno7"],
+          },
+          {
+            start: 12,
+            end: 15,
+            count: 5,
+            ids: ["anno2", "anno3", "anno4", "anno6", "anno7"],
+          },
+        ],
+        [
+          {
+            start: 15,
+            end: 18,
+            count: 5,
+            ids: ["anno2", "anno3", "anno4", "anno6", "anno7"],
+          },
+          {
+            start: 18,
+            end: 23,
+            count: 4,
+            ids: ["anno2", "anno3", "anno4", "anno7"],
+          },
+          { start: 23, end: 29, count: 2, ids: ["anno3", "anno4"] },
+        ],
+        [
+          { start: 29, end: 33, count: 2, ids: ["anno3", "anno4"] },
+          { start: 33, end: 43, count: 1, ids: ["anno4"] },
+        ],
+      ],
+    };
+
+    expect(
+      processTextSegments({
+        textChunks: multipleMockTextChuck,
+        annotationsById: mockAnnotationsById,
+        computeSegmentsFn: fakeComputeFn,
+      })
+    ).toEqual(result);
+
+    expect(fakeComputeFn).toHaveBeenCalledWith(
+      "mockTextChunk1,mockTextChunk2mockTextChunk3",
+      mockAnnotationsById,
+      [15, 29]
+    );
+  });
 });

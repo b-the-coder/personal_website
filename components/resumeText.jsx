@@ -84,7 +84,11 @@ function Header({ annotationList }) {
   const {
     fullText,
     segmentList: [nameSegments, emailSegments, locationSegments],
-  } = processTextSegments(headerTextChuck, headerAnnotations, computeSegments);
+  } = processTextSegments({
+    textChunks: headerTextChuck,
+    annotationsById: headerAnnotations,
+    computeSegmentsFn: computeSegments,
+  });
 
   return (
     <div className="resumeHeader" data-text-id="resume-header">
@@ -107,11 +111,12 @@ function Contact({ annotationList }) {
   const {
     fullText,
     segmentList: [githubSegments, linkedinSegments],
-  } = processTextSegments(
-    contactTextChuck,
-    contactAnnotations,
-    computeSegments
-  );
+  } = processTextSegments({
+    textChunks: contactTextChuck,
+    annotationsById: contactAnnotations,
+    computeSegmentsFn: computeSegments,
+  });
+  
 
   return (
     <div className="contact-links" data-text-id="resume-links">
@@ -145,11 +150,11 @@ function Skills({ annotationList }) {
         const {
           fullText,
           segmentList: [categorySegments, itemsSegments],
-        } = processTextSegments(
-          skillTextChuck,
-          skillAnnotations,
-          computeSegments
-        );
+        } = processTextSegments({
+          textChunks: skillTextChuck,
+          annotationsById: skillAnnotations,
+          computeSegmentsFn: computeSegments,
+        });
 
         return (
           <p key={index} data-text-id={textId}>
@@ -185,12 +190,11 @@ function Experience({ annotationList }) {
         const {
           fullText: expTitleLineText,
           segmentList: [expPositionSegments, expDetailSegments],
-        } = processTextSegments(
-          expTitleLineTextChuck,
-          expTitleAnnotations,
-          computeSegments
-        );
-        
+        } = processTextSegments({
+          textChunks: expTitleLineTextChuck,
+          annotationsById: expTitleAnnotations,
+          computeSegmentsFn: computeSegments,
+        });
 
         return (
           <div key={index}>
@@ -248,11 +252,11 @@ function Projects({ annotationList }) {
         const {
           fullText,
           segmentList: [nameSegments, stackSegments, timeSegments],
-        } = processTextSegments(
-          proTitleTextChuck,
-          proTitleAnnotations,
-          computeSegments
-        );
+        } = processTextSegments({
+          textChunks: proTitleTextChuck,
+          annotationsById: proTitleAnnotations,
+          computeSegmentsFn: computeSegments,
+        });
 
         return (
           <div key={index}>
@@ -314,11 +318,11 @@ function Education({ annotationList }) {
         const {
           fullText: eduHeaderFullText,
           segmentList: [schoolSegments, graduationSegments],
-        } = processTextSegments(
-          eduHeaderTextChuck,
-          eduHeaderAnnotations,
-          computeSegments
-        );
+        } = processTextSegments({
+          textChunks: eduHeaderTextChuck,
+          annotationsById: eduHeaderAnnotations,
+          computeSegmentsFn: computeSegments,
+        });
 
         // degree 和 GPA 没有不同 HTML 格式，可以一起渲染
         const academicsText = `${edu.degree} | GPA: ${edu.gpa}`;

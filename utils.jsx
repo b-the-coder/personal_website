@@ -96,6 +96,12 @@ const groupAnnotationsByTextId = (annotationList) => {
   return grouped;
 };
 
+const getHighlightLevel = (count) => {
+  if (count === 0) return 0;
+  if (count === 1) return 1;
+  if (count === 2) return 2;
+  return 3; // count >= 3
+};
 const computeSegments = (text, annotationsById, extraBoundaries = []) => {
   if (typeof text !== "string" || text.trim().length === 0) {
     //to-do: add log
@@ -146,12 +152,7 @@ const computeSegments = (text, annotationsById, extraBoundaries = []) => {
   return segments;
 };
 
-const getHighlightLevel = (count) => {
-  if (count === 0) return 0;
-  if (count === 1) return 1;
-  if (count === 2) return 2;
-  return 3; // count >= 3
-};
+
 
 const renderSegments = (fullText, segs) => {
   if (typeof fullText !== "string" || fullText.trim().length === 0) {
@@ -180,7 +181,11 @@ const renderSegments = (fullText, segs) => {
   });
 };
 
-const processTextSegments = ( textChunks, annotationsById, computeSegmentsFn ) => {
+const processTextSegments = ({
+  textChunks,
+  annotationsById,
+  computeSegmentsFn,
+}) => {
   // 1. 严格拦截 textChunks
   if (!Array.isArray(textChunks) || textChunks.length === 0) {
     throw new TypeError("Can not process empty text or undefined.");
@@ -191,16 +196,21 @@ const processTextSegments = ( textChunks, annotationsById, computeSegmentsFn ) =
   // 🌟 核心优化：提前判断没有标注的情况（包含忘了传、传入 null、传入 undefined）
   if (!annotationsById) {
     // 根本不需要做任何复杂计算，直接把每个 chunk 映射成一个完整的 segment 即可
+    
     let currentStart = 0;
-    const segmentList = textChunks.map(chunk => {
+    const segmentList = textChunks.map((chunk) => {
       const segEnd = currentStart + chunk.length;
-      const chunkSegments = chunk.length > 0 ? [{
-        start: currentStart,
-        end: segEnd,
-        count: 0,
-        ids: []
-      }] : [];
+      const chunkSegments =
+        chunk.length > 0
+          ? [{
+              start: currentStart,
+              end: segEnd,
+              count: 0,
+              ids: [],
+            }]
+          : [];
       currentStart = segEnd;
+      
       return chunkSegments;
     });
 
@@ -209,7 +219,7 @@ const processTextSegments = ( textChunks, annotationsById, computeSegmentsFn ) =
 
   // 2. 以下是有标注时，才去跑的原本的复杂运算（保持你原有的逻辑不变）
   if (textChunks.length === 1) {
-    const allSegments = computeSegmentsFn(fullText, annotationsById, []);
+    const allSegments = computeSegmentsFn(fullText, annotationsById);
     return { fullText, segmentList: [allSegments] };
   }
 
@@ -238,7 +248,6 @@ const processTextSegments = ( textChunks, annotationsById, computeSegmentsFn ) =
 
   return { fullText, segmentList };
 };
-
 
 export {
   annotationListinit,
