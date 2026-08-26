@@ -80,16 +80,15 @@ function Header({ annotationList }) {
   const name = resumeData.name;
   const email = resumeData.contact.email;
   const location = resumeData.contact.location;
-  const headerTextChuck = [name, email, location];
-  const {
-    fullText,
-    segmentList: [nameSegments, emailSegments, locationSegments],
-  } = processTextSegments({
+  const headerTextChuck = [name, email,location];
+
+  const { fullText, segmentList:[nameSegments, emailSegments, locationSegments] } = processTextSegments({
     textChunks: headerTextChuck,
     annotationsById: headerAnnotations,
     computeSegmentsFn: computeSegments,
   });
-
+ 
+ 
   return (
     <div className="resumeHeader" data-text-id="resume-header">
       <h2>{renderSegments(fullText, nameSegments)}</h2>
@@ -116,7 +115,6 @@ function Contact({ annotationList }) {
     annotationsById: contactAnnotations,
     computeSegmentsFn: computeSegments,
   });
-  
 
   return (
     <div className="contact-links" data-text-id="resume-links">
