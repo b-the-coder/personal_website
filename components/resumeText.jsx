@@ -80,15 +80,17 @@ function Header({ annotationList }) {
   const name = resumeData.name;
   const email = resumeData.contact.email;
   const location = resumeData.contact.location;
-  const headerTextChuck = [name, email,location];
+  const headerTextChuck = [name, email, location];
 
-  const { fullText, segmentList:[nameSegments, emailSegments, locationSegments] } = processTextSegments({
+  const {
+    fullText,
+    segmentList: [nameSegments, emailSegments, locationSegments],
+  } = processTextSegments({
     textChunks: headerTextChuck,
     annotationsById: headerAnnotations,
     computeSegmentsFn: computeSegments,
   });
- 
- 
+
   return (
     <div className="resumeHeader" data-text-id="resume-header">
       <h2>{renderSegments(fullText, nameSegments)}</h2>
@@ -172,7 +174,7 @@ function Experience({ annotationList }) {
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
   return (
-    <div>
+    <div className="experience">
       <h2 className="resume-section-title" data-text-id="exp">
         {renderSegments(sectionTitle, titleSegments)}
       </h2>
@@ -233,7 +235,7 @@ function Projects({ annotationList }) {
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
   return (
-    <div>
+    <div className="projects">
       <h2 className="resume-section-title" data-text-id="pjt">
         {renderSegments(sectionTitle, titleSegments)}
       </h2>
@@ -296,7 +298,7 @@ function Education({ annotationList }) {
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
   return (
-    <div>
+    <div className="education">
       <h2 className="resume-section-title" data-text-id="edu">
         {renderSegments(sectionTitle, titleSegments)}
       </h2>
