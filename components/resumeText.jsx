@@ -52,6 +52,7 @@ function ResumeText({
 
   const handleClick = (e) => {
     const annotationIdsString = e.target.dataset.annotationIds;
+    console.log("annotationIdsString",annotationIdsString)
     if (annotationIdsString) {
       setCurrentAnnotationId(annotationIdsString);
       setMode("anno_display");
