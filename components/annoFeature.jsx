@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useRef } from "react";
 import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
 
-function Annofeature({
+function AnnoFeature({
   mode,
   setMode,
   annotationList,
@@ -226,7 +226,7 @@ function AnnotationDisplay({
 }
 
 export {
-  Annofeature,
+  AnnoFeature,
   AnnotationOfferer,
   AnnotationInput,
   AnnotationDisplay,
