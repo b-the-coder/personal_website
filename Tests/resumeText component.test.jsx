@@ -68,36 +68,52 @@ describe("resumeText", () => {
     expect(mockProps.setMode).toHaveBeenCalledWith("text_selected"); // 可根据 getNextModeOnSelection 的返回值写具体期望值
   });
 
-  test("handleClick setup states with valid click", () => {
-    mockProps = {
-      annotationList: {
-        fakeannotationIDs: {
-          annotatedText: "emma",
-          annotationContent: "123",
-          selectionPosition: {
-            viewportPosition: { x: 415.953125, y: 207 },
-            textPosition: "resume-header",
-            range: [13, 17],
-          },
-          timestamp: 1788205391655,
-        },
-      },
-      setCurrentAnnotationId: vi.fn(),
-      setMode: vi.fn(),
-      setSelectedText: vi.fn(),
-      setSelectionPosition: vi.fn(),
-    };
+  describe("handleClick setup states with click behavior", () => {
+    test("setup states when click annotations", () => {
+      mockProps = {
+        //// Tests handleClick only; annotationList is intentionally empty.
+        annotationList: {},
+        setCurrentAnnotationId: vi.fn(),
+        setMode: vi.fn(),
+        setSelectedText: vi.fn(),
+        setSelectionPosition: vi.fn(),
+      };
 
-    const { container } = render(<ResumeText {...mockProps} />);
-    const resumeText = container.querySelector(".resumeText");
-    const annotationNode = document.createElement("span");
-    annotationNode.dataset.annotationIds = "fakeannotationIDs";
-    resumeText.appendChild(annotationNode);
-    fireEvent.click(annotationNode);
-    expect(mockProps.setCurrentAnnotationId).toHaveBeenCalledWith(
-      "fakeannotationIDs"
-    );
-    expect(mockProps.setMode).toHaveBeenCalledWith("anno_display");
+      const { container } = render(<ResumeText {...mockProps} />);
+      const resumeText = container.querySelector(".resumeText");
+      const annotationNode = document.createElement("span");
+
+      annotationNode.dataset.annotationIds = "fakeannotationIDs";
+      resumeText.appendChild(annotationNode);
+
+      fireEvent.click(annotationNode);
+
+      expect(mockProps.setCurrentAnnotationId).toHaveBeenCalledWith(
+        "fakeannotationIDs"
+      );
+      expect(mockProps.setMode).toHaveBeenCalledWith("anno_display");
+    });
+
+    test("setup states when click no annotations text content", () => {
+      mockProps = {
+        annotationList: {},
+        setCurrentAnnotationId: vi.fn(),
+        setMode: vi.fn(),
+        setSelectedText: vi.fn(),
+        setSelectionPosition: vi.fn(),
+      };
+
+      const { container } = render(<ResumeText {...mockProps} />);
+      const resumeText = container.querySelector(".resumeText");
+      const noAnnotationNode = document.createElement("span");
+
+      resumeText.appendChild(noAnnotationNode);
+
+      fireEvent.click(noAnnotationNode);
+
+      expect(mockProps.setCurrentAnnotationId).not.toHaveBeenCalled();
+      expect(mockProps.setMode).not.toHaveBeenCalled();
+    });
   });
 });
 
