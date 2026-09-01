@@ -1,5 +1,5 @@
-import { describe, expect, test, afterEach, vi, beforeEach } from "vitest";
-import { render, cleanup, fireEvent } from "@testing-library/react";
+import { describe, expect, test, afterEach, vi } from "vitest";
+import { render, cleanup, fireEvent, within } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 
 import React from "react";
@@ -19,34 +19,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function expectRenderSegmentsCalledInOrder(spy, fullText, segmentList) {
-  segmentList.forEach((seg, i) => {
-    expect(spy).toHaveBeenNthCalledWith(i + 1, fullText, seg);
-  });
-}
-
-const mockFullText = "fake-full-text";
-const mockTextChunk1Seg = [{ start: 0, end: 1, count: 0, ids: [] }];
-const mockTextChunk2Seg = [{ start: 1, end: 2, count: 0, ids: [] }];
-const mockTextChunk3Seg = [{ start: 2, end: 3, count: 0, ids: [] }];
-
 describe("resumeText", () => {
   let mockProps;
 
-  beforeEach(() => {
+  test("handleSelection setup states with valid selection", () => {
     mockProps = {
-      annotationList: [],
+      annotationList: {},
       setCurrentAnnotationId: vi.fn(),
       setMode: vi.fn(),
       setSelectedText: vi.fn(),
       setSelectionPosition: vi.fn(),
     };
-  });
-
-  test("handleSelection setup states with valid selection", () => {
     const { container } = render(<ResumeText {...mockProps} />);
     const textPositionNode = container.querySelector(".resumeHeader");
     const textNode = textPositionNode.querySelector("h2").firstChild;
+
     // 3. 构建真正的 JSDOM DOM Range
     const range = document.createRange();
     range.setStart(textNode, 0);
@@ -68,6 +55,7 @@ describe("resumeText", () => {
     // 5. 触发 mouseup 事件
     const resumeTextContainer = container.querySelector(".resumeText");
     fireEvent.mouseUp(resumeTextContainer);
+
     // 6. 断言 4 个 Setter 的调用（彻底忽略 viewportPosition）
     expect(mockProps.setSelectedText).toHaveBeenCalledWith(selectedString);
     expect(mockProps.setSelectionPosition).toHaveBeenCalledWith(
@@ -78,6 +66,54 @@ describe("resumeText", () => {
     );
     expect(mockProps.setCurrentAnnotationId).toHaveBeenCalledWith(undefined);
     expect(mockProps.setMode).toHaveBeenCalledWith("text_selected"); // 可根据 getNextModeOnSelection 的返回值写具体期望值
+  });
+
+  describe("handleClick setup states with click behavior", () => {
+    test("setup states when click annotations", () => {
+      mockProps = {
+        //// Tests handleClick only; annotationList is intentionally empty.
+        annotationList: {},
+        setCurrentAnnotationId: vi.fn(),
+        setMode: vi.fn(),
+        setSelectedText: vi.fn(),
+        setSelectionPosition: vi.fn(),
+      };
+
+      const { container } = render(<ResumeText {...mockProps} />);
+      const resumeText = container.querySelector(".resumeText");
+      const annotationNode = document.createElement("span");
+
+      annotationNode.dataset.annotationIds = "fakeannotationIDs";
+      resumeText.appendChild(annotationNode);
+
+      fireEvent.click(annotationNode);
+
+      expect(mockProps.setCurrentAnnotationId).toHaveBeenCalledWith(
+        "fakeannotationIDs"
+      );
+      expect(mockProps.setMode).toHaveBeenCalledWith("anno_display");
+    });
+
+    test("setup states when click no annotations text content", () => {
+      mockProps = {
+        annotationList: {},
+        setCurrentAnnotationId: vi.fn(),
+        setMode: vi.fn(),
+        setSelectedText: vi.fn(),
+        setSelectionPosition: vi.fn(),
+      };
+
+      const { container } = render(<ResumeText {...mockProps} />);
+      const resumeText = container.querySelector(".resumeText");
+      const noAnnotationNode = document.createElement("span");
+
+      resumeText.appendChild(noAnnotationNode);
+
+      fireEvent.click(noAnnotationNode);
+
+      expect(mockProps.setCurrentAnnotationId).not.toHaveBeenCalled();
+      expect(mockProps.setMode).not.toHaveBeenCalled();
+    });
   });
 });
 
@@ -119,20 +155,8 @@ describe("Skills", () => {
 describe("Experience", () => {
   test("correctly render Experience section", () => {
     const experienceDiv = `<div class="experience"><h2 class="resume-section-title" data-text-id="exp">Experience</h2><div><p data-text-id="exp-0-title"><strong>Software Engineer</strong> - Skyscrapper AWS EC2 instance visualizer (OpenSource) | 2024-03 - Present</p><ul><li data-text-id="exp-0-bullet-0">Designed and implemented a React-based dashboard using Chart.js to visualize AWS EC2 instance metrics, improving data readability and user experience.</li><li data-text-id="exp-0-bullet-1">Implemented Redux for centralized state management, handling user authentication (Auth0), AWS Cognito verification, and EC2 instance data visualization to eliminate prop drilling and ensure consistent state.</li><li data-text-id="exp-0-bullet-2">Streamlined State Management with Redux Toolkit, reduced boilerplate code, and improved code maintainability, enabling the team to focus on core application logic.</li><li data-text-id="exp-0-bullet-3">Optimized API interactions with RTK Query, reducing redundant network requests and improving front-end performance.</li><li data-text-id="exp-0-bullet-4">Built secure RESTful API endpoints using Express.js, implementing JWT-based authentication and AWS Cognito integration to protect user data and ensure authorized access.</li><li data-text-id="exp-0-bullet-5">Integrated AWS CloudWatch for real-time EC2 metrics retrieval, leveraging Promise.all to concurrently fetch multiple metrics and reduce API response time from 7 seconds to 1 second.</li><li data-text-id="exp-0-bullet-6">Conducted unit testing of frontend components using Jest and React Testing Library to ensure modular code structure and new feature development.</li><li data-text-id="exp-0-bullet-7">Performed as team Scrum Master, spearheaded the creation of a Jira workflow, facilitated daily stand-ups and Sprint planning.</li></ul></div></div>`;
-    console.log("experienceDiv长度", experienceDiv.length);
     const { container } = render(<Experience annotationList={{}} />);
-
     const experienceSection = container.firstChild.outerHTML;
-    console.log("experienceSection长度", experienceSection.length);
-    console.log(
-      "experienceDiv 最后一个字符:",
-      JSON.stringify(experienceDiv[experienceDiv.length - 1])
-    );
-    console.log(
-      "experienceSection 最后一个字符:",
-      JSON.stringify(experienceSection[experienceSection.length - 1])
-    );
-
     expect(experienceSection).toBe(experienceDiv);
   });
 });

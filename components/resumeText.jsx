@@ -44,14 +44,11 @@ function ResumeText({
     setSelectedText(selectedString);
     setSelectionPosition(selectionPosition);
     setCurrentAnnotationId(undefined);
-
-    if (typeof window !== "undefined" && window.playwright) {
-      window.__LAST_CALCULATED_RANGE__ = offsetsRelativeToTextPositionNode;
-    }
   };
 
   const handleClick = (e) => {
     const annotationIdsString = e.target.dataset.annotationIds;
+
     if (annotationIdsString) {
       setCurrentAnnotationId(annotationIdsString);
       setMode("anno_display");
