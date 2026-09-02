@@ -77,5 +77,21 @@ export default defineConfig({
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
   },
+  reporter: [
+    ['list'], // Keeps the normal progress output in the terminal
+    ['monocart-reporter', {
+      name: 'Integration Test Coverage',
+      outputFile: './coverage-report/index.html', // The report will be generated in this directory
+      coverage: {
+        // Crucial filter: Only collect JS files that belong to your local project 
+        // (e.g., your local port or specific folders) to exclude 3rd-party scripts.
+        // Assuming your local server is http://localhost:5500 or files are under a specific directory.
+        entryFilter: (entry) => {
+          return entry.url.includes('localhost') && entry.url.endsWith('.js');
+        },
+      }
+    }]
+  ]
+
 });
 

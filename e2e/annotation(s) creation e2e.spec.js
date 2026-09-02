@@ -1,4 +1,5 @@
-import { test, expect } from "playwright/test";
+import { test, expect } from './fixtures'
+
 
 test.describe("annotations creation", () => {
   test("single annotation creation", async ({ page }) => {
