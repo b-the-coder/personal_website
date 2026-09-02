@@ -1,4 +1,7 @@
-import { test, expect } from './fixtures'
+import { test, expect } from '@playwright/test'; // 修改为直接使用官方 Playwright 包
+import fs from 'fs';
+import path from 'path';
+import v8toIstanbul from 'v8-to-istanbul';
 
 test.describe("Text Selection & Click Interaction Behavior", () => {
   test("should handle forward text selection (Anchor to Focus)", async ({
