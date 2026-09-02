@@ -13,6 +13,7 @@ import {
   renderSegments,
   computeSegments,
   processTextSegments,
+  getHighlightLevel,
 } from "../utils";
 
 afterEach(() => {
@@ -212,29 +213,40 @@ describe("getUpdatedAnnotationList", () => {
 });
 
 describe("computeSegments", () => {
-  //to-do: resolve how test.each works
-  test.each([
-    ["undefined", undefined],
-    ["null", null],
-    ["an empty string", ""],
-    ["a whitespace-only string", "    "],
-  ])("throws when text is %s", (_, text) => {
-    expect(() => {
-      computeSegments(text, {});
-    }).toThrow(
-      new TypeError("computeSegments: text must be a non-empty string.")
-    );
-  });
-
-  test("throws when any extra boundary exceeds text.length", () => {
-    const extraBoundaries = [3, 18];
-    expect(() => {
-      computeSegments(mockResumeTextIdSection, {}, extraBoundaries);
-    }).toThrow(
-      new RangeError(
-        "computeSegments: extraBoundaries must not contain values greater than text.length."
-      )
-    );
+  describe("invalid input handling", () => {
+    test.each([
+      ["undefined", undefined],
+      ["null", null],
+      ["an empty string", ""],
+      ["a whitespace-only string", "    "],
+    ])("throws when text is %s", (_, text) => {
+      expect(() => {
+        computeSegments(text, {});
+      }).toThrow(
+        new TypeError("computeSegments: text must be a non-empty string.")
+      );
+    });
+    test.each([
+      ["null", null],
+      ["an object", {}],
+      ["a string", "string"],
+    ])("throws when extra boundary is not an array", (_, extraBoundaries) => {
+      expect(() => {
+        computeSegments(mockResumeTextIdSection, {}, extraBoundaries);
+      }).toThrow(
+        new TypeError("computeSegments: extraBoundaries must be an array.")
+      );
+    });
+    test("throws when any extra boundary exceeds text.length", () => {
+      const extraBoundaries = [3, 18];
+      expect(() => {
+        computeSegments(mockResumeTextIdSection, {}, extraBoundaries);
+      }).toThrow(
+        new RangeError(
+          "computeSegments: extraBoundaries must not contain values greater than text.length."
+        )
+      );
+    });
   });
 
   describe("two overlapping annotation ranges", () => {
@@ -685,4 +697,13 @@ describe("processTextSegments", () => {
       [15, 29]
     );
   });
+});
+
+test("getHighlightLevel", () => {
+  //generate a interger between 3-1000
+  const randomCount = Math.floor(Math.random() * (1000 - 3 + 1)) + 3;
+  expect(getHighlightLevel(0)).toEqual(0);
+  expect(getHighlightLevel(1)).toEqual(1);
+  expect(getHighlightLevel(2)).toEqual(2);
+  expect(getHighlightLevel(randomCount)).toEqual(3);
 });

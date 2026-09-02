@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { ResumeText } from "./resumeText";
-import { Annofeature } from "./annoFeature";
+import { AnnoFeature } from "./annoFeature";
 import { annotationListinit } from "../utils";
 
 function ResumeAnno() {
@@ -30,7 +30,7 @@ function ResumeAnno() {
         currentAnnotationId={currentAnnotationId}
         setCurrentAnnotationId={setCurrentAnnotationId}
       />
-      <Annofeature
+      <AnnoFeature
         mode={mode}
         setMode={setMode}
         selectedText={selectedText}

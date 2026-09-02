@@ -1,5 +1,5 @@
 import { describe, expect, test, afterEach, vi, beforeEach } from "vitest";
-import { render, screen, cleanup} from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { userEvent } from "@testing-library/user-event";
 
@@ -9,8 +9,8 @@ import {
   AnnotationOfferer,
   AnnotationInput,
   AnnotationDisplay,
+  AnnoFeature,
 } from "../components/annoFeature";
-
 
 import * as utils from "../utils";
 
@@ -442,4 +442,13 @@ describe("AnnotationDisplay", () => {
   });
 });
 
+test("AnnoFeature", () => {
+  const result = AnnoFeature({});
+  console.log("annofeature return results", result);
+  const children = result.props.children;
+  console.log("annofeature return results-children", children);
 
+  expect(children[0].type).toBe(AnnotationOfferer);
+  expect(children[1].type).toBe(AnnotationInput);
+  expect(children[2].type).toBe(AnnotationDisplay);
+});
