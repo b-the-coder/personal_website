@@ -1,4 +1,4 @@
-import { test, expect } from "playwright/test";
+import { test, expect } from "@playwright/test"; // 修改为直接使用官方 Playwright 包
 
 test.describe("annotations creation", () => {
   test("single annotation creation", async ({ page }) => {
@@ -10,7 +10,6 @@ test.describe("annotations creation", () => {
       return data ? JSON.parse(data) : null;
     });
     expect(preCreationStorage).toEqual({});
-
 
     const locator = page.getByText(/react/i);
     const count = await locator.count();
@@ -68,7 +67,7 @@ test.describe("annotations creation", () => {
     //localStorage should be updated when annotationList changed.
     const postCreationStorage = await page.evaluate(() => {
       return JSON.parse(window.localStorage.getItem("annotationList"));
-    }); 
+    });
 
     expect(postCreationStorage).not.toBeNull();
     const annotations = Object.values(postCreationStorage);
