@@ -1,12 +1,7 @@
-import { test, expect } from '@playwright/test'; // 修改为直接使用官方 Playwright 包
-import fs from 'fs';
-import path from 'path';
-import v8toIstanbul from 'v8-to-istanbul';
-
+import { test, expect } from "@playwright/test"; // 修改为直接使用官方 Playwright 包
 
 test.describe("annotations creation", () => {
   test("single annotation creation", async ({ page }) => {
-    await page.coverage.startJSCoverage({ resetOnNavigation: false })
     await page.goto("/");
 
     const preCreationStorage = await page.evaluate(() => {
@@ -15,7 +10,6 @@ test.describe("annotations creation", () => {
       return data ? JSON.parse(data) : null;
     });
     expect(preCreationStorage).toEqual({});
-
 
     const locator = page.getByText(/react/i);
     const count = await locator.count();
@@ -73,7 +67,7 @@ test.describe("annotations creation", () => {
     //localStorage should be updated when annotationList changed.
     const postCreationStorage = await page.evaluate(() => {
       return JSON.parse(window.localStorage.getItem("annotationList"));
-    }); 
+    });
 
     expect(postCreationStorage).not.toBeNull();
     const annotations = Object.values(postCreationStorage);
@@ -85,15 +79,6 @@ test.describe("annotations creation", () => {
       })
     );
 
-
-    const coverage = await page.coverage.stopJSCoverage();
-    for (const entry of coverage) {
-      const converter = v8toIstanbul('', 0, { source: entry.source });
-      await converter.load();
-      converter.applyCoverage(entry.functions);
-      console.log(JSON.stringify(converter.toIstanbul()));
-    }
-  
     //verify the correct word is being highlighted
     // const highlights = page.locator('.resume-text .highlight');
   });

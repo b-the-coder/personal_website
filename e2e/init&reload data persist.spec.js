@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test'; 
-import fs from 'fs';
-import path from 'path';
-import v8toIstanbul from 'v8-to-istanbul';
+
 
 // annotationList
 const annotationListData = {
