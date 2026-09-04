@@ -137,7 +137,7 @@ function Skills({ annotationList }) {
       </h2>
       {resumeData.skills.map(({ category, items }, index) => {
         const formattedCategory =
-          category.charAt(0).toUpperCase() + category.slice(1);
+          category.charAt(0).toUpperCase() + category.slice(1) + ": ";
         const itemsText = items.join(", ");
         const textId = `skl-${index}`;
 
@@ -156,7 +156,7 @@ function Skills({ annotationList }) {
         return (
           <p key={index} data-text-id={textId}>
             <strong>{renderSegments(fullText, categorySegments)}</strong>
-            <span> {renderSegments(fullText, itemsSegments)}</span>
+            <span>{renderSegments(fullText, itemsSegments)}</span>
           </p>
         );
       })}
@@ -302,10 +302,7 @@ function Education({ annotationList }) {
 
       {resumeData.education.map((edu, index) => {
         const eduHeaderTextId = `edu-${index}-school-gradudation-date`;
-        const degreeTextId = `edu-${index}-degree-grade`;
-
         const eduHeaderAnnotations = annotationList[eduHeaderTextId];
-        const degreeAnnotations = annotationList[degreeTextId];
 
         const schoolText = edu.school;
         const graduationText = `Graduated ${edu.graduationDate}`;
@@ -321,12 +318,15 @@ function Education({ annotationList }) {
           computeSegmentsFn: computeSegments,
         });
 
+        const academicsTextId = `edu-${index}-degree-gpa`;
+        const academicsAnnotations = annotationList[academicsTextId];
+
         // degree 和 GPA 没有不同 HTML 格式，可以一起渲染
         const academicsText = `${edu.degree} | GPA: ${edu.gpa}`;
 
         const academicsSegments = computeSegments(
           academicsText,
-          degreeAnnotations
+          academicsAnnotations
         );
 
         return (
@@ -342,7 +342,7 @@ function Education({ annotationList }) {
               </span>
             </p>
 
-            <p data-text-id={degreeTextId}>
+            <p data-text-id={academicsTextId}>
               {renderSegments(academicsText, academicsSegments)}
             </p>
           </div>
