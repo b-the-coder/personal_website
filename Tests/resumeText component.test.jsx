@@ -1,5 +1,5 @@
 import { describe, expect, test, afterEach, vi } from "vitest";
-import { render, cleanup, fireEvent, within } from "@testing-library/react";
+import { render, cleanup, fireEvent} from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 
 import React from "react";
@@ -18,6 +18,49 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
+
+const mockGroupedAnnotationList = {
+  "resume-header": {
+    "9d62802b-59b7-4c05-abfd-a9fee7a3900e": [13, 17],
+  },
+  "resume-links": {
+    "9622d78c-4ecf-47fa-be6f-91e312ee67c6": [8, 14],
+  },
+  skl: {
+    "383467da-d997-4df9-bcb3-b77381dfafdc": [1, 6],
+  },
+  "skl-0": {
+    "1fd2fe34-6269-41c3-afda-6a85c180aed5": [5, 14],
+  },
+  exp: {
+    "8ddf310e-8fd2-4e0d-bfb6-37e9649d7571": [6, 10],
+  },
+  "exp-0-title": {
+    "58d6ce24-8065-4a0b-b291-b6801d508d4c": [14, 22],
+  },
+
+  "exp-0-bullet-0": {
+    "c85f6bcb-db68-4a0d-9151-85530d786d61": [0, 9],
+  },
+  pjt: {
+    "01d4f63d-16c9-428a-92a0-0f53725b82a2": [1, 5],
+  },
+  "pjt-0-bullet-0": {
+    "96da9269-ea22-4699-8ecf-4d71c7bdcd62": [19, 25],
+  },
+  "pjt-0-title": {
+    "faf7d7fb-7b48-480c-8d4b-3fac053b593a": [10, 43],
+  },
+  edu: {
+    "192c2831-54e0-4e85-8a85-885fd3d71b7b": [0, 3],
+  },
+  "edu-0-degree-gpa": {
+    "197ae881-b62b-4971-91df-7d95794ddb82": [22, 31],
+  },
+  "edu-0-school-gradudation-date": {
+    "a9f8c803-5ebb-46eb-a53f-661def740ec3": [32, 43],
+  },
+};
 
 describe("resumeText", () => {
   let mockProps;
@@ -119,8 +162,10 @@ describe("resumeText", () => {
 
 describe("Header", () => {
   test("correctly render Header section", () => {
-    const headerDiv = `<div class="resumeHeader" data-text-id="resume-header"><h2>Bin (Emma) He</h2><div><p>emmahsde@gmail.com</p><p>Greater NYC Area</p></div></div>`;
-    const { container } = render(<Header annotationList={{}} />);
+    const headerDiv = `<div class="resumeHeader" data-text-id="resume-header"><h2>Bin (Emma) He</h2><div><p><span class="highlight highlight-1" data-annotation-ids="9d62802b-59b7-4c05-abfd-a9fee7a3900e">emma</span>hsde@gmail.com</p><p>Greater NYC Area</p></div></div>`;
+    const { container } = render(
+      <Header annotationList={mockGroupedAnnotationList} />
+    );
 
     const headerSection = container.firstChild.outerHTML;
 
@@ -130,9 +175,11 @@ describe("Header", () => {
 
 describe("Contact", () => {
   test("correctly render Contact section", () => {
-    const contactDiv = `<div class="contact-links" data-text-id="resume-links"><p class="contact-item">https://github.com/b-the-coder</p><p class="contact-item">https://www.linkedin.com/in/bin-emma-he/</p></div>`;
+    const contactDiv = `<div class="contact-links" data-text-id="resume-links"><p class="contact-item">https://<span class="highlight highlight-1" data-annotation-ids="9622d78c-4ecf-47fa-be6f-91e312ee67c6">github</span>.com/b-the-coder</p><p class="contact-item">https://www.linkedin.com/in/bin-emma-he/</p></div>`;
 
-    const { container } = render(<Contact annotationList={{}} />);
+    const { container } = render(
+      <Contact annotationList={mockGroupedAnnotationList} />
+    );
 
     const contactSection = container.firstChild.outerHTML;
 
@@ -142,9 +189,11 @@ describe("Contact", () => {
 
 describe("Skills", () => {
   test("correctly render Skills section", () => {
-    const skillDiv = `<div class="skills"><h2 class="resume-section-title" data-text-id="skl">Skills</h2><p data-text-id="skl-0"><strong>Frontend</strong><span> HTML5, CSS3, Sass, Material UI, JavaScript (ES6+), TypeScript, React, HOC Patterns</span></p><p data-text-id="skl-1"><strong>StateSPA</strong><span> Redux, Redux Toolkit, Webpack, Babel, ESLint, Prettier</span></p><p data-text-id="skl-2"><strong>Backend</strong><span> Node.js, Express.js, RESTful APIs</span></p><p data-text-id="skl-3"><strong>Databases</strong><span> SQL (PostgreSQL), NoSQL (MongoDB)</span></p><p data-text-id="skl-4"><strong>Testing</strong><span> Jest, React Testing Library</span></p><p data-text-id="skl-5"><strong>Devops</strong><span> Docker, AWS (EC2, S3, Beanstalk, Cognito), Git/GitHub Flow (CI/CD), npm, Bash Scripts</span></p></div>`;
+    const skillDiv = `<div class="skills"><h2 class="resume-section-title" data-text-id="skl">S<span class="highlight highlight-1" data-annotation-ids="383467da-d997-4df9-bcb3-b77381dfafdc">kills</span></h2><p data-text-id="skl-0"><strong>Front<span class="highlight highlight-1" data-annotation-ids="1fd2fe34-6269-41c3-afda-6a85c180aed5">end: </span></strong><span><span class="highlight highlight-1" data-annotation-ids="1fd2fe34-6269-41c3-afda-6a85c180aed5">HTML</span>5, CSS3, Sass, Material UI, JavaScript (ES6+), TypeScript, React, HOC Patterns</span></p><p data-text-id="skl-1"><strong>StateSPA: </strong><span>Redux, Redux Toolkit, Webpack, Babel, ESLint, Prettier</span></p><p data-text-id="skl-2"><strong>Backend: </strong><span>Node.js, Express.js, RESTful APIs</span></p><p data-text-id="skl-3"><strong>Databases: </strong><span>SQL (PostgreSQL), NoSQL (MongoDB)</span></p><p data-text-id="skl-4"><strong>Testing: </strong><span>Jest, React Testing Library</span></p><p data-text-id="skl-5"><strong>Devops: </strong><span>Docker, AWS (EC2, S3, Beanstalk, Cognito), Git/GitHub Flow (CI/CD), npm, Bash Scripts</span></p></div>`;
 
-    const { container } = render(<Skills annotationList={{}} />);
+    const { container } = render(
+      <Skills annotationList={mockGroupedAnnotationList} />
+    );
 
     const skillSection = container.firstChild.outerHTML;
 
@@ -154,8 +203,10 @@ describe("Skills", () => {
 
 describe("Experience", () => {
   test("correctly render Experience section", () => {
-    const experienceDiv = `<div class="experience"><h2 class="resume-section-title" data-text-id="exp">Experience</h2><div><p data-text-id="exp-0-title"><strong>Software Engineer</strong> - Skyscrapper AWS EC2 instance visualizer (OpenSource) | 2024-03 - Present</p><ul><li data-text-id="exp-0-bullet-0">Designed and implemented a React-based dashboard using Chart.js to visualize AWS EC2 instance metrics, improving data readability and user experience.</li><li data-text-id="exp-0-bullet-1">Implemented Redux for centralized state management, handling user authentication (Auth0), AWS Cognito verification, and EC2 instance data visualization to eliminate prop drilling and ensure consistent state.</li><li data-text-id="exp-0-bullet-2">Streamlined State Management with Redux Toolkit, reduced boilerplate code, and improved code maintainability, enabling the team to focus on core application logic.</li><li data-text-id="exp-0-bullet-3">Optimized API interactions with RTK Query, reducing redundant network requests and improving front-end performance.</li><li data-text-id="exp-0-bullet-4">Built secure RESTful API endpoints using Express.js, implementing JWT-based authentication and AWS Cognito integration to protect user data and ensure authorized access.</li><li data-text-id="exp-0-bullet-5">Integrated AWS CloudWatch for real-time EC2 metrics retrieval, leveraging Promise.all to concurrently fetch multiple metrics and reduce API response time from 7 seconds to 1 second.</li><li data-text-id="exp-0-bullet-6">Conducted unit testing of frontend components using Jest and React Testing Library to ensure modular code structure and new feature development.</li><li data-text-id="exp-0-bullet-7">Performed as team Scrum Master, spearheaded the creation of a Jira workflow, facilitated daily stand-ups and Sprint planning.</li></ul></div></div>`;
-    const { container } = render(<Experience annotationList={{}} />);
+    const experienceDiv = `<div class="experience"><h2 class="resume-section-title" data-text-id="exp">Experi<span class="highlight highlight-1" data-annotation-ids="8ddf310e-8fd2-4e0d-bfb6-37e9649d7571">ence</span></h2><div><p data-text-id="exp-0-title"><strong>Software Engin<span class="highlight highlight-1" data-annotation-ids="58d6ce24-8065-4a0b-b291-b6801d508d4c">eer</span></strong><span class="highlight highlight-1" data-annotation-ids="58d6ce24-8065-4a0b-b291-b6801d508d4c"> - Sk</span>yscrapper AWS EC2 instance visualizer (OpenSource) | 2024-03 - Present</p><ul><li data-text-id="exp-0-bullet-0"><span class="highlight highlight-1" data-annotation-ids="c85f6bcb-db68-4a0d-9151-85530d786d61">Designed </span>and implemented a React-based dashboard using Chart.js to visualize AWS EC2 instance metrics, improving data readability and user experience.</li><li data-text-id="exp-0-bullet-1">Implemented Redux for centralized state management, handling user authentication (Auth0), AWS Cognito verification, and EC2 instance data visualization to eliminate prop drilling and ensure consistent state.</li><li data-text-id="exp-0-bullet-2">Streamlined State Management with Redux Toolkit, reduced boilerplate code, and improved code maintainability, enabling the team to focus on core application logic.</li><li data-text-id="exp-0-bullet-3">Optimized API interactions with RTK Query, reducing redundant network requests and improving front-end performance.</li><li data-text-id="exp-0-bullet-4">Built secure RESTful API endpoints using Express.js, implementing JWT-based authentication and AWS Cognito integration to protect user data and ensure authorized access.</li><li data-text-id="exp-0-bullet-5">Integrated AWS CloudWatch for real-time EC2 metrics retrieval, leveraging Promise.all to concurrently fetch multiple metrics and reduce API response time from 7 seconds to 1 second.</li><li data-text-id="exp-0-bullet-6">Conducted unit testing of frontend components using Jest and React Testing Library to ensure modular code structure and new feature development.</li><li data-text-id="exp-0-bullet-7">Performed as team Scrum Master, spearheaded the creation of a Jira workflow, facilitated daily stand-ups and Sprint planning.</li></ul></div></div>`;
+    const { container } = render(
+      <Experience annotationList={mockGroupedAnnotationList} />
+    );
     const experienceSection = container.firstChild.outerHTML;
     expect(experienceSection).toBe(experienceDiv);
   });
@@ -163,9 +214,11 @@ describe("Experience", () => {
 
 describe("Projects", () => {
   test("correctly render Experience section", () => {
-    const projectsDiv = `<div class="projects"><h2 class="resume-section-title" data-text-id="pjt">Projects</h2><div><p class="project-header" data-text-id="pjt-0-title"><span><strong>Merchenwise</strong> | Python, Scrapy, Matplotlib</span><span>2025-01 - 2025-02</span></p><ul><li data-text-id="pjt-0-bullet-0">Developed a Python Scrapy crawler with rotating proxy middleware to avoid IP blocking, implementing page parsing logic for structured data extraction.</li><li data-text-id="pjt-0-bullet-1">Implemented data pipeline cleansing product metadata (prices, reviews) using regex/NLP techniques.</li><li data-text-id="pjt-0-bullet-2">Built dynamic Matplotlib dashboards to visualize historical pricing trends of tracked merchandise, enabling users to identify price drops and optimal purchase times.</li></ul></div><div><p class="project-header" data-text-id="pjt-1-title"><span><strong>BiteByte</strong> | React, TypeScript, PostgreSQL</span><span>2024-03 - 2024-06</span></p><ul><li data-text-id="pjt-1-bullet-0">Implemented React Router for client-side routing, enabling seamless navigation between Login, Signup, and HomePage components.</li><li data-text-id="pjt-1-bullet-1">Established a PostgreSQL database connection, defined and associated models with custom aliases for relationships, and exported the configured Sequelize instance and models.</li></ul></div><div><p class="project-header" data-text-id="pjt-2-title"><span><strong>Dating Activity Recommender</strong> | React, Node.js, OpenAI API</span><span>2024-03 - 2024-06</span></p><ul><li data-text-id="pjt-2-bullet-0">Utilized React Hooks (useState, useEffect) within a functional component to manage state and side effects, facilitating dynamic updates and asynchronous data fetching.</li><li data-text-id="pjt-2-bullet-1">Implemented OpenAI's Chat API within Node.js environment to dynamically generate activity suggestions and restaurant options based on user queries.</li></ul></div><div><p class="project-header" data-text-id="pjt-3-title"><span><strong>Recipe Finder</strong> | Node.js, Express, MongoDB</span><span>2024-03 - 2024-06</span></p><ul><li data-text-id="pjt-3-bullet-0">Set up an Express server with defined endpoints and middleware to handle unknown routes, leveraging the modularity of Express.Router() for organized route handling.</li><li data-text-id="pjt-3-bullet-1">Utilized Mongoose for MongoDB and Node.js to define and manage database schemas, ensuring data integrity and consistency across the application.</li></ul></div></div>`;
+    const projectsDiv=`<div class="projects"><h2 class="resume-section-title" data-text-id="pjt">P<span class="highlight highlight-1" data-annotation-ids="01d4f63d-16c9-428a-92a0-0f53725b82a2">roje</span>cts</h2><div><p class="project-header" data-text-id="pjt-0-title"><span><strong>Merchenwis<span class="highlight highlight-1" data-annotation-ids="faf7d7fb-7b48-480c-8d4b-3fac053b593a">e</span></strong><span class="highlight highlight-1" data-annotation-ids="faf7d7fb-7b48-480c-8d4b-3fac053b593a"> | Python, Scrapy, Matplotlib</span></span><span><span class="highlight highlight-1" data-annotation-ids="faf7d7fb-7b48-480c-8d4b-3fac053b593a">202</span>5-01 - 2025-02</span></p><ul><li data-text-id="pjt-0-bullet-0">Developed a Python <span class="highlight highlight-1" data-annotation-ids="96da9269-ea22-4699-8ecf-4d71c7bdcd62">Scrapy</span> crawler with rotating proxy middleware to avoid IP blocking, implementing page parsing logic for structured data extraction.</li><li data-text-id="pjt-0-bullet-1">Implemented data pipeline cleansing product metadata (prices, reviews) using regex/NLP techniques.</li><li data-text-id="pjt-0-bullet-2">Built dynamic Matplotlib dashboards to visualize historical pricing trends of tracked merchandise, enabling users to identify price drops and optimal purchase times.</li></ul></div><div><p class="project-header" data-text-id="pjt-1-title"><span><strong>BiteByte</strong> | React, TypeScript, PostgreSQL</span><span>2024-03 - 2024-06</span></p><ul><li data-text-id="pjt-1-bullet-0">Implemented React Router for client-side routing, enabling seamless navigation between Login, Signup, and HomePage components.</li><li data-text-id="pjt-1-bullet-1">Established a PostgreSQL database connection, defined and associated models with custom aliases for relationships, and exported the configured Sequelize instance and models.</li></ul></div><div><p class="project-header" data-text-id="pjt-2-title"><span><strong>Dating Activity Recommender</strong> | React, Node.js, OpenAI API</span><span>2024-03 - 2024-06</span></p><ul><li data-text-id="pjt-2-bullet-0">Utilized React Hooks (useState, useEffect) within a functional component to manage state and side effects, facilitating dynamic updates and asynchronous data fetching.</li><li data-text-id="pjt-2-bullet-1">Implemented OpenAI's Chat API within Node.js environment to dynamically generate activity suggestions and restaurant options based on user queries.</li></ul></div><div><p class="project-header" data-text-id="pjt-3-title"><span><strong>Recipe Finder</strong> | Node.js, Express, MongoDB</span><span>2024-03 - 2024-06</span></p><ul><li data-text-id="pjt-3-bullet-0">Set up an Express server with defined endpoints and middleware to handle unknown routes, leveraging the modularity of Express.Router() for organized route handling.</li><li data-text-id="pjt-3-bullet-1">Utilized Mongoose for MongoDB and Node.js to define and manage database schemas, ensuring data integrity and consistency across the application.</li></ul></div></div>`
 
-    const { container } = render(<Projects annotationList={{}} />);
+    const { container } = render(
+      <Projects annotationList={mockGroupedAnnotationList} />
+    );
 
     const projectsSection = container.firstChild.outerHTML;
 
@@ -175,8 +228,10 @@ describe("Projects", () => {
 
 describe("Education", () => {
   test("correctly render Experience section", () => {
-    const educationDiv = `<div class="education"><h2 class="resume-section-title" data-text-id="edu">Education</h2><div><p class="education-header" data-text-id="edu-0-school-gradudation-date"><span><strong>New Jersey Institute of Technology</strong></span><span>Graduated 2013-07</span></p><p data-text-id="edu-0-degree-grade">M.S. in Engineering | GPA: 3.55</p></div><div><p class="education-header" data-text-id="edu-1-school-gradudation-date"><span><strong>The Capital University of Economics and Business</strong></span><span>Graduated 2011-07</span></p><p data-text-id="edu-1-degree-grade">B.S. in Engineering | GPA: 3.49</p></div></div>`;
-    const { container } = render(<Education annotationList={{}} />);
+    const educationDiv = `<div class="education"><h2 class="resume-section-title" data-text-id="edu"><span class="highlight highlight-1" data-annotation-ids="192c2831-54e0-4e85-8a85-885fd3d71b7b">Edu</span>cation</h2><div><p class="education-header" data-text-id="edu-0-school-gradudation-date"><span><strong>New Jersey Institute of Technolo<span class="highlight highlight-1" data-annotation-ids="a9f8c803-5ebb-46eb-a53f-661def740ec3">gy</span></strong></span><span><span class="highlight highlight-1" data-annotation-ids="a9f8c803-5ebb-46eb-a53f-661def740ec3">Graduated</span> 2013-07</span></p><p data-text-id="edu-0-degree-gpa">M.S. in Engineering | <span class="highlight highlight-1" data-annotation-ids="197ae881-b62b-4971-91df-7d95794ddb82">GPA: 3.55</span></p></div><div><p class="education-header" data-text-id="edu-1-school-gradudation-date"><span><strong>The Capital University of Economics and Business</strong></span><span>Graduated 2011-07</span></p><p data-text-id="edu-1-degree-gpa">B.S. in Engineering | GPA: 3.49</p></div></div>`;
+    const { container } = render(
+      <Education annotationList={mockGroupedAnnotationList} />
+    );
 
     const educationSection = container.firstChild.outerHTML;
 
