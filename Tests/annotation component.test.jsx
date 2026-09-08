@@ -444,9 +444,8 @@ describe("AnnotationDisplay", () => {
 
 test("AnnoFeature", () => {
   const result = AnnoFeature({});
-  console.log("annofeature return results", result);
+
   const children = result.props.children;
-  console.log("annofeature return results-children", children);
 
   expect(children[0].type).toBe(AnnotationOfferer);
   expect(children[1].type).toBe(AnnotationInput);
