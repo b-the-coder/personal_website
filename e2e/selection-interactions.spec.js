@@ -65,11 +65,28 @@ test.describe("Text Selection & Click Interaction Behavior", () => {
     const paddingRight = await expBullet.evaluate((el) => {
       return parseFloat(window.getComputedStyle(el).paddingRight) || 0;
     });
-    //右侧 padding 空白区域的中心
-    const startX = box.x + box.width - (paddingRight / 2 || 5);
-    const startY = box.y + box.height / 2; // 如果是单行或最后一行，直接取 Y 轴中点
 
-    await page.mouse.dblclick(startX, startY);
+    const contentRight = box.x + box.width - paddingRight;
+
+    // 点击 padding-right 的正中间
+    const startX = contentRight + paddingRight / 2;
+    const startY = box.y + box.height / 2;
+
+    console.log({
+      x: box.x,
+      width: box.width,
+      paddingRight,
+      contentRight,
+      startX,
+      startY,
+    });
+
+    await page.mouse.dblclick(1000, 665);
+
+    const selection = await page.evaluate(() => {
+      return window.getSelection().toString();
+    });
+    console.log("selection", selection);
 
     await expect(page.locator(".annotation-offerer")).toBeHidden();
   });

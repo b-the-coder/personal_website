@@ -18,9 +18,19 @@ function ResumeText({
 }) {
   const groupedAnnotation = groupAnnotationsByTextId(annotationList);
 
-  const handleSelection = () => {
+  const handleSelection = (event) => {
     const userSelection = window.getSelection();
     const selectedString = userSelection.toString();
+    if (event.detail === 2) {
+      if (userSelection.isCollapsed === true || !selectedString?.trim()) {
+        return;
+      }
+    }
+    console.log("userSelection iscollapsed", userSelection.isCollapsed);
+    console.log("selectedString:", JSON.stringify(selectedString));
+    console.log("selectesStrig is emptystring", selectedString === "");
+    console.log("selectesStrig is empty space string", selectedString === " ");
+
     const range = userSelection.getRangeAt(0);
 
     const textPositionNode =
