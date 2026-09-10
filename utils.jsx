@@ -31,8 +31,8 @@ const getRelativeOffsets = (range, textPositionNode) => {
   return [startIndex, endIndex];
 };
 
-const getNextModeOnSelection = (selectedString) => {
-  if (selectedString === "" || selectedString === null) {
+const getNextModeOnSelection = (userSelection) => {
+  if (userSelection.isCollapsed === true || !userSelection.toString().trim()) {
     return "idle";
   }
   return "text_selected";

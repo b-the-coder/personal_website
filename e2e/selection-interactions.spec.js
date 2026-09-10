@@ -61,15 +61,15 @@ test.describe("Text Selection & Click Interaction Behavior", () => {
     await page.goto("/");
     const expBullet = page.locator('[data-text-id="exp-0-bullet-0"]');
     const box = await expBullet.boundingBox();
-    // 获取元素实际的右内边距
-    const paddingRight = await expBullet.evaluate((el) => {
-      return parseFloat(window.getComputedStyle(el).paddingRight) || 0;
-    });
-    //右侧 padding 空白区域的中心
-    const startX = box.x + box.width - (paddingRight / 2 || 5);
-    const startY = box.y + box.height / 2; // 如果是单行或最后一行，直接取 Y 轴中点
 
-    await page.mouse.dblclick(startX, startY);
+    console.log({
+      x: box.x,
+      width: box.width,
+      y: box.y,
+      height: box.height,
+    });
+
+    await page.mouse.dblclick(box.x + box.width - 10, box.y + box.height / 2);
 
     await expect(page.locator(".annotation-offerer")).toBeHidden();
   });

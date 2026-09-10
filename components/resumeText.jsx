@@ -21,6 +21,13 @@ function ResumeText({
   const handleSelection = () => {
     const userSelection = window.getSelection();
     const selectedString = userSelection.toString();
+
+    const nextMode = getNextModeOnSelection(userSelection);
+
+    if (nextMode === "idle") {
+      setMode(nextMode);
+      return;
+    }
     const range = userSelection.getRangeAt(0);
 
     const textPositionNode =
@@ -37,8 +44,6 @@ function ResumeText({
       textPosition: textId,
       range: offsetsRelativeToTextPositionNode,
     };
-
-    const nextMode = getNextModeOnSelection(selectedString);
 
     setMode(nextMode);
     setSelectedText(selectedString);

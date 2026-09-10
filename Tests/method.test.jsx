@@ -21,12 +21,6 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const mockSelectedString = {
-  validSelection: "mockstring",
-  emptySelection: "",
-  nullSelection: null,
-};
-
 const expectedGroupedAnnotation = {
   "paragraph one": { "anno-1": [0, 1], "anno-2": [0, 1] },
   "paragraph two": { "anno-3": [0, 1] },
@@ -140,16 +134,32 @@ describe("groupAnnotationsByTextId", () => {
 });
 
 describe("getNextModeOnSelection", () => {
-  test("mode setup is correct with selections", () => {
-    expect(getNextModeOnSelection(mockSelectedString.validSelection)).toBe(
-      "text_selected"
-    );
-    expect(getNextModeOnSelection(mockSelectedString.nullSelection)).toBe(
-      "idle"
-    );
-    expect(getNextModeOnSelection(mockSelectedString.emptySelection)).toBe(
-      "idle"
-    );
+  test("should return text_selected when text is selected", () => {
+    const userSelection = {
+      isCollapsed: false,
+      toString: () => "React",
+    };
+
+    expect(getNextModeOnSelection(userSelection)).toBe("text_selected");
+  });
+
+  test("should return idle when selection contains only newline character", () => {
+    const userSelection = {
+      isCollapsed: false,
+      toString: () => "\n",
+    };
+
+    expect(getNextModeOnSelection(userSelection)).toBe("idle");
+  });
+
+  test("should return idle when selection is empty", () => {
+    //click on white space or drag on white space
+    const userSelection = {
+      isCollapsed: true,
+      toString: () => "",
+    };
+
+    expect(getNextModeOnSelection(userSelection)).toBe("idle");
   });
 });
 
