@@ -61,32 +61,15 @@ test.describe("Text Selection & Click Interaction Behavior", () => {
     await page.goto("/");
     const expBullet = page.locator('[data-text-id="exp-0-bullet-0"]');
     const box = await expBullet.boundingBox();
-    // 获取元素实际的右内边距
-    const paddingRight = await expBullet.evaluate((el) => {
-      return parseFloat(window.getComputedStyle(el).paddingRight) || 0;
-    });
-
-    const contentRight = box.x + box.width - paddingRight;
-
-    // 点击 padding-right 的正中间
-    const startX = contentRight + paddingRight / 2;
-    const startY = box.y + box.height / 2;
 
     console.log({
       x: box.x,
       width: box.width,
-      paddingRight,
-      contentRight,
-      startX,
-      startY,
+      y: box.y,
+      height: box.height,
     });
 
-    await page.mouse.dblclick(1000, 665);
-
-    const selection = await page.evaluate(() => {
-      return window.getSelection().toString();
-    });
-    console.log("selection", selection);
+    await page.mouse.dblclick(box.x + box.width - 10, box.y + box.height / 2);
 
     await expect(page.locator(".annotation-offerer")).toBeHidden();
   });

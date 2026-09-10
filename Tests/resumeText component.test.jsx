@@ -1,6 +1,7 @@
-import { describe, expect, test, afterEach, vi } from "vitest";
+import { describe, expect, test, afterEach, vi,beforeEach } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
+import * as utils from "../utils";
 
 import React from "react";
 
@@ -73,7 +74,7 @@ const mockGroupedAnnotationList = {
 describe("resumeText", () => {
   let mockProps;
 
-  test("handleSelection setup states with valid selection", () => {
+  beforeEach(() => {
     mockProps = {
       annotationList: {},
       setCurrentAnnotationId: vi.fn(),
@@ -81,6 +82,13 @@ describe("resumeText", () => {
       setSelectedText: vi.fn(),
       setSelectionPosition: vi.fn(),
     };
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("handleSelection setup states with valid selection", () => {
     const { container } = render(<ResumeText {...mockProps} />);
     const textPositionNode = container.querySelector(".resumeHeader");
     const textNode = textPositionNode.querySelector("h2").firstChild;
@@ -118,18 +126,22 @@ describe("resumeText", () => {
     expect(mockProps.setCurrentAnnotationId).toHaveBeenCalledWith(undefined);
     expect(mockProps.setMode).toHaveBeenCalledWith("text_selected"); // 可根据 getNextModeOnSelection 的返回值写具体期望值
   });
+  test("should set mode to idle when selection is invalid", () => {
+    vi.spyOn(utils, "getNextModeOnSelection").mockReturnValue("idle");
+
+    const { container } = render(<ResumeText {...mockProps} />);
+
+    const resumeTextContainer = container.querySelector(".resumeText");
+    fireEvent.mouseUp(resumeTextContainer);
+
+    expect(mockProps.setMode).toHaveBeenCalledWith("idle");
+    expect(mockProps.setSelectedText).not.toHaveBeenCalled();
+    expect(mockProps.setSelectionPosition).not.toHaveBeenCalled();
+    expect(mockProps.setCurrentAnnotationId).not.toHaveBeenCalled();
+  });
 
   describe("handleClick setup states with click behavior", () => {
     test("setup states when click annotations", () => {
-      mockProps = {
-        //// Tests handleClick only; annotationList is intentionally empty.
-        annotationList: {},
-        setCurrentAnnotationId: vi.fn(),
-        setMode: vi.fn(),
-        setSelectedText: vi.fn(),
-        setSelectionPosition: vi.fn(),
-      };
-
       const { container } = render(<ResumeText {...mockProps} />);
       const resumeText = container.querySelector(".resumeText");
       const annotationNode = document.createElement("span");
@@ -146,14 +158,6 @@ describe("resumeText", () => {
     });
 
     test("setup states when click no annotations text content", () => {
-      mockProps = {
-        annotationList: {},
-        setCurrentAnnotationId: vi.fn(),
-        setMode: vi.fn(),
-        setSelectedText: vi.fn(),
-        setSelectionPosition: vi.fn(),
-      };
-
       const { container } = render(<ResumeText {...mockProps} />);
       const resumeText = container.querySelector(".resumeText");
       const noAnnotationNode = document.createElement("span");
