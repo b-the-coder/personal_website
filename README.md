@@ -55,6 +55,12 @@ Run the tests and generate a coverage report:
 npm run test:coverage
 ```
 
+Run integration test
+
+```bash
+npm run test:e2e
+```
+
 ## Demo
 
 1. Select the text you want to annotate and post an annotation.
