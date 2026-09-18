@@ -10,7 +10,7 @@ import {
   AnnotationInput,
   AnnotationDisplay,
   AnnoFeature,
-} from "../components/annoFeature";
+} from "../components/anno-feature";
 
 import * as utils from "../utils";
 

@@ -186,6 +186,18 @@ body.dark-mode .contact-links {
 /* ==========================================================================
    RESUME SECTION
    ========================================================================== */
+   .resume {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* h2 和下面这一行都靠左 */
+  }
+  
+  .resumeAnno {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; /* 两个组件顶部对齐，而不是被拉伸到同高 */
+    gap: 5px;
+  }
 .resumeText {
   background-color: #f7f7f5; /* 比页面背景稍微深一点/偏暖一点 */
   border-radius: 12px;
@@ -363,12 +375,10 @@ body.dark-mode .contact-links {
 }
 
 /* ==========================================================================
-  Temporary style layout
+  highlights
    ========================================================================== */
 
-.resumeAnno {
-  display: flex;
-}
+
 
 .highlight {
   cursor: pointer;
@@ -383,3 +393,27 @@ body.dark-mode .contact-links {
 .highlight-1 {
   background-color: #fff9c4;
 }
+/* ==========================================================================
+  Contact Form
+   ========================================================================== */
+
+   .contactForm {
+    max-width: 300px;   
+  }
+   .contactForm > div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .contactForm label {
+    width: 80px;        /* 固定宽度,按最长的词 "Message" 来定 */
+    flex-shrink: 0;
+    text-align: right;  /* 可选,右对齐更整齐 */
+    margin-right: 10px;
+  }
+  
+  #submitbutton {
+    display: flex;
+    justify-content: flex-end;
+  }

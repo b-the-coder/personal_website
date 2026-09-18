@@ -13,7 +13,7 @@ import {
   Experience,
   Projects,
   Education,
-} from "../components/resumeText";
+} from "../components/resume-text";
 
 afterEach(() => {
   cleanup();
