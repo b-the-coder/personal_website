@@ -1,4 +1,4 @@
-import resumeData from "../resumeData.json";
+import { resumeData } from "../portfolioData.json";
 import React from "react";
 import {
   computeSegments,

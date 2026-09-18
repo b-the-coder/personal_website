@@ -14,8 +14,10 @@ export default defineConfig({
         "**/*.test.*",
         "**/*.config.*",
         "dist/**",
-        "script.jsx",
-        "resumeAnno root component.jsx",
+        "app.jsx",
+        "index.jsx",
+        "layout.jsx",
+        "resume-anno.jsx",
       ],
       thresholds: {
         statements: 80,
