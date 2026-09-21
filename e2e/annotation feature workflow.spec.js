@@ -193,7 +193,7 @@ test.describe("annotation feature workflow", () => {
     // Seed localStorage with an existing annotation and reload the page
     const annotationList = {
       "c85f6bcb-db68-4a0d-9151-85530d786d61": {
-        annotatedText: "Designed ",
+        annotatedText: "Designed",
         annotationContent: "e2e test mock annotation content",
         selectionPosition: {
           viewportPosition: {
