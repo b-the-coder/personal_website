@@ -18,7 +18,8 @@ function ResumeText({
 }) {
   const groupedAnnotation = groupAnnotationsByTextId(annotationList);
 
-  const handleSelection = () => {
+  const handleSelection = (e) => {
+    
     const userSelection = window.getSelection();
     const selectedString = userSelection.toString();
 
@@ -44,15 +45,28 @@ function ResumeText({
       textPosition: textId,
       range: offsetsRelativeToTextPositionNode,
     };
-
+    
     setMode(nextMode);
+  
+   
     setSelectedText(selectedString);
     setSelectionPosition(selectionPosition);
     setCurrentAnnotationId(undefined);
   };
 
   const handleClick = (e) => {
-    const annotationIdsString = e.target.dataset.annotationIds;
+    console.log("I am in handle click");
+    console.log("click e.target", e.target);
+    const userSelection = window.getSelection();
+    let annotationIdsString;
+
+    if (
+      userSelection.isCollapsed === true ||
+      !userSelection.toString().trim()
+    ) {
+      annotationIdsString = e.target.dataset.annotationIds;
+    }
+
 
     if (annotationIdsString) {
       setCurrentAnnotationId(annotationIdsString);
@@ -168,6 +182,8 @@ function Skills({ annotationList }) {
     </div>
   );
 }
+
+
 
 function Experience({ annotationList }) {
   const sectionTitle = "Experience";
