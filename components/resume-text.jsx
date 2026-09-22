@@ -18,7 +18,7 @@ function ResumeText({
 }) {
   const groupedAnnotation = groupAnnotationsByTextId(annotationList);
 
-  const handleSelection = (e) => {
+  const handleSelection = () => {
     
     const userSelection = window.getSelection();
     const selectedString = userSelection.toString();
@@ -55,8 +55,7 @@ function ResumeText({
   };
 
   const handleClick = (e) => {
-    console.log("I am in handle click");
-    console.log("click e.target", e.target);
+  
     const userSelection = window.getSelection();
     let annotationIdsString;
 

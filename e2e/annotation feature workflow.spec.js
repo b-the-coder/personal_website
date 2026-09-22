@@ -3,6 +3,9 @@ import { test, expect } from "@playwright/test";
 test.describe("annotation feature workflow", () => {
   test("single annotation creation", async ({ page }) => {
     await page.goto("/");
+    await page.waitForFunction(
+      () => window.localStorage.getItem("annotationList") != null
+    );
 
     // Capture the annotation state before creating a new annotation
     const preCreationStorage = await page.evaluate(() => {
