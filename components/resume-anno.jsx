@@ -12,18 +12,11 @@ function ResumeAnno() {
   const [selectedText, setSelectedText] = useState("");
   const [selectionPosition, setSelectionPosition] = useState(null);
 
-  // useEffect(() => {
-  //   localStorage.annotationList = JSON.stringify(annotationList);
-  // console.log(`[useEffect write] ${performance.now()}ms`, annotationList);
-  // }, [annotationList]);
-
   useEffect(() => {
-    const delay = setTimeout(() => {
-      localStorage.annotationList = JSON.stringify(annotationList);
-    }, 3000); // 人为延迟 300ms 再写入
-    console.log(`[useEffect write] ${performance.now()}ms`, annotationList);
-    return () => clearTimeout(delay);
+    localStorage.annotationList = JSON.stringify(annotationList);
+  
   }, [annotationList]);
+
 
  
 
