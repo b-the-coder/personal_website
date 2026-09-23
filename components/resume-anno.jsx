@@ -14,7 +14,11 @@ function ResumeAnno() {
 
   useEffect(() => {
     localStorage.annotationList = JSON.stringify(annotationList);
+  
   }, [annotationList]);
+
+
+ 
 
   return (
     <div className="resume">

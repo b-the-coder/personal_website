@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test'; 
-
+import { test, expect } from "@playwright/test";
 
 // annotationList
 const annotationListData = {
@@ -56,7 +55,7 @@ const annotationListData = {
 };
 
 test.describe("initialized and reload page correct ", () => {
-  test("initialized and reload page with existing annotaitonList ", async ({
+  test("initialized and reload page with existing annotaitonList", async ({
     page,
   }) => {
     await page.addInitScript((data) => {
@@ -76,7 +75,7 @@ test.describe("initialized and reload page correct ", () => {
     await expect(page.locator(".annotation-offerer")).toBeHidden();
   });
 
-  test("initialized and reload page with no existing annotaitonList ", async ({
+  test("initialized and reload page with no existing annotaitonList", async ({
     page,
   }) => {
     await page.goto("./");
@@ -86,10 +85,20 @@ test.describe("initialized and reload page correct ", () => {
     ).toHaveCount(0);
     await expect(page.locator(".annotation-offerer")).toBeHidden();
 
+    // Verify localStorage is initialzied correctly
+    const initialAnnotations = await page.evaluate(() => {
+      return JSON.parse(window.localStorage.getItem("annotationList"));
+    });
+    expect(initialAnnotations).toEqual({});
+
     await page.reload();
     await expect(
       page.locator(".resumeText").locator('[class^="highlight highlight-"]')
     ).toHaveCount(0);
     await expect(page.locator(".annotation-offerer")).toBeHidden();
+    const reloadedAnnotations = await page.evaluate(() => {
+      return JSON.parse(window.localStorage.getItem("annotationList"));
+    });
+    expect(reloadedAnnotations).toEqual({});
   });
 });

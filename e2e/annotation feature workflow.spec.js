@@ -4,12 +4,8 @@ test.describe("annotation feature workflow", () => {
   test("single annotation creation", async ({ page }) => {
     await page.goto("/");
 
-    // Capture the annotation state before creating a new annotation
-    const preCreationStorage = await page.evaluate(() => {
-      const data = window.localStorage.getItem("annotationList");
-      return data ? JSON.parse(data) : null;
-    });
-    expect(preCreationStorage).toEqual({});
+    // initialize localStorage annotationList
+    await page.localStorage.setItem("annotationList", JSON.stringify({}));
 
     // Locate a random occurrence of "react" / "React" on the page
     const locator = page.getByText("React");
@@ -68,6 +64,17 @@ test.describe("annotation feature workflow", () => {
       .fill("e2e test mock annotation content");
     await page.locator(".annotation-input__post-btn").click();
 
+    // Verify the correct "React" is being highlighted
+    const annotation = page.locator(".highlight.highlight-1");
+    const annotatedText = await annotation.textContent();
+    expect(annotatedText).toBe("React");
+
+    const highlightedIndex = await locator.evaluateAll(
+      (elements, highlightedElement) => elements.indexOf(highlightedElement),
+      await annotation.elementHandle()
+    );
+    expect(highlightedIndex).toBe(idx);
+
     // Verify localStorage is updated after the annotation is created
     const postCreationStorage = await page.evaluate(() => {
       return JSON.parse(window.localStorage.getItem("annotationList"));
@@ -82,17 +89,6 @@ test.describe("annotation feature workflow", () => {
         annotatedText: selectionInfo.selectedText,
       })
     );
-
-    // Verify the correct "React" is being highlighted
-    const annotation = page.locator(".highlight.highlight-1");
-    const annotatedText = await annotation.textContent();
-    expect(annotatedText).toBe("React");
-
-    const highlightedIndex = await locator.evaluateAll(
-      (elements, highlightedElement) => elements.indexOf(highlightedElement),
-      await annotation.elementHandle()
-    );
-    expect(highlightedIndex).toBe(idx);
   });
 
   test("edit annotation", async ({ page }) => {
@@ -158,6 +154,7 @@ test.describe("annotation feature workflow", () => {
       "placeholder",
       annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent
     );
+
     // Update the annotation content and submit the changes
     const editedAnnotationContent =
       "edited" +
@@ -166,6 +163,15 @@ test.describe("annotation feature workflow", () => {
       .locator(".annotation-input__textarea")
       .fill(editedAnnotationContent);
     await page.locator(".annotation-input__post-btn").click();
+
+    //Verify UI shows correct annotation content  after edit.
+    const editedAnnotation = await page.locator(
+      '[data-annotation-ids="c85f6bcb-db68-4a0d-9151-85530d786d61"]'
+    );
+    await editedAnnotation.click();
+    await expect(
+      page.getByText(`You annotated: ${editedAnnotationContent}`)
+    ).toBeVisible();
 
     // Verify localStorage is updated after the annotation is edited
     const postEditAnnotationList = await page.evaluate(() => {
@@ -176,15 +182,6 @@ test.describe("annotation feature workflow", () => {
       postEditAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"]
         .annotationContent
     ).toEqual(editedAnnotationContent);
-
-    //Verify UI shows correct annotation content  after edit.
-    const editedAnnotation = await page.locator(
-      '[data-annotation-ids="c85f6bcb-db68-4a0d-9151-85530d786d61"]'
-    );
-    await editedAnnotation.click();
-    await expect(
-      page.getByText(`You annotated: ${editedAnnotationContent}`)
-    ).toBeVisible();
   });
 
   test("Delete annotation", async ({ page }) => {
@@ -236,6 +233,14 @@ test.describe("annotation feature workflow", () => {
       .locator(".annotation-display  .annotation-display__delete-btn")
       .click();
 
+    // Verify the annotation highlight is removed from the UI
+    await expect(
+      page.locator(
+        '[data-annotation-ids="c85f6bcb-db68-4a0d-9151-85530d786d61"]'
+      )
+    ).not.toBeAttached();
+    await expect(page.locator(".highlight.highlight-1")).not.toBeAttached();
+
     // Verify localStorage is updated after the annotation is deleted
     const postDeleteAnnotationList = await page.evaluate(() => {
       return JSON.parse(window.localStorage.getItem("annotationList"));
@@ -244,13 +249,5 @@ test.describe("annotation feature workflow", () => {
       postDeleteAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"]
     ).toBeUndefined();
     await expect(postDeleteAnnotationList).toEqual({});
-
-    // Verify the annotation highlight is removed from the UI
-    await expect(
-      page.locator(
-        '[data-annotation-ids="c85f6bcb-db68-4a0d-9151-85530d786d61"]'
-      )
-    ).not.toBeAttached();
-    await expect(page.locator(".highlight.highlight-1")).not.toBeAttached();
   });
 });
