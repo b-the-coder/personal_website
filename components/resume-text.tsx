@@ -9,17 +9,32 @@ import {
   processTextSegments,
 } from "../utils";
 
+import type {
+  AnnotationStateContext,
+  AnnotationListType,
+  SelectionPosition,
+  ModeType,
+} from "./types";
+
+type ResumeTextProps = Pick<
+  AnnotationStateContext,
+  | "annotationList"
+  | "setCurrentAnnotationId"
+  | "setMode"
+  | "setSelectedText"
+  | "setSelectionPosition"
+>;
+
 function ResumeText({
   annotationList,
   setCurrentAnnotationId,
   setMode,
   setSelectedText,
   setSelectionPosition,
-}) {
+}: ResumeTextProps) {
   const groupedAnnotation = groupAnnotationsByTextId(annotationList);
 
   const handleSelection = () => {
-    
     const userSelection = window.getSelection();
     const selectedString = userSelection.toString();
 
@@ -45,17 +60,15 @@ function ResumeText({
       textPosition: textId,
       range: offsetsRelativeToTextPositionNode,
     };
-    
+
     setMode(nextMode);
-  
-   
+
     setSelectedText(selectedString);
     setSelectionPosition(selectionPosition);
     setCurrentAnnotationId(undefined);
   };
 
   const handleClick = (e) => {
-  
     const userSelection = window.getSelection();
     let annotationIdsString;
 
@@ -65,7 +78,6 @@ function ResumeText({
     ) {
       annotationIdsString = e.target.dataset.annotationIds;
     }
-
 
     if (annotationIdsString) {
       setCurrentAnnotationId(annotationIdsString);
@@ -181,8 +193,6 @@ function Skills({ annotationList }) {
     </div>
   );
 }
-
-
 
 function Experience({ annotationList }) {
   const sectionTitle = "Experience";

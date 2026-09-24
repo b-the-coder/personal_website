@@ -1,6 +1,38 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
+import type {
+  AnnotationStateContext,
+  AnnotationListType,
+  SelectionPosition,
+  ModeType,
+} from "./types";
+
+// Pick only the fields this component needs
+type AnnotationOffererProps = Pick<
+  AnnotationStateContext,
+  "mode" | "setMode" | "selectionPosition"
+>;
+type AnnotationInputProps = Pick<
+  AnnotationStateContext,
+  | "mode"
+  | "setMode"
+  | "annotationList"
+  | "setAnnotationList"
+  | "selectedText"
+  | "selectionPosition"
+  | "currentAnnotationId"
+>;
+
+type AnnotationDisplayProps = Pick<
+  AnnotationStateContext,
+  | "mode"
+  | "setMode"
+  | "annotationList"
+  | "setAnnotationList"
+  | "currentAnnotationId"
+  | "setCurrentAnnotationId"
+>;
 
 function AnnoFeature({
   mode,
@@ -13,7 +45,7 @@ function AnnoFeature({
   setSelectedText,
   selectionPosition,
   setSelectionPosition,
-}) {
+}: AnnotationStateContext) {
   return (
     <div className="annoFeature">
       <AnnotationOfferer
@@ -50,11 +82,8 @@ function AnnoFeature({
 function AnnotationOfferer({
   mode,
   setMode,
-  selectedText,
-  setSelectedText,
   selectionPosition,
-  setSelectedPosition,
-}) {
+}: AnnotationOffererProps) {
   const handleClick = () => {
     setMode("annotating");
   };
@@ -90,12 +119,9 @@ function AnnotationInput({
   annotationList,
   setAnnotationList,
   selectedText,
-  setSelectedText,
   selectionPosition,
-  setSelectionPosition,
   currentAnnotationId,
-  setcurrentAnnotationId,
-}) {
+}: AnnotationInputProps) {
   //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
   const annotationRef = useRef(null);
 
@@ -171,7 +197,7 @@ function AnnotationDisplay({
   setAnnotationList,
   currentAnnotationId,
   setCurrentAnnotationId,
-}) {
+}: AnnotationDisplayProps) {
   if (mode != "anno_display") {
     return null;
   }
