@@ -51,10 +51,7 @@ function AnnoFeature({
       <AnnotationOfferer
         mode={mode}
         setMode={setMode}
-        selectedText={selectedText}
-        setSelectedText={setSelectedText}
         selectionPosition={selectionPosition}
-        setSelectionPosition={setSelectionPosition}
       />
       <AnnotationInput
         mode={mode}
@@ -62,11 +59,8 @@ function AnnoFeature({
         annotationList={annotationList}
         setAnnotationList={setAnnotationList}
         selectedText={selectedText}
-        setSelectedText={setSelectedText}
         selectionPosition={selectionPosition}
-        setSelectionPosition={setSelectionPosition}
         currentAnnotationId={currentAnnotationId}
-        setCurrentAnnotationId={setCurrentAnnotationId}
       />
       <AnnotationDisplay
         mode={mode}
