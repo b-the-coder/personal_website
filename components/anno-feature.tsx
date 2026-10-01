@@ -1,12 +1,7 @@
 import React from "react";
 import { useRef } from "react";
 import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
-import type {
-  AnnotationStateContext,
-  AnnotationListType,
-  SelectionPosition,
-  ModeType,
-} from "./types";
+import type { AnnotationStateContext } from "./types";
 
 // Pick only the fields this component needs
 type AnnotationOffererProps = Pick<
@@ -42,9 +37,8 @@ function AnnoFeature({
   currentAnnotationId,
   setCurrentAnnotationId,
   selectedText,
-  setSelectedText,
+
   selectionPosition,
-  setSelectionPosition,
 }: AnnotationStateContext) {
   return (
     <div className="annoFeature">
@@ -117,7 +111,7 @@ function AnnotationInput({
   currentAnnotationId,
 }: AnnotationInputProps) {
   //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
-  const annotationRef = useRef(null);
+  const annotationRef =  useRef<HTMLTextAreaElement>(null);
 
   if (mode != "annotating") {
     return null;
@@ -125,7 +119,9 @@ function AnnotationInput({
 
   const onPostClick = () => {
     //拿到用户输入的标注内容
-    const annoContent = annotationRef.current.value;
+   
+    const annoContent = annotationRef.current?.value;
+
     // 声明要传进createAnnotation里的新annodata
     const newAnno = {
       annotatedText: selectedText,

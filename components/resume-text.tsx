@@ -11,9 +11,7 @@ import {
 
 import type {
   AnnotationStateContext,
-  AnnotationListType,
-  SelectionPosition,
-  ModeType,
+
 } from "./types";
 
 type ResumeTextProps = Pick<
