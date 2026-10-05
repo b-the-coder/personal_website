@@ -194,12 +194,12 @@ function AnnotationDisplay({
 
   const displayAnnotationIds = currentAnnotationId.split(",");
 
-  const handleDeleteClick = (annoId) => {
+  const handleDeleteClick = (annoId:string) => {
     const updatedAnnotationList = deleteAnnotation(annotationList, annoId);
     setAnnotationList(updatedAnnotationList);
     setMode("idle");
   };
-  const handleEditClick = (annoId) => {
+  const handleEditClick = (annoId:string) => {
     setCurrentAnnotationId(annoId);
     setMode("annotating");
   };

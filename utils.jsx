@@ -8,7 +8,11 @@ const annotationListinit = () => {
     return JSON.parse(data);
   }
 };
-
+/**
+ * @param {Range} range - The browser DOM Range object
+ * @param {Element} textPositionNode - The browser DOM Element Node
+ * @returns {RangeOffsets} An array of offset numbers (or whatever your specific array type is)
+ */
 const getRelativeOffsets = (range, textPositionNode) => {
   const preCaretRange = range.cloneRange();
 
@@ -82,7 +86,12 @@ const deleteAnnotation = (annotationList, currentAnnotationId) => {
   return updatedAnnotationList;
 };
 
+/**
+ * @param {import("./components/types").AnnotationListType} annotationList
+ * @returns {import("./components/types").groupAnnotationsType}
+ */
 const groupAnnotationsByTextId = (annotationList) => {
+  /** @type {import("./components/types").groupAnnotationsType} */
   const grouped = {};
 
   Object.entries(annotationList).forEach(([annotationId, annotation]) => {

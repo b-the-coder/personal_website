@@ -11,6 +11,8 @@ export interface SelectionPosition {
   range: RangeOffsets;
 }
 
+export type AnnotationRange = SelectionPosition["range"];
+
 // Data structure for a single Annotation item
 export interface AnnotationItem {
   annotatedText: string;
@@ -21,6 +23,13 @@ export interface AnnotationItem {
 
 // annotationList is a key-value map using UUID strings as keys
 export type AnnotationListType = Record<string, AnnotationItem>;
+
+// export type AnnotationCatagory = "resume-header" | "resume-links" | "skl";
+
+export type groupAnnotationsType = Record<
+  string,
+  { [uuid: string]: AnnotationRange }
+>;
 
 // Allowed modes
 export type ModeType = "idle" | "text_selected" | "annotating" | "anno_display";
@@ -33,8 +42,8 @@ export interface AnnotationStateContext {
   annotationList: AnnotationListType;
   setAnnotationList: (list: AnnotationListType) => void;
 
-  currentAnnotationId: string | undefined;
-  setCurrentAnnotationId: (id: string | undefined) => void;
+  currentAnnotationId: string;
+  setCurrentAnnotationId: (id: string) => void;
 
   selectedText: string;
   setSelectedText: (text: string) => void;
