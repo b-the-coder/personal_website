@@ -74,8 +74,10 @@ function ResumeText({
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const userSelection = window.getSelection();
+
     //if the associated document has no browsing context
     if (userSelection === null) return;
+    
     let annotationIdsString;
 
     if (
