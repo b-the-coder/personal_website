@@ -1,6 +1,33 @@
 import React from "react";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
+import type { AnnotationStateContext } from "./types";
+
+// Pick only the fields this component needs
+type AnnotationOffererProps = Pick<
+  AnnotationStateContext,
+  "mode" | "setMode" | "selectionPosition"
+>;
+type AnnotationInputProps = Pick<
+  AnnotationStateContext,
+  | "mode"
+  | "setMode"
+  | "annotationList"
+  | "setAnnotationList"
+  | "selectedText"
+  | "selectionPosition"
+  | "currentAnnotationId"
+>;
+
+type AnnotationDisplayProps = Pick<
+  AnnotationStateContext,
+  | "mode"
+  | "setMode"
+  | "annotationList"
+  | "setAnnotationList"
+  | "currentAnnotationId"
+  | "setCurrentAnnotationId"
+>;
 
 function AnnoFeature({
   mode,
@@ -10,19 +37,15 @@ function AnnoFeature({
   currentAnnotationId,
   setCurrentAnnotationId,
   selectedText,
-  setSelectedText,
+
   selectionPosition,
-  setSelectionPosition,
-}) {
+}: AnnotationStateContext) {
   return (
     <div className="annoFeature">
       <AnnotationOfferer
         mode={mode}
         setMode={setMode}
-        selectedText={selectedText}
-        setSelectedText={setSelectedText}
         selectionPosition={selectionPosition}
-        setSelectionPosition={setSelectionPosition}
       />
       <AnnotationInput
         mode={mode}
@@ -30,11 +53,8 @@ function AnnoFeature({
         annotationList={annotationList}
         setAnnotationList={setAnnotationList}
         selectedText={selectedText}
-        setSelectedText={setSelectedText}
         selectionPosition={selectionPosition}
-        setSelectionPosition={setSelectionPosition}
         currentAnnotationId={currentAnnotationId}
-        setCurrentAnnotationId={setCurrentAnnotationId}
       />
       <AnnotationDisplay
         mode={mode}
@@ -50,11 +70,8 @@ function AnnoFeature({
 function AnnotationOfferer({
   mode,
   setMode,
-  selectedText,
-  setSelectedText,
   selectionPosition,
-  setSelectedPosition,
-}) {
+}: AnnotationOffererProps) {
   const handleClick = () => {
     setMode("annotating");
   };
@@ -90,14 +107,11 @@ function AnnotationInput({
   annotationList,
   setAnnotationList,
   selectedText,
-  setSelectedText,
   selectionPosition,
-  setSelectionPosition,
   currentAnnotationId,
-  setcurrentAnnotationId,
-}) {
+}: AnnotationInputProps) {
   //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
-  const annotationRef = useRef(null);
+  const annotationRef =  useRef<HTMLTextAreaElement>(null);
 
   if (mode != "annotating") {
     return null;
@@ -105,7 +119,9 @@ function AnnotationInput({
 
   const onPostClick = () => {
     //拿到用户输入的标注内容
-    const annoContent = annotationRef.current.value;
+   
+    const annoContent = annotationRef.current?.value;
+
     // 声明要传进createAnnotation里的新annodata
     const newAnno = {
       annotatedText: selectedText,
@@ -171,19 +187,19 @@ function AnnotationDisplay({
   setAnnotationList,
   currentAnnotationId,
   setCurrentAnnotationId,
-}) {
+}: AnnotationDisplayProps) {
   if (mode != "anno_display") {
     return null;
   }
 
   const displayAnnotationIds = currentAnnotationId.split(",");
 
-  const handleDeleteClick = (annoId) => {
+  const handleDeleteClick = (annoId:string) => {
     const updatedAnnotationList = deleteAnnotation(annotationList, annoId);
     setAnnotationList(updatedAnnotationList);
     setMode("idle");
   };
-  const handleEditClick = (annoId) => {
+  const handleEditClick = (annoId:string) => {
     setCurrentAnnotationId(annoId);
     setMode("annotating");
   };

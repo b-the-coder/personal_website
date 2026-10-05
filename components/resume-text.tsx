@@ -9,63 +9,83 @@ import {
   processTextSegments,
 } from "../utils";
 
+import type { AnnotationStateContext, groupAnnotationsType } from "./types";
+
+type ResumeSectionProps = { groupedAnnotationList: groupAnnotationsType };
+
+type ResumeTextProps = Pick<
+  AnnotationStateContext,
+  | "annotationList"
+  | "setCurrentAnnotationId"
+  | "setMode"
+  | "setSelectedText"
+  | "setSelectionPosition"
+>;
+
 function ResumeText({
   annotationList,
   setCurrentAnnotationId,
   setMode,
   setSelectedText,
   setSelectionPosition,
-}) {
-  const groupedAnnotation = groupAnnotationsByTextId(annotationList);
+}: ResumeTextProps) {
+  const groupedAnnotations = groupAnnotationsByTextId(annotationList);
 
   const handleSelection = () => {
-    
     const userSelection = window.getSelection();
+
+    //if the associated document has no browsing context
+    if (userSelection === null) return;
+
     const selectedString = userSelection.toString();
 
     const nextMode = getNextModeOnSelection(userSelection);
-
     if (nextMode === "idle") {
       setMode(nextMode);
       return;
     }
+
     const range = userSelection.getRangeAt(0);
 
     const textPositionNode =
-      range.startContainer.parentElement.closest("[data-text-id]");
+      range.startContainer.parentElement?.closest("[data-text-id]");
+
+    const textId = textPositionNode?.getAttribute("data-text-id");
+    if (!textPositionNode || !textId) return;
 
     const offsetsRelativeToTextPositionNode = getRelativeOffsets(
       range,
       textPositionNode
     );
-    const textId = textPositionNode.getAttribute("data-text-id");
+
     const rect = range.getBoundingClientRect();
     const selectionPosition = {
       viewportPosition: { x: rect.right, y: rect.bottom },
       textPosition: textId,
       range: offsetsRelativeToTextPositionNode,
     };
-    
+
     setMode(nextMode);
-  
-   
+
     setSelectedText(selectedString);
     setSelectionPosition(selectionPosition);
-    setCurrentAnnotationId(undefined);
+    // setCurrentAnnotationId(undefined);
   };
 
-  const handleClick = (e) => {
-  
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const userSelection = window.getSelection();
+
+    //if the associated document has no browsing context
+    if (userSelection === null) return;
+    
     let annotationIdsString;
 
     if (
       userSelection.isCollapsed === true ||
       !userSelection.toString().trim()
     ) {
-      annotationIdsString = e.target.dataset.annotationIds;
+      annotationIdsString = (e.target as HTMLElement).dataset.annotationIds;
     }
-
 
     if (annotationIdsString) {
       setCurrentAnnotationId(annotationIdsString);
@@ -79,18 +99,18 @@ function ResumeText({
       onMouseUp={handleSelection}
       onClick={handleClick}
     >
-      <Header annotationList={groupedAnnotation} />
-      <Contact annotationList={groupedAnnotation} />
-      <Skills annotationList={groupedAnnotation} />
-      <Experience annotationList={groupedAnnotation} />
-      <Projects annotationList={groupedAnnotation} />
-      <Education annotationList={groupedAnnotation} />
+      <Header groupedAnnotationList={groupedAnnotations} />
+      <Contact groupedAnnotationList={groupedAnnotations} />
+      <Skills groupedAnnotationList={groupedAnnotations} />
+      <Experience groupedAnnotationList={groupedAnnotations} />
+      <Projects groupedAnnotationList={groupedAnnotations} />
+      <Education groupedAnnotationList={groupedAnnotations} />
     </div>
   );
 }
 
-function Header({ annotationList }) {
-  const headerAnnotations = annotationList["resume-header"];
+function Header({ groupedAnnotationList }: ResumeSectionProps) {
+  const headerAnnotations = groupedAnnotationList["resume-header"];
 
   const name = resumeData.name;
   const email = resumeData.contact.email;
@@ -117,8 +137,8 @@ function Header({ annotationList }) {
   );
 }
 
-function Contact({ annotationList }) {
-  const contactAnnotations = annotationList["resume-links"];
+function Contact({ groupedAnnotationList }: ResumeSectionProps) {
+  const contactAnnotations = groupedAnnotationList["resume-links"];
 
   const github = resumeData.contact.github;
   const linkedin = resumeData.contact.linkedin;
@@ -143,8 +163,8 @@ function Contact({ annotationList }) {
   );
 }
 
-function Skills({ annotationList }) {
-  const titleAnnotations = annotationList["skl"];
+function Skills({ groupedAnnotationList }: ResumeSectionProps) {
+  const titleAnnotations = groupedAnnotationList["skl"];
   const sectionTitle = "Skills";
   const titleSegments = computeSegments(sectionTitle, titleAnnotations);
 
@@ -159,7 +179,7 @@ function Skills({ annotationList }) {
         const itemsText = items.join(", ");
         const textId = `skl-${index}`;
 
-        const skillAnnotations = annotationList[textId];
+        const skillAnnotations = groupedAnnotationList[textId];
 
         const skillTextChuck = [formattedCategory, itemsText];
         const {
@@ -182,11 +202,9 @@ function Skills({ annotationList }) {
   );
 }
 
-
-
-function Experience({ annotationList }) {
+function Experience({ groupedAnnotationList }: ResumeSectionProps) {
   const sectionTitle = "Experience";
-  const sectionAnnotations = annotationList["exp"];
+  const sectionAnnotations = groupedAnnotationList["exp"];
 
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
@@ -202,7 +220,7 @@ function Experience({ annotationList }) {
         const expDetail = ` - ${exp.project} (${exp.type}) | ${exp.startDate} - ${exp.endDate}`;
 
         const expTitleLineTextChuck = [expPosition, expDetail];
-        const expTitleAnnotations = annotationList[titleTextId];
+        const expTitleAnnotations = groupedAnnotationList[titleTextId];
 
         const {
           fullText: expTitleLineText,
@@ -225,7 +243,8 @@ function Experience({ annotationList }) {
             <ul>
               {exp.bullets.map((bullet, bulletIndex) => {
                 const expBulletTextId = `exp-${index}-bullet-${bulletIndex}`;
-                const expBulletAnnotations = annotationList[expBulletTextId];
+                const expBulletAnnotations =
+                  groupedAnnotationList[expBulletTextId];
                 const expBulletSegments = computeSegments(
                   bullet,
                   expBulletAnnotations
@@ -245,9 +264,9 @@ function Experience({ annotationList }) {
   );
 }
 
-function Projects({ annotationList }) {
+function Projects({ groupedAnnotationList }: ResumeSectionProps) {
   const sectionTitle = "Projects";
-  const sectionAnnotations = annotationList["pjt"];
+  const sectionAnnotations = groupedAnnotationList["pjt"];
 
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
@@ -259,7 +278,7 @@ function Projects({ annotationList }) {
 
       {resumeData.projects.map((pro, index) => {
         const proTitleTextId = `pjt-${index}-title`;
-        const proTitleAnnotations = annotationList[proTitleTextId];
+        const proTitleAnnotations = groupedAnnotationList[proTitleTextId];
 
         const nameText = pro.name;
         const stackText = ` | ${pro.stack.join(", ")}`;
@@ -288,7 +307,7 @@ function Projects({ annotationList }) {
             <ul>
               {pro.bullets.map((bullet, bulletIndex) => {
                 const bulletTextId = `pjt-${index}-bullet-${bulletIndex}`;
-                const bulletAnnotations = annotationList[bulletTextId];
+                const bulletAnnotations = groupedAnnotationList[bulletTextId];
                 const bulletSegments = computeSegments(
                   bullet,
                   bulletAnnotations
@@ -308,9 +327,9 @@ function Projects({ annotationList }) {
   );
 }
 
-function Education({ annotationList }) {
+function Education({ groupedAnnotationList }: ResumeSectionProps) {
   const sectionTitle = "Education";
-  const sectionAnnotations = annotationList["edu"];
+  const sectionAnnotations = groupedAnnotationList["edu"];
 
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
@@ -322,7 +341,7 @@ function Education({ annotationList }) {
 
       {resumeData.education.map((edu, index) => {
         const eduHeaderTextId = `edu-${index}-school-gradudation-date`;
-        const eduHeaderAnnotations = annotationList[eduHeaderTextId];
+        const eduHeaderAnnotations = groupedAnnotationList[eduHeaderTextId];
 
         const schoolText = edu.school;
         const graduationText = `Graduated ${edu.graduationDate}`;
@@ -339,7 +358,7 @@ function Education({ annotationList }) {
         });
 
         const academicsTextId = `edu-${index}-degree-gpa`;
-        const academicsAnnotations = annotationList[academicsTextId];
+        const academicsAnnotations = groupedAnnotationList[academicsTextId];
 
         // degree 和 GPA 没有不同 HTML 格式，可以一起渲染
         const academicsText = `${edu.degree} | GPA: ${edu.gpa}`;

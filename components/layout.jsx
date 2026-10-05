@@ -163,7 +163,7 @@ function ContactForm() {
       [name]: value,
     };
     // Kept your inline validation logic if needed for extension later
-    const validatedInput = validateForm(latestFormData);
+    // const validatedInput = validateForm(latestFormData);
     setFormData(latestFormData);
   };
 

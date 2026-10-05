@@ -6,6 +6,7 @@ import { AnnoFeature } from "./anno-feature";
 import { annotationListinit } from "../utils";
 
 function ResumeAnno() {
+  
   const [annotationList, setAnnotationList] = useState(annotationListinit());
   const [currentAnnotationId, setCurrentAnnotationId] = useState(undefined);
   const [mode, setMode] = useState("idle");
@@ -14,11 +15,8 @@ function ResumeAnno() {
 
   useEffect(() => {
     localStorage.annotationList = JSON.stringify(annotationList);
-  
   }, [annotationList]);
 
-
- 
 
   return (
     <div className="resume">
