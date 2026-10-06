@@ -30,62 +30,48 @@ type AnnotationDisplayProps = Pick<
 >;
 
 function AnnoFeature({
-  mode,
-  setMode,
+  session,
+  setSession,
   annotationList,
   setAnnotationList,
-  currentAnnotationId,
-  setCurrentAnnotationId,
-  selectedText,
-
-  selectionPosition,
 }: AnnotationStateContext) {
   return (
     <div className="annoFeature">
-      <AnnotationOfferer
-        mode={mode}
-        setMode={setMode}
-        selectionPosition={selectionPosition}
-      />
+      <AnnotationOfferer session={session} setSession={setSession} />
       <AnnotationInput
-        mode={mode}
-        setMode={setMode}
+        session={session}
+        setSession={setSession}
         annotationList={annotationList}
         setAnnotationList={setAnnotationList}
-        selectedText={selectedText}
-        selectionPosition={selectionPosition}
-        currentAnnotationId={currentAnnotationId}
       />
       <AnnotationDisplay
-        mode={mode}
-        setMode={setMode}
+        session={session}
+        setSession={setSession}
         annotationList={annotationList}
         setAnnotationList={setAnnotationList}
-        currentAnnotationId={currentAnnotationId}
-        setCurrentAnnotationId={setCurrentAnnotationId}
       />
     </div>
   );
 }
-function AnnotationOfferer({
-  mode,
-  setMode,
-  selectionPosition,
-}: AnnotationOffererProps) {
-  const handleClick = () => {
-    setMode("annotating");
-  };
-  if (mode != "text_selected") {
+function AnnotationOfferer({ session, setSession }: AnnotationOffererProps) {
+  if (session.kind != "text_selected") {
     return null;
   }
+  const handleClick = () => {
+    setSession({
+      ...session,
+      kind: "annotating",
+    });
+  };
+
   return (
     <span
       onClick={handleClick}
       className="annotation-offerer"
       style={{
         position: "fixed",
-        left: selectionPosition.viewportPosition.x + "px",
-        top: selectionPosition.viewportPosition.y + "px",
+        left: session.selectionPosition.viewportPosition.x + "px",
+        top: session.selectionPosition.viewportPosition.y + "px",
       }}
     >
       <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
@@ -102,56 +88,64 @@ function AnnotationOfferer({
 }
 
 function AnnotationInput({
-  mode,
-  setMode,
   annotationList,
   setAnnotationList,
-  selectedText,
-  selectionPosition,
-  currentAnnotationId,
+  session,
+  setSession,
 }: AnnotationInputProps) {
   //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
-  const annotationRef =  useRef<HTMLTextAreaElement>(null);
+  const annotationRef = useRef<HTMLTextAreaElement>(null);
 
-  if (mode != "annotating") {
+  if (session.kind != "annotating") {
     return null;
   }
 
   const onPostClick = () => {
     //拿到用户输入的标注内容
-   
+
     const annoContent = annotationRef.current?.value;
 
     // 声明要传进createAnnotation里的新annodata
     const newAnno = {
-      annotatedText: selectedText,
+      annotatedText: session.selectedText,
       annotationContent: annoContent,
-      selectionPosition: selectionPosition,
+      selectionPosition: session.selectionPosition,
     };
     //返回更新后的annotationlist
     const updated = getUpdatedAnnotationList(
       annotationList,
-      currentAnnotationId,
+      session.currentAnnotationId,
       newAnno
     );
     setAnnotationList(updated);
-
     // 状态回到 “idle”
-    setMode("idle");
+
+    setSession({
+      kind: "idle",
+      selectedText: "",
+      selectionPosition: null,
+      currentAnnotationId: undefined,
+    });
 
     //todo： 加一个alert告诉用户annotating被储存
   };
   const onCancelClick = () => {
-    setMode("idle");
+    // setMode("idle");
+    setSession({
+      kind: "idle",
+      selectedText: "",
+      selectionPosition: null,
+      currentAnnotationId: undefined,
+    });
   };
 
-  const isEditing = currentAnnotationId !== undefined;
+  const isEditing = session.currentAnnotationId !== undefined;
 
   const displayText = isEditing
-    ? annotationList[currentAnnotationId].annotatedText
-    : selectedText;
+    ? annotationList[session.currentAnnotationId].annotatedText
+    : session.selectedText;
   const placeholderText = isEditing
-    ? annotationList[currentAnnotationId].annotationContent
+    ? annotationList[session.currentAnnotationId].annotationContent
     : "Write your annotation...";
 
   return (
@@ -181,27 +175,35 @@ function AnnotationInput({
 }
 
 function AnnotationDisplay({
-  mode,
-  setMode,
   annotationList,
   setAnnotationList,
-  currentAnnotationId,
-  setCurrentAnnotationId,
+  session,
+  setSession,
 }: AnnotationDisplayProps) {
-  if (mode != "anno_display") {
+  if (session.kind != "anno_display") {
     return null;
   }
 
-  const displayAnnotationIds = currentAnnotationId.split(",");
+  const displayAnnotationIds = session.currentAnnotationId.split(",");
 
-  const handleDeleteClick = (annoId:string) => {
+  const handleDeleteClick = (annoId: string) => {
     const updatedAnnotationList = deleteAnnotation(annotationList, annoId);
     setAnnotationList(updatedAnnotationList);
-    setMode("idle");
+
+    setSession({
+      kind: "idle",
+      selectedText: "",
+      selectionPosition: null,
+      currentAnnotationId: undefined,
+    });
   };
-  const handleEditClick = (annoId:string) => {
-    setCurrentAnnotationId(annoId);
-    setMode("annotating");
+  const handleEditClick = (annoId: string) => {
+    setSession({
+      kind: "annotating",
+      selectedText: "",
+      selectionPosition: null,
+      currentAnnotationId: annoId,
+    });
   };
 
   return displayAnnotationIds.map((annoId) => (

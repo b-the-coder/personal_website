@@ -92,10 +92,14 @@ const deleteAnnotation = (annotationList, currentAnnotationId) => {
  */
 const groupAnnotationsByTextId = (annotationList) => {
   /** @type {import("./components/types").groupAnnotationsType} */
+  console.log(" i am in groupAnnotationsByTextId")
   const grouped = {};
 
   Object.entries(annotationList).forEach(([annotationId, annotation]) => {
+    console.log("annotationList", annotationList);
+    console.log("annotationId", annotationId);
     const textId = annotation.selectionPosition.textPosition;
+
     if (!grouped[textId]) {
       grouped[textId] = {};
     }
@@ -161,8 +165,6 @@ const computeSegments = (text, annotationsById, extraBoundaries = []) => {
   return segments;
 };
 
-
-
 const renderSegments = (fullText, segs) => {
   if (typeof fullText !== "string" || fullText.trim().length === 0) {
     throw new TypeError("Can not render empty text or undefined.");
@@ -205,21 +207,23 @@ const processTextSegments = ({
   // 🌟 核心优化：提前判断没有标注的情况（包含忘了传、传入 null、传入 undefined）
   if (!annotationsById) {
     // 根本不需要做任何复杂计算，直接把每个 chunk 映射成一个完整的 segment 即可
-    
+
     let currentStart = 0;
     const segmentList = textChunks.map((chunk) => {
       const segEnd = currentStart + chunk.length;
       const chunkSegments =
         chunk.length > 0
-          ? [{
-              start: currentStart,
-              end: segEnd,
-              count: 0,
-              ids: [],
-            }]
+          ? [
+              {
+                start: currentStart,
+                end: segEnd,
+                count: 0,
+                ids: [],
+              },
+            ]
           : [];
       currentStart = segEnd;
-      
+
       return chunkSegments;
     });
 
