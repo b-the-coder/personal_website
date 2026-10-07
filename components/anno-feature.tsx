@@ -3,32 +3,6 @@ import { useRef } from "react";
 import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
 import type { AnnotationStateContext } from "./types";
 
-// Pick only the fields this component needs
-type AnnotationOffererProps = Pick<
-  AnnotationStateContext,
-  "mode" | "setMode" | "selectionPosition"
->;
-type AnnotationInputProps = Pick<
-  AnnotationStateContext,
-  | "mode"
-  | "setMode"
-  | "annotationList"
-  | "setAnnotationList"
-  | "selectedText"
-  | "selectionPosition"
-  | "currentAnnotationId"
->;
-
-type AnnotationDisplayProps = Pick<
-  AnnotationStateContext,
-  | "mode"
-  | "setMode"
-  | "annotationList"
-  | "setAnnotationList"
-  | "currentAnnotationId"
-  | "setCurrentAnnotationId"
->;
-
 function AnnoFeature({
   session,
   setSession,
@@ -53,7 +27,10 @@ function AnnoFeature({
     </div>
   );
 }
-function AnnotationOfferer({ session, setSession }: AnnotationOffererProps) {
+function AnnotationOfferer({
+  session,
+  setSession,
+}: Pick<AnnotationStateContext, "session" | "setSession">) {
   if (session.kind != "text_selected") {
     return null;
   }
@@ -63,7 +40,9 @@ function AnnotationOfferer({ session, setSession }: AnnotationOffererProps) {
       kind: "annotating",
     });
   };
-
+  if (!session.selectionPosition) {
+    return;
+  }
   return (
     <span
       onClick={handleClick}
@@ -92,7 +71,7 @@ function AnnotationInput({
   setAnnotationList,
   session,
   setSession,
-}: AnnotationInputProps) {
+}: AnnotationStateContext) {
   //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
   const annotationRef = useRef<HTMLTextAreaElement>(null);
 
@@ -118,8 +97,8 @@ function AnnotationInput({
       newAnno
     );
     setAnnotationList(updated);
-    // 状态回到 “idle”
 
+    // 状态回到 “idle”
     setSession({
       kind: "idle",
       selectedText: "",
@@ -139,14 +118,27 @@ function AnnotationInput({
     });
   };
 
-  const isEditing = session.currentAnnotationId !== undefined;
+  // const isEditing = session.currentAnnotationId !== undefined;
 
-  const displayText = isEditing
-    ? annotationList[session.currentAnnotationId].annotatedText
-    : session.selectedText;
-  const placeholderText = isEditing
-    ? annotationList[session.currentAnnotationId].annotationContent
-    : "Write your annotation...";
+  // const displayText = isEditing
+  //   ? annotationList[session.currentAnnotationId].annotatedText
+  //   : session.selectedText;
+  // const placeholderText = isEditing
+  //   ? annotationList[session.currentAnnotationId].annotationContent
+  //   : "Write your annotation...";
+
+  let displayText, placeholderText;
+  if (!session.currentAnnotationId) {
+    //new annotation
+    displayText = session.selectedText;
+    placeholderText = "Write your annotation...";
+  } else {
+    //existing annotation
+    displayText = annotationList[session.currentAnnotationId].annotatedText;
+    placeholderText =
+      "You annotated:" +
+      annotationList[session.currentAnnotationId].annotationContent;
+  }
 
   return (
     <div className="annotation-input">
@@ -179,11 +171,17 @@ function AnnotationDisplay({
   setAnnotationList,
   session,
   setSession,
-}: AnnotationDisplayProps) {
+}: AnnotationStateContext) {
   if (session.kind != "anno_display") {
     return null;
   }
-
+  if (!session.currentAnnotationId) {
+    console.error(
+      "currentAnnotationId is invalid, value is:",
+      session.currentAnnotationId
+    );
+    return null;
+  }
   const displayAnnotationIds = session.currentAnnotationId.split(",");
 
   const handleDeleteClick = (annoId: string) => {
@@ -200,6 +198,7 @@ function AnnotationDisplay({
   const handleEditClick = (annoId: string) => {
     setSession({
       kind: "annotating",
+
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: annoId,

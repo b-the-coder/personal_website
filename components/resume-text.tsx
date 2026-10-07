@@ -9,12 +9,12 @@ import {
   processTextSegments,
 } from "../utils";
 
-import type { AnnotationSession, groupAnnotationsType } from "./types";
+import type { AnnotationStateContext, groupAnnotationsType } from "./types";
 
 type ResumeSectionProps = { groupedAnnotationList: groupAnnotationsType };
 
 
-function ResumeText({ annotationList, setSession }: AnnotationSession) {
+function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
   const groupedAnnotations = groupAnnotationsByTextId(annotationList);
 
   const handleSelection = () => {

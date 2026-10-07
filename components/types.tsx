@@ -1,5 +1,14 @@
+import type { Dispatch, SetStateAction } from "react";
+
 // Allowed modes
-export type ModeType = "idle" | "text_selected" | "annotating" | "anno_display";
+
+export type ModeType =
+  | "idle"
+  | "text_selected"
+  | "annotating"
+  | "anno_display";
+
+
 
 export interface ViewportPosition {
   x: number;
@@ -16,6 +25,7 @@ export interface SelectionPosition {
 // Type definitions for AnnotationSession
 export interface AnnotationSession {
   kind: ModeType;
+ 
   currentAnnotationId: string | undefined;
   selectedText: string;
   selectionPosition: SelectionPosition|null;
@@ -38,3 +48,12 @@ export type groupAnnotationsType = Record<
   string,
   { [uuid: string]: AnnotationRange }
 >;
+
+
+export interface AnnotationStateContext {
+  annotationList: AnnotationListType;
+  setAnnotationList: Dispatch<SetStateAction<AnnotationListType>>;
+
+  session: AnnotationSession;
+  setSession: Dispatch<SetStateAction<AnnotationSession>>;
+}

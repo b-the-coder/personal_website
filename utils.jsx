@@ -92,7 +92,7 @@ const deleteAnnotation = (annotationList, currentAnnotationId) => {
  */
 const groupAnnotationsByTextId = (annotationList) => {
   /** @type {import("./components/types").groupAnnotationsType} */
-  console.log(" i am in groupAnnotationsByTextId")
+
   const grouped = {};
 
   Object.entries(annotationList).forEach(([annotationId, annotation]) => {
