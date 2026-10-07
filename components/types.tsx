@@ -1,17 +1,35 @@
-export type RangeOffsets = [startOffset: number, endOffset: number];
+import type { Dispatch, SetStateAction } from "react";
+
+// Allowed modes
+
+export type ModeType =
+  | "idle"
+  | "text_selected"
+  | "annotating"
+  | "anno_display";
+
+
 
 export interface ViewportPosition {
   x: number;
   y: number;
 }
 
+export type RangeOffsets = [startOffset: number, endOffset: number];
 export interface SelectionPosition {
   viewportPosition: ViewportPosition;
   textPosition: string;
   range: RangeOffsets;
 }
 
-export type AnnotationRange = SelectionPosition["range"];
+// Type definitions for AnnotationSession
+export interface AnnotationSession {
+  kind: ModeType;
+ 
+  currentAnnotationId: string | undefined;
+  selectedText: string;
+  selectionPosition: SelectionPosition|null;
+}
 
 // Data structure for a single Annotation item
 export interface AnnotationItem {
@@ -24,30 +42,18 @@ export interface AnnotationItem {
 // annotationList is a key-value map using UUID strings as keys
 export type AnnotationListType = Record<string, AnnotationItem>;
 
-// export type AnnotationCatagory = "resume-header" | "resume-links" | "skl";
-
+//grouped annotationList type
+export type AnnotationRange = SelectionPosition["range"];
 export type groupAnnotationsType = Record<
   string,
   { [uuid: string]: AnnotationRange }
 >;
 
-// Allowed modes
-export type ModeType = "idle" | "text_selected" | "annotating" | "anno_display";
 
-// Type definitions for all state variables and their corresponding setter functions
 export interface AnnotationStateContext {
-  mode: ModeType;
-  setMode: (mode: ModeType) => void;
-
   annotationList: AnnotationListType;
-  setAnnotationList: (list: AnnotationListType) => void;
+  setAnnotationList: Dispatch<SetStateAction<AnnotationListType>>;
 
-  currentAnnotationId: string;
-  setCurrentAnnotationId: (id: string) => void;
-
-  selectedText: string;
-  setSelectedText: (text: string) => void;
-
-  selectionPosition: SelectionPosition;
-  setSelectionPosition: (position: SelectionPosition) => void;
+  session: AnnotationSession;
+  setSession: Dispatch<SetStateAction<AnnotationSession>>;
 }

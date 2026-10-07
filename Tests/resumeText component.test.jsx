@@ -1,4 +1,4 @@
-import { describe, expect, test, afterEach, vi,beforeEach } from "vitest";
+import { describe, expect, test, afterEach, vi, beforeEach } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import * as utils from "../utils";
@@ -77,10 +77,7 @@ describe("resumeText", () => {
   beforeEach(() => {
     mockProps = {
       annotationList: {},
-      setCurrentAnnotationId: vi.fn(),
-      setMode: vi.fn(),
-      setSelectedText: vi.fn(),
-      setSelectionPosition: vi.fn(),
+      setSession: vi.fn(),
     };
   });
 
@@ -116,15 +113,15 @@ describe("resumeText", () => {
     fireEvent.mouseUp(resumeTextContainer);
 
     // 6. 断言 4 个 Setter 的调用（彻底忽略 viewportPosition）
-    expect(mockProps.setSelectedText).toHaveBeenCalledWith(selectedString);
-    expect(mockProps.setSelectionPosition).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(mockProps.setSession).toHaveBeenCalledWith({
+      kind: "text_selected",
+      selectedText: selectedString,
+      selectionPosition: expect.objectContaining({
         textPosition: "resume-header",
-        range: [0, 3], // getRelativeOffsets 在 JSDOM 环境下真实计算出的相对索引
-      })
-    );
-    
-    expect(mockProps.setMode).toHaveBeenCalledWith("text_selected"); // 可根据 getNextModeOnSelection 的返回值写具体期望值
+        range: [0, 3],
+      }),
+      currentAnnotationId: undefined,
+    });
   });
   test("should set mode to idle when selection is invalid", () => {
     vi.spyOn(utils, "getNextModeOnSelection").mockReturnValue("idle");
@@ -134,10 +131,12 @@ describe("resumeText", () => {
     const resumeTextContainer = container.querySelector(".resumeText");
     fireEvent.mouseUp(resumeTextContainer);
 
-    expect(mockProps.setMode).toHaveBeenCalledWith("idle");
-    expect(mockProps.setSelectedText).not.toHaveBeenCalled();
-    expect(mockProps.setSelectionPosition).not.toHaveBeenCalled();
-    expect(mockProps.setCurrentAnnotationId).not.toHaveBeenCalled();
+    expect(mockProps.setSession).toHaveBeenCalledWith({
+      kind: "idle",
+      selectedText: "",
+      selectionPosition: null,
+      currentAnnotationId: undefined,
+    });
   });
 
   describe("handleClick setup states with click behavior", () => {
@@ -151,10 +150,12 @@ describe("resumeText", () => {
 
       fireEvent.click(annotationNode);
 
-      expect(mockProps.setCurrentAnnotationId).toHaveBeenCalledWith(
-        "fakeannotationIDs"
-      );
-      expect(mockProps.setMode).toHaveBeenCalledWith("anno_display");
+      expect(mockProps.setSession).toHaveBeenCalledWith({
+        kind: "anno_display",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: "fakeannotationIDs",
+      });
     });
 
     test("setup states when click no annotations text content", () => {
@@ -166,8 +167,7 @@ describe("resumeText", () => {
 
       fireEvent.click(noAnnotationNode);
 
-      expect(mockProps.setCurrentAnnotationId).not.toHaveBeenCalled();
-      expect(mockProps.setMode).not.toHaveBeenCalled();
+      expect(mockProps.setSession).not.toHaveBeenCalled();
     });
   });
 });

@@ -13,22 +13,8 @@ import type { AnnotationStateContext, groupAnnotationsType } from "./types";
 
 type ResumeSectionProps = { groupedAnnotationList: groupAnnotationsType };
 
-type ResumeTextProps = Pick<
-  AnnotationStateContext,
-  | "annotationList"
-  | "setCurrentAnnotationId"
-  | "setMode"
-  | "setSelectedText"
-  | "setSelectionPosition"
->;
 
-function ResumeText({
-  annotationList,
-  setCurrentAnnotationId,
-  setMode,
-  setSelectedText,
-  setSelectionPosition,
-}: ResumeTextProps) {
+function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
   const groupedAnnotations = groupAnnotationsByTextId(annotationList);
 
   const handleSelection = () => {
@@ -40,8 +26,14 @@ function ResumeText({
     const selectedString = userSelection.toString();
 
     const nextMode = getNextModeOnSelection(userSelection);
+
     if (nextMode === "idle") {
-      setMode(nextMode);
+      setSession({
+        kind: nextMode,
+        selectedText: selectedString,
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      });
       return;
     }
 
@@ -65,11 +57,12 @@ function ResumeText({
       range: offsetsRelativeToTextPositionNode,
     };
 
-    setMode(nextMode);
-
-    setSelectedText(selectedString);
-    setSelectionPosition(selectionPosition);
-    // setCurrentAnnotationId(undefined);
+    setSession({
+      kind: nextMode,
+      selectedText: selectedString,
+      selectionPosition: selectionPosition,
+      currentAnnotationId: undefined,
+    });
   };
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -77,7 +70,7 @@ function ResumeText({
 
     //if the associated document has no browsing context
     if (userSelection === null) return;
-    
+
     let annotationIdsString;
 
     if (
@@ -88,8 +81,12 @@ function ResumeText({
     }
 
     if (annotationIdsString) {
-      setCurrentAnnotationId(annotationIdsString);
-      setMode("anno_display");
+      setSession({
+        kind: "anno_display",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: annotationIdsString,
+      });
     }
   };
 

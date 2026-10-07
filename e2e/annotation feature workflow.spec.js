@@ -152,7 +152,7 @@ test.describe("annotation feature workflow", () => {
 
     await expect(annotationTextarea).toHaveAttribute(
       "placeholder",
-      annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent
+     "You annotated:"+  annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent
     );
 
     // Update the annotation content and submit the changes

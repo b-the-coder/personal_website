@@ -92,12 +92,8 @@ const mockAnnotationIdString = "anno-1,anno-4";
 
 describe("AnnotationOfferer", () => {
   test("renders AnnotationOfferer at selected view port position when mode is text_selected", () => {
-    render(
-      <AnnotationOfferer
-        mode="text_selected"
-        selectionPosition={mockPosition}
-      />
-    );
+    const session = { kind: "text_selected", selectionPosition: mockPosition };
+    render(<AnnotationOfferer session={session} />);
     expect(screen.queryByText("Add annotation")).toBeInTheDocument();
     expect(screen.queryByText("Add annotation")).toHaveStyle({
       position: "fixed",
@@ -107,53 +103,47 @@ describe("AnnotationOfferer", () => {
   });
 
   test("does not renders when mode is not text_selected", () => {
-    render(
-      <AnnotationOfferer mode="random_mode" selectionPosition={mockPosition} />
-    );
+    const session = { kind: "random_mode" };
+    render(<AnnotationOfferer session={session} />);
     expect(screen.queryByText("Add annotation")).toBeNull();
   });
   test("changes mode to annotating when clicked", async () => {
+    const session = { kind: "text_selected", selectionPosition: mockPosition };
     const user = userEvent.setup();
-    const setMode = vi.fn();
+    const setSession = vi.fn();
 
-    render(
-      <AnnotationOfferer
-        mode="text_selected"
-        setMode={setMode}
-        selectionPosition={mockPosition}
-      />
-    );
+    render(<AnnotationOfferer session={session} setSession={setSession} />);
 
     await user.click(screen.getByText("Add annotation"));
 
-    expect(setMode).toHaveBeenCalledWith("annotating");
+    expect(setSession).toHaveBeenCalledWith({
+      ...session,
+      kind: "annotating",
+    });
   });
 });
 
 describe("AnnotationInput", () => {
   describe("rendering based on mode", () => {
     test("renders when mode is annotating", () => {
-      render(
-        <AnnotationInput
-          mode="annotating"
-          selectedText={mockSelectedString.validSelection}
-          currentAnnotationId={undefined}
-          annotationList={{}}
-        />
-      );
+      const session = {
+        kind: "annotating",
+        currentAnnotationId: undefined,
+        selectedText: mockSelectedString.validSelection,
+      };
+      render(<AnnotationInput session={session} annotationList={{}} />);
 
       expect(screen.queryByText(/On:/)).toBeInTheDocument();
     });
 
     test("does not render when mode is not annotating", () => {
-      render(
-        <AnnotationInput
-          mode="idle"
-          selectedText={mockSelectedString.validSelection}
-          currentAnnotationId={undefined}
-          annotationList={{}}
-        />
-      );
+      const session = {
+        kind: "idle",
+        currentAnnotationId: undefined,
+        selectedText: mockSelectedString.validSelection,
+      };
+
+      render(<AnnotationInput session={session} annotationList={{}} />);
 
       expect(screen.queryByText(/On:/)).toBeNull();
     });
@@ -161,14 +151,13 @@ describe("AnnotationInput", () => {
 
   describe("displayed content", () => {
     test("shows the correct annotated text and placeholder when adding a new annotation", () => {
-      render(
-        <AnnotationInput
-          mode="annotating"
-          selectedText={mockSelectedString.validSelection}
-          currentAnnotationId={undefined}
-          annotationList={{}}
-        />
-      );
+      const session = {
+        kind: "annotating",
+        currentAnnotationId: undefined,
+        selectedText: mockSelectedString.validSelection,
+      };
+
+      render(<AnnotationInput session={session} annotationList={{}} />);
 
       expect(
         screen.getByText(mockSelectedString.validSelection)
@@ -180,10 +169,16 @@ describe("AnnotationInput", () => {
     });
 
     test("shows the correct annotated text and placeholder when editing an existing annotation", () => {
+      const session = {
+        kind: "annotating",
+        currentAnnotationId: mockCurrentAnnotationId,
+        selectedText: "",
+        selectionPosition: null,
+      };
+
       render(
         <AnnotationInput
-          mode="annotating"
-          currentAnnotationId={mockCurrentAnnotationId}
+          session={session}
           annotationList={mockAnnotationList}
         />
       );
@@ -196,7 +191,8 @@ describe("AnnotationInput", () => {
 
       expect(
         screen.getByPlaceholderText(
-          mockAnnotationList[mockCurrentAnnotationId].annotationContent
+          "You annotated:" +
+            mockAnnotationList[mockCurrentAnnotationId].annotationContent
         )
       ).toBeInTheDocument();
     });
@@ -204,27 +200,30 @@ describe("AnnotationInput", () => {
 
   describe("input controls", () => {
     let user;
-    let setMode;
+    let setSession;
     let setAnnotationList;
 
     beforeEach(() => {
       user = userEvent.setup();
-      setMode = vi.fn();
+      setSession = vi.fn();
       setAnnotationList = vi.fn();
     });
 
     test("Add new annotation and resets mode when Post been clicked", async () => {
       vi.spyOn(crypto, "randomUUID").mockReturnValue("mock-id");
+      const session = {
+        kind: "annotating",
+        selectedText: mockSelectedString.validSelection,
+        selectionPosition: mockPosition,
+        currentAnnotationId: undefined,
+      };
 
       render(
         <AnnotationInput
-          mode="annotating"
-          setMode={setMode}
-          selectionPosition={mockPosition}
-          selectedText={mockSelectedString.validSelection}
+          session={session}
+          setSession={setSession}
           annotationList={mockAnnotationList}
           setAnnotationList={setAnnotationList}
-          currentAnnotationId={undefined}
         />
       );
 
@@ -236,7 +235,12 @@ describe("AnnotationInput", () => {
         })
       );
 
-      expect(setMode).toHaveBeenCalledWith("idle");
+      expect(setSession).toHaveBeenCalledWith({
+        kind: "idle",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      });
       expect(setAnnotationList).toHaveBeenCalledOnce();
 
       const updatedAnnotationList = setAnnotationList.mock.calls[0][0];
@@ -249,15 +253,18 @@ describe("AnnotationInput", () => {
     });
 
     test("Edit existing annotation and resets mode when Post been clicked", async () => {
+      const session = {
+        kind: "annotating",
+        selectedText: mockSelectedString.validSelection,
+        selectionPosition: mockPosition,
+        currentAnnotationId: mockCurrentAnnotationId,
+      };
       render(
         <AnnotationInput
-          mode="annotating"
-          setMode={setMode}
-          selectionPosition={mockPosition}
-          selectedText={mockSelectedString.validSelection}
+          session={session}
+          setSession={setSession}
           annotationList={mockAnnotationList}
           setAnnotationList={setAnnotationList}
-          currentAnnotationId={mockCurrentAnnotationId}
         />
       );
 
@@ -272,7 +279,12 @@ describe("AnnotationInput", () => {
         })
       );
 
-      expect(setMode).toHaveBeenCalledWith("idle");
+      expect(setSession).toHaveBeenCalledWith({
+        kind: "idle",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      });
       expect(setAnnotationList).toHaveBeenCalledOnce();
 
       const updatedAnnotationList = setAnnotationList.mock.calls[0][0];
@@ -283,14 +295,18 @@ describe("AnnotationInput", () => {
       });
     });
     test("discard change and resets mode when Cancel been clicked", async () => {
+      //if anno input is opened from edit existing annotation
+      const session = {
+        kind: "annotating",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: mockCurrentAnnotationId,
+      };
       render(
         <AnnotationInput
-          mode="annotating"
-          setMode={setMode}
-          // selectionPosition={mockPosition}
-          // selectedText={mockSelectedString.validSelection}
-          // annotationList={mockAnnotationList}
-          // currentAnnotationId={undefined}
+          session={session}
+          setSession={setSession}
+          annotationList={mockAnnotationList}
         />
       );
 
@@ -300,19 +316,29 @@ describe("AnnotationInput", () => {
         })
       );
 
-      expect(setMode).toHaveBeenCalledWith("idle");
+      expect(setSession).toHaveBeenCalledWith({
+        kind: "idle",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      });
     });
   });
 });
 
 describe("AnnotationDisplay", () => {
   describe("render based on mode", () => {
+    const session = {
+      kind: "anno_display",
+      selectedText: "",
+      selectionPosition: null,
+      currentAnnotationId: mockCurrentAnnotationId,
+    };
     test("renders when mode is anno_display", () => {
       render(
         <AnnotationDisplay
-          mode="anno_display"
           annotationList={mockAnnotationList}
-          currentAnnotationId={mockCurrentAnnotationId}
+          session={session}
         />
       );
       expect(
@@ -326,12 +352,17 @@ describe("AnnotationDisplay", () => {
         )
       ).toBeInTheDocument();
     });
-    test("does not renders when mode is notanno_display", () => {
+    test("does not renders when mode is not anno_display", () => {
+      const session = {
+        kind: "random_mode",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      };
       render(
         <AnnotationDisplay
-          mode="random_mode"
+          session={session}
           annotationList={mockAnnotationList}
-          currentAnnotationId={mockCurrentAnnotationId}
         />
       );
       expect(
@@ -351,11 +382,16 @@ describe("AnnotationDisplay", () => {
   //to-do: update test to verify multiple annotations display
   describe("displayed content", () => {
     test("Show the right annotated text and annotation content when render", () => {
+      const session = {
+        kind: "anno_display",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: mockCurrentAnnotationId,
+      };
       render(
         <AnnotationDisplay
-          mode="anno_display"
+          session={session}
           annotationList={mockAnnotationList}
-          currentAnnotationId={mockCurrentAnnotationId}
         />
       );
       expect(
@@ -373,23 +409,25 @@ describe("AnnotationDisplay", () => {
 
   describe("Edit and Delete behavior", () => {
     let user;
-    let setMode;
-    let setCurrentAnnotationId;
+    let setSession;
 
     beforeEach(() => {
       user = userEvent.setup();
-      setMode = vi.fn();
-      setCurrentAnnotationId = vi.fn();
+      setSession = vi.fn();
     });
 
-    test("Sets current annotation and switches mode when Edit been clicked", async () => {
+    test("sets session to annotating with the clicked annotation ID when Edit is clicked", async () => {
+      const session = {
+        kind: "anno_display",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: mockAnnotationIdString,
+      };
       render(
         <AnnotationDisplay
-          mode="anno_display"
-          setMode={setMode}
+          session={session}
+          setSession={setSession}
           annotationList={mockAnnotationList}
-          currentAnnotationId={mockAnnotationIdString}
-          setCurrentAnnotationId={setCurrentAnnotationId}
         />
       );
 
@@ -398,26 +436,42 @@ describe("AnnotationDisplay", () => {
       });
 
       await user.click(editButtons[0]);
-      expect(setCurrentAnnotationId).toHaveBeenCalledWith("anno-1");
-      expect(setMode).toHaveBeenCalledWith("annotating");
+      expect(setSession).toHaveBeenNthCalledWith(1, {
+        kind: "annotating",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: "anno-1",
+      });
 
       await user.click(editButtons[1]);
-      expect(setCurrentAnnotationId).toHaveBeenCalledWith("anno-4");
-      expect(setMode).toHaveBeenCalledWith("annotating");
+      expect(setSession).toHaveBeenNthCalledWith(2, {
+        kind: "annotating",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: "anno-4",
+      });
     });
 
     test("Delete correct annotation and switchs mode when Delete been clicked", async () => {
       const setAnnotationList = vi.fn();
+
+      const session = {
+        kind: "anno_display",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: mockAnnotationIdString,
+      };
+      const setSession = vi.fn();
+
       vi.spyOn(utils, "deleteAnnotation").mockReturnValue(
         mockAnnotationListafterDeletion
       );
       render(
         <AnnotationDisplay
-          mode="anno_display"
-          setMode={setMode}
+          session={session}
+          setSession={setSession}
           annotationList={mockAnnotationList}
           setAnnotationList={setAnnotationList}
-          currentAnnotationId={mockAnnotationIdString}
         />
       );
 
@@ -426,18 +480,36 @@ describe("AnnotationDisplay", () => {
       });
 
       await user.click(deleteButtons[0]);
+
       expect(utils.deleteAnnotation).toHaveBeenCalledWith(
         mockAnnotationList,
         "anno-1"
       );
-      expect(setMode).toHaveBeenCalledWith("idle");
+      expect(setAnnotationList).toHaveBeenCalledWith(
+        mockAnnotationListafterDeletion
+      );
+      expect(setSession).toHaveBeenCalledWith({
+        kind: "idle",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      });
 
       await user.click(deleteButtons[1]);
+
       expect(utils.deleteAnnotation).toHaveBeenCalledWith(
         mockAnnotationList,
         "anno-4"
       );
-      expect(setMode).toHaveBeenCalledWith("idle");
+      expect(setAnnotationList).toHaveBeenCalledWith(
+        mockAnnotationListafterDeletion
+      );
+      expect(setSession).toHaveBeenCalledWith({
+        kind: "idle",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      });
     });
   });
 });
