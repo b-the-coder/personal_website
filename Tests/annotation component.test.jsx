@@ -191,7 +191,8 @@ describe("AnnotationInput", () => {
 
       expect(
         screen.getByPlaceholderText(
-          mockAnnotationList[mockCurrentAnnotationId].annotationContent
+          "You annotated:" +
+            mockAnnotationList[mockCurrentAnnotationId].annotationContent
         )
       ).toBeInTheDocument();
     });
@@ -303,10 +304,9 @@ describe("AnnotationInput", () => {
       };
       render(
         <AnnotationInput
-          session = {session}
+          session={session}
           setSession={setSession}
           annotationList={mockAnnotationList}
-          
         />
       );
 
