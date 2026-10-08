@@ -87,17 +87,15 @@ const deleteAnnotation = (annotationList, currentAnnotationId) => {
 };
 
 /**
- * @param {import("./components/types").AnnotationListType} annotationList
- * @returns {import("./components/types").groupAnnotationsType}
+ * @param {import("./types").AnnotationListType} annotationList
+ * @returns {import("./types").groupAnnotationsType}
  */
 const groupAnnotationsByTextId = (annotationList) => {
-  /** @type {import("./components/types").groupAnnotationsType} */
+  /** @type {import("./types").groupAnnotationsType} */
 
   const grouped = {};
 
   Object.entries(annotationList).forEach(([annotationId, annotation]) => {
-    console.log("annotationList", annotationList);
-    console.log("annotationId", annotationId);
     const textId = annotation.selectionPosition.textPosition;
 
     if (!grouped[textId]) {

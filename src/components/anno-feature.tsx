@@ -1,7 +1,7 @@
 import React from "react";
 import { useRef } from "react";
 import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
-import type { AnnotationStateContext } from "./types";
+import type { AnnotationStateContext } from "../types";
 
 function AnnoFeature({
   session,

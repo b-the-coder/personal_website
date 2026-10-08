@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "jsdom",
-    exclude: ["e2e/**", "node_modules/**"],
+    exclude: ["src/tests/e2e-tests/**", "node_modules/**"],
     coverage: {
       provider: "v8",
       all: true,
@@ -15,9 +15,10 @@ export default defineConfig({
         "**/*.config.*",
         "dist/**",
         "app.jsx",
-        "index.jsx",
+        "main.jsx",
         "layout.jsx",
         "resume-anno.jsx",
+        "server.js"
       ],
       thresholds: {
         statements: 80,

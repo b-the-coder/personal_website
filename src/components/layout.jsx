@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { person } from "../portfolioData.json";
+import { person } from "../portfolio-data.json";
 import { useRef, useEffect } from "react";
 
 function Nav() {

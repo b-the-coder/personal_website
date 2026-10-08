@@ -1,11 +1,16 @@
-node_modules/
-Retro
-.DS_Store
-coverage/
+# Dependencies
+/node_modules/
 
-# Playwright
+# Build output
+/dist/
+
+# Test output
+/coverage/
 /test-results/
 /playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+
+# Local notes
+/retro/
+
+# macOS
+.DS_Store
