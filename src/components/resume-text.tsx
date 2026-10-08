@@ -1,4 +1,4 @@
-import { resumeData } from "../portfolioData.json";
+import { resumeData } from "../portfolio-data.json";
 import React from "react";
 import {
   computeSegments,
@@ -9,10 +9,9 @@ import {
   processTextSegments,
 } from "../utils";
 
-import type { AnnotationStateContext, groupAnnotationsType } from "./types";
+import type { AnnotationStateContext, groupAnnotationsType } from "../types";
 
 type ResumeSectionProps = { groupedAnnotationList: groupAnnotationsType };
-
 
 function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
   const groupedAnnotations = groupAnnotationsByTextId(annotationList);

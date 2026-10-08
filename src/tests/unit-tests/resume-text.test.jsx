@@ -1,7 +1,7 @@
 import { describe, expect, test, afterEach, vi, beforeEach } from "vitest";
 import { render, cleanup, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import * as utils from "../utils";
+import * as utils from "../../utils";
 
 import React from "react";
 
@@ -13,7 +13,7 @@ import {
   Experience,
   Projects,
   Education,
-} from "../components/resume-text";
+} from "../../components/resume-text";
 
 afterEach(() => {
   cleanup();

@@ -73,16 +73,16 @@ npm run test:e2e
 
 ### Select Text and Post an Annotation
 
-![Selecting text for annotation](screenshots/select_text.png)
-![Adding an annotation](screenshots/post_annotation.png)
+![Selecting text for annotation](screenshots/select-text.png)
+![Adding an annotation](screenshots/post-annotation.png)
 
 ### Different level of highlight and View/Edit Annotations
 
-![Viewing existing annotations](screenshots/highlightcolor&display.png)
+![Viewing existing annotations](screenshots/highlight-color-display.png)
 
 ## Use Your Own Resume
 
-Update the values in `resumeData.json` with your own resume information.
+Update the values in `src/portfolio-data.json` with your own resume information.
 
 ## Known Limitations
 

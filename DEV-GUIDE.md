@@ -6,27 +6,54 @@
 
 ```text
 Project Root
-│
-├── index.html          # Main HTML entry
-├── style.css           # Global styles
-├── script.js           # Main JavaScript entry
-├── utils.jsx           # Shared utility functions
-├── resumeData.json     # Original resume data
-│
-├── components/
-│   ├── Resume.jsx      # Resume rendering and highlighting component
-│   └── Annotation.jsx  # Annotation component
-│
-└── tests/
-    ├── method.test.jsx     # Unit tests
-    └── component.test.jsx  # Component rendering tests
+├─ .github
+│  ├─ workflows
+│  └─ pull_request_template.md
+├─ future-improvements
+│  ├─ feature-ideas.md
+│  └─ known-issues.md
+├─ screenshots
+│  ├─ highlight-color-display.png
+│  ├─ post-annotation.png
+│  └─ select-text.png
+├─ src
+│  ├─ components
+│  │  ├─ anno-feature.tsx
+│  │  ├─ layout.jsx
+│  │  ├─ resume-anno.jsx
+│  │  └─ resume-text.tsx
+│  ├─ tests
+│  │  ├─ e2e-tests
+│  │  │  ├─ annotation-initialization-and-persistence.test.js
+│  │  │  ├─ annotation-lifecycle.test.js
+│  │  │  └─ invalid-selection-behavior.test.js
+│  │  └─ unit-tests
+│  │     ├─ anno-feature.test.jsx
+│  │     ├─ resume-text.test.jsx
+│  │     └─ utils.test.jsx
+│  ├─ app.jsx
+│  ├─ main.jsx
+│  ├─ portfolio-data.json
+│  ├─ style.css
+│  ├─ types.tsx
+│  └─ utils.jsx
+├─ .gitignore
+├─ .prettierrc
+├─ DEV-GUIDE.md
+├─ Dockerfile
+├─ eslint.config.mjs
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ playwright.config.js
+├─ README.md
+├─ server.js
+└─ vite.config.js
 ```
-
----
 
 ## Data Flow
 
-Resume components load resume content from `resumeData.json` and render the resume based on the required layout and user annotations.
+Resume components load resume content from `src/portfolio-data.json` and render the resume based on the required layout and user annotations.
 
 User annotations are managed through the `annotationList` state. Any annotation changes update the state and are persisted to `localStorage`, allowing annotation data to be restored across sessions.
 
@@ -39,18 +66,14 @@ User annotations are managed through the `annotationList` state. Any annotation 
   annotationId: {
     annotatedText: String,
     annotationContent: String,
-
     selectionPosition: {
       viewportPosition: {
         x: Number,
         y: Number
       },
-
       textPosition: String,
-
       range: [startIndex, endIndex]
     },
-
     timestamp: Number
   }
 }
@@ -90,13 +113,13 @@ When an annotation is added to a piece of text, that text is highlighted. The hi
 
 1. Highlighting is implemented by applying background-color styles while the resume is rendered.
 
-2. Each text unit in `resumeData.json` is assigned a unique `textId`.
+2. Each text unit in `portfolio-data.json` is assigned a unique `textId`.
 
 3. When an annotation is created, the selected range is stored relative to the text content of the corresponding `textId`.
 
-4. Whenever `annotationList` changes, the Resume component re-renders and calls `computeSegment()`.
+4. Whenever `annotationList` changes, the Resume component re-renders and calls `computeSegments()`.
 
-5. `computeSegment()` generates a list of segments describing how the text within a `textId` is divided by annotations and any style boundaries.
+5. `computeSegments()` generates a list of segments describing how the text within a `textId` is divided by annotations and any style boundaries.
 
 6. Each segment contains:
    - The text range
@@ -105,7 +128,7 @@ When an annotation is added to a piece of text, that text is highlighted. The hi
 
 7. If boundaries exist, the segments are filtered so that different styles can be applied correctly within the same `textId`.
 
-8. Finally, `renderSegment()` renders the text and applies the appropriate highlight style to either:
+8. Finally, `renderSegments()` renders the text and applies the appropriate highlight style to either:
    - the entire `textId`, or
    - only specific segments within it.
 
@@ -115,8 +138,8 @@ This feature does not support annotations spanning multiple `textId` units.
 
 1. Cross `textId` selections produce a single range calculated from the start unit, where end includes all characters across intermediate text units.
 
-2. `computeSegment()` will still generate segment elements when annotation ranges exceed the length of the provided text, because it does not validate annotation boundaries against text.length.
+2. `computeSegments()` will still generate segment elements when annotation ranges exceed the length of the provided text, because it does not validate annotation boundaries against text.length.
 
-3. When a segment contains start/end values beyond the text boundary, `renderSegment()` creates the corresponding React element but the rendered content is an empty string ("").
+3. When a segment contains start/end values beyond the text boundary, `renderSegments()` creates the corresponding React element but the rendered content is an empty string ("").
 
 ---

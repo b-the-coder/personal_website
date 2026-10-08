@@ -14,7 +14,7 @@ import {
   computeSegments,
   processTextSegments,
   getHighlightLevel,
-} from "../utils";
+} from "../../utils";
 
 afterEach(() => {
   cleanup();

@@ -10,9 +10,9 @@ import {
   AnnotationInput,
   AnnotationDisplay,
   AnnoFeature,
-} from "../components/anno-feature";
+} from "../../components/anno-feature";
 
-import * as utils from "../utils";
+import * as utils from "../../utils";
 
 afterEach(() => {
   cleanup();
