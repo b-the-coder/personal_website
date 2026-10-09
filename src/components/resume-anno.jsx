@@ -2,11 +2,11 @@ import React from "react";
 import { useState, useEffect } from "react";
 
 import { ResumeText } from "./resume-text";
-import { AnnoFeature } from "./anno-feature";
-import { annotationListinit } from "../utils";
+import { AnnotationFeature } from "./anno-feature";
+import { initializeAnnotationList } from "../utils";
 
-function ResumeAnno() {
-  const [annotationList, setAnnotationList] = useState(annotationListinit());
+function ResumeAnnotation() {
+  const [annotationList, setAnnotationList] = useState(initializeAnnotationList());
   const [session, setSession] = useState({
     kind: "idle",
     selectedText: "",
@@ -28,7 +28,7 @@ function ResumeAnno() {
           session={session}
           setSession={setSession}
         />
-        <AnnoFeature
+        <AnnotationFeature
           annotationList={annotationList}
           setAnnotationList={setAnnotationList}
           session={session}
@@ -39,4 +39,4 @@ function ResumeAnno() {
   );
 }
 
-export default ResumeAnno;
+export default ResumeAnnotation;

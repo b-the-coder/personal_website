@@ -2,13 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 // Allowed modes
 
-export type ModeType =
-  | "idle"
-  | "text_selected"
-  | "annotating"
-  | "anno_display";
-
-
+export type Mode = "idle" | "text_selected" | "annotating" | "anno_display";
 
 export interface ViewportPosition {
   x: number;
@@ -24,11 +18,11 @@ export interface SelectionPosition {
 
 // Type definitions for AnnotationSession
 export interface AnnotationSession {
-  kind: ModeType;
- 
+  kind: Mode;
+
   currentAnnotationId: string | undefined;
   selectedText: string;
-  selectionPosition: SelectionPosition|null;
+  selectionPosition: SelectionPosition | null;
 }
 
 // Data structure for a single Annotation item
@@ -40,19 +34,19 @@ export interface AnnotationItem {
 }
 
 // annotationList is a key-value map using UUID strings as keys
-export type AnnotationListType = Record<string, AnnotationItem>;
+export type AnnotationList = Record<string, AnnotationItem>;
+
+export type AnnotationRange = SelectionPosition["range"];
 
 //grouped annotationList type
-export type AnnotationRange = SelectionPosition["range"];
-export type groupAnnotationsType = Record<
+export type GroupedAnnotationsByTextId = Record<
   string,
   { [uuid: string]: AnnotationRange }
 >;
 
-
 export interface AnnotationStateContext {
-  annotationList: AnnotationListType;
-  setAnnotationList: Dispatch<SetStateAction<AnnotationListType>>;
+  annotationList: AnnotationList;
+  setAnnotationList: Dispatch<SetStateAction<AnnotationList>>;
 
   session: AnnotationSession;
   setSession: Dispatch<SetStateAction<AnnotationSession>>;

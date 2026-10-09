@@ -1,11 +1,11 @@
 import React from "react";
 
-const annotationListinit = () => {
-  const data = localStorage.getItem("annotationList");
-  if (data === null) {
+const initializeAnnotationList = () => {
+  const storedAnnotationListJson = localStorage.getItem("annotationList");
+  if (storedAnnotationListJson === null) {
     return {};
   } else {
-    return JSON.parse(data);
+    return JSON.parse(storedAnnotationListJson);
   }
 };
 /**
@@ -61,20 +61,20 @@ const createAnnotation = ({
 
 //createAnnotation简写
 
-const getUpdatedAnnotationList = (
+const upsertAnnotation = (
   annotationList,
   currentAnnotationId,
-  newAnnoData
+  newAnnotation
 ) => {
   // newAnnoData: { selectedText, annoContent, textPosition }
   if (currentAnnotationId === undefined) {
-    const annoId = crypto.randomUUID();
-    return { ...annotationList, [annoId]: createAnnotation(newAnnoData) };
+    const annotationId = crypto.randomUUID();
+    return { ...annotationList, [annotationId]: createAnnotation(newAnnotation) };
   } else {
     const updatedAnnotationList = { ...annotationList };
     updatedAnnotationList[currentAnnotationId] = {
       ...updatedAnnotationList[currentAnnotationId],
-      annotationContent: newAnnoData.annotationContent,
+      annotationContent: newAnnotation.annotationContent,
     };
     return updatedAnnotationList;
   }
@@ -87,11 +87,11 @@ const deleteAnnotation = (annotationList, currentAnnotationId) => {
 };
 
 /**
- * @param {import("./types").AnnotationListType} annotationList
- * @returns {import("./types").groupAnnotationsType}
+ * @param {import("./types").AnnotationList} annotationList
+ * @returns {import("./types").GroupedAnnotationsByTextId}
  */
 const groupAnnotationsByTextId = (annotationList) => {
-  /** @type {import("./types").groupAnnotationsType} */
+  /** @type {import("./types").GroupedAnnotationsByTextId} */
 
   const grouped = {};
 
@@ -261,7 +261,7 @@ const processTextSegments = ({
 };
 
 export {
-  annotationListinit,
+  initializeAnnotationList,
   getRelativeOffsets,
   renderSegments,
   computeSegments,
@@ -269,7 +269,7 @@ export {
   getHighlightLevel,
   getNextModeOnSelection,
   createAnnotation,
-  getUpdatedAnnotationList,
+  upsertAnnotation,
   groupAnnotationsByTextId,
   deleteAnnotation,
 };

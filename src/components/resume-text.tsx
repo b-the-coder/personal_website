@@ -9,12 +9,12 @@ import {
   processTextSegments,
 } from "../utils";
 
-import type { AnnotationStateContext, groupAnnotationsType } from "../types";
+import type { AnnotationStateContext, GroupedAnnotationsByTextId } from "../types";
 
-type ResumeSectionProps = { groupedAnnotationList: groupAnnotationsType };
+type ResumeSectionProps = { annotationsByTextId: GroupedAnnotationsByTextId };
 
 function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
-  const groupedAnnotations = groupAnnotationsByTextId(annotationList);
+  const annotationsByTextId = groupAnnotationsByTextId(annotationList);
 
   const handleSelection = () => {
     const userSelection = window.getSelection();
@@ -95,29 +95,29 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
       onMouseUp={handleSelection}
       onClick={handleClick}
     >
-      <Header groupedAnnotationList={groupedAnnotations} />
-      <Contact groupedAnnotationList={groupedAnnotations} />
-      <Skills groupedAnnotationList={groupedAnnotations} />
-      <Experience groupedAnnotationList={groupedAnnotations} />
-      <Projects groupedAnnotationList={groupedAnnotations} />
-      <Education groupedAnnotationList={groupedAnnotations} />
+      <Header annotationsByTextId={annotationsByTextId} />
+      <Contact annotationsByTextId={annotationsByTextId} />
+      <Skills annotationsByTextId={annotationsByTextId} />
+      <Experience annotationsByTextId={annotationsByTextId} />
+      <Projects annotationsByTextId={annotationsByTextId} />
+      <Education annotationsByTextId={annotationsByTextId} />
     </div>
   );
 }
 
-function Header({ groupedAnnotationList }: ResumeSectionProps) {
-  const headerAnnotations = groupedAnnotationList["resume-header"];
+function Header({ annotationsByTextId }: ResumeSectionProps) {
+  const headerAnnotations = annotationsByTextId["resume-header"];
 
   const name = resumeData.name;
   const email = resumeData.contact.email;
   const location = resumeData.contact.location;
-  const headerTextChuck = [name, email, location];
+  const headerTextChunk = [name, email, location];
 
   const {
     fullText,
     segmentList: [nameSegments, emailSegments, locationSegments],
   } = processTextSegments({
-    textChunks: headerTextChuck,
+    textChunks: headerTextChunk,
     annotationsById: headerAnnotations,
     computeSegmentsFn: computeSegments,
   });
@@ -133,18 +133,18 @@ function Header({ groupedAnnotationList }: ResumeSectionProps) {
   );
 }
 
-function Contact({ groupedAnnotationList }: ResumeSectionProps) {
-  const contactAnnotations = groupedAnnotationList["resume-links"];
+function Contact({ annotationsByTextId }: ResumeSectionProps) {
+  const contactAnnotations = annotationsByTextId["resume-links"];
 
   const github = resumeData.contact.github;
   const linkedin = resumeData.contact.linkedin;
 
-  const contactTextChuck = [github, linkedin];
+  const contactTextChunk = [github, linkedin];
   const {
     fullText,
     segmentList: [githubSegments, linkedinSegments],
   } = processTextSegments({
-    textChunks: contactTextChuck,
+    textChunks: contactTextChunk,
     annotationsById: contactAnnotations,
     computeSegmentsFn: computeSegments,
   });
@@ -159,8 +159,8 @@ function Contact({ groupedAnnotationList }: ResumeSectionProps) {
   );
 }
 
-function Skills({ groupedAnnotationList }: ResumeSectionProps) {
-  const titleAnnotations = groupedAnnotationList["skl"];
+function Skills({ annotationsByTextId }: ResumeSectionProps) {
+  const titleAnnotations = annotationsByTextId["skl"];
   const sectionTitle = "Skills";
   const titleSegments = computeSegments(sectionTitle, titleAnnotations);
 
@@ -175,14 +175,14 @@ function Skills({ groupedAnnotationList }: ResumeSectionProps) {
         const itemsText = items.join(", ");
         const textId = `skl-${index}`;
 
-        const skillAnnotations = groupedAnnotationList[textId];
+        const skillAnnotations = annotationsByTextId[textId];
 
-        const skillTextChuck = [formattedCategory, itemsText];
+        const skillTextChunk = [formattedCategory, itemsText];
         const {
           fullText,
           segmentList: [categorySegments, itemsSegments],
         } = processTextSegments({
-          textChunks: skillTextChuck,
+          textChunks: skillTextChunk,
           annotationsById: skillAnnotations,
           computeSegmentsFn: computeSegments,
         });
@@ -198,9 +198,9 @@ function Skills({ groupedAnnotationList }: ResumeSectionProps) {
   );
 }
 
-function Experience({ groupedAnnotationList }: ResumeSectionProps) {
+function Experience({ annotationsByTextId }: ResumeSectionProps) {
   const sectionTitle = "Experience";
-  const sectionAnnotations = groupedAnnotationList["exp"];
+  const sectionAnnotations = annotationsByTextId["exp"];
 
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
@@ -215,14 +215,14 @@ function Experience({ groupedAnnotationList }: ResumeSectionProps) {
         const expPosition = exp.title;
         const expDetail = ` - ${exp.project} (${exp.type}) | ${exp.startDate} - ${exp.endDate}`;
 
-        const expTitleLineTextChuck = [expPosition, expDetail];
-        const expTitleAnnotations = groupedAnnotationList[titleTextId];
+        const expTitleLineTextChunk = [expPosition, expDetail];
+        const expTitleAnnotations = annotationsByTextId[titleTextId];
 
         const {
           fullText: expTitleLineText,
           segmentList: [expPositionSegments, expDetailSegments],
         } = processTextSegments({
-          textChunks: expTitleLineTextChuck,
+          textChunks: expTitleLineTextChunk,
           annotationsById: expTitleAnnotations,
           computeSegmentsFn: computeSegments,
         });
@@ -240,7 +240,7 @@ function Experience({ groupedAnnotationList }: ResumeSectionProps) {
               {exp.bullets.map((bullet, bulletIndex) => {
                 const expBulletTextId = `exp-${index}-bullet-${bulletIndex}`;
                 const expBulletAnnotations =
-                  groupedAnnotationList[expBulletTextId];
+                annotationsByTextId[expBulletTextId];
                 const expBulletSegments = computeSegments(
                   bullet,
                   expBulletAnnotations
@@ -260,9 +260,9 @@ function Experience({ groupedAnnotationList }: ResumeSectionProps) {
   );
 }
 
-function Projects({ groupedAnnotationList }: ResumeSectionProps) {
+function Projects({ annotationsByTextId }: ResumeSectionProps) {
   const sectionTitle = "Projects";
-  const sectionAnnotations = groupedAnnotationList["pjt"];
+  const sectionAnnotations = annotationsByTextId["pjt"];
 
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
@@ -274,18 +274,18 @@ function Projects({ groupedAnnotationList }: ResumeSectionProps) {
 
       {resumeData.projects.map((pro, index) => {
         const proTitleTextId = `pjt-${index}-title`;
-        const proTitleAnnotations = groupedAnnotationList[proTitleTextId];
+        const proTitleAnnotations = annotationsByTextId[proTitleTextId];
 
         const nameText = pro.name;
         const stackText = ` | ${pro.stack.join(", ")}`;
         const timeText = `${pro.startDate} - ${pro.endDate}`;
 
-        const proTitleTextChuck = [nameText, stackText, timeText];
+        const proTitleTextChunk = [nameText, stackText, timeText];
         const {
           fullText,
           segmentList: [nameSegments, stackSegments, timeSegments],
         } = processTextSegments({
-          textChunks: proTitleTextChuck,
+          textChunks: proTitleTextChunk,
           annotationsById: proTitleAnnotations,
           computeSegmentsFn: computeSegments,
         });
@@ -303,7 +303,7 @@ function Projects({ groupedAnnotationList }: ResumeSectionProps) {
             <ul>
               {pro.bullets.map((bullet, bulletIndex) => {
                 const bulletTextId = `pjt-${index}-bullet-${bulletIndex}`;
-                const bulletAnnotations = groupedAnnotationList[bulletTextId];
+                const bulletAnnotations = annotationsByTextId[bulletTextId];
                 const bulletSegments = computeSegments(
                   bullet,
                   bulletAnnotations
@@ -323,9 +323,9 @@ function Projects({ groupedAnnotationList }: ResumeSectionProps) {
   );
 }
 
-function Education({ groupedAnnotationList }: ResumeSectionProps) {
+function Education({ annotationsByTextId }: ResumeSectionProps) {
   const sectionTitle = "Education";
-  const sectionAnnotations = groupedAnnotationList["edu"];
+  const sectionAnnotations = annotationsByTextId["edu"];
 
   const titleSegments = computeSegments(sectionTitle, sectionAnnotations);
 
@@ -337,24 +337,24 @@ function Education({ groupedAnnotationList }: ResumeSectionProps) {
 
       {resumeData.education.map((edu, index) => {
         const eduHeaderTextId = `edu-${index}-school-gradudation-date`;
-        const eduHeaderAnnotations = groupedAnnotationList[eduHeaderTextId];
+        const eduHeaderAnnotations = annotationsByTextId[eduHeaderTextId];
 
         const schoolText = edu.school;
         const graduationText = `Graduated ${edu.graduationDate}`;
 
-        const eduHeaderTextChuck = [schoolText, graduationText];
+        const eduHeaderTextChunk = [schoolText, graduationText];
 
         const {
           fullText: eduHeaderFullText,
           segmentList: [schoolSegments, graduationSegments],
         } = processTextSegments({
-          textChunks: eduHeaderTextChuck,
+          textChunks: eduHeaderTextChunk,
           annotationsById: eduHeaderAnnotations,
           computeSegmentsFn: computeSegments,
         });
 
         const academicsTextId = `edu-${index}-degree-gpa`;
-        const academicsAnnotations = groupedAnnotationList[academicsTextId];
+        const academicsAnnotations = annotationsByTextId[academicsTextId];
 
         // degree 和 GPA 没有不同 HTML 格式，可以一起渲染
         const academicsText = `${edu.degree} | GPA: ${edu.gpa}`;
