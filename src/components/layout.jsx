@@ -47,7 +47,7 @@ function ExperienceList() {
 // Dark mode
 function DarkModeToggle() {
   const toggleInputRef = useRef(null);
-  const handleChange = (e) => {
+  const handleDarkModeChange = (e) => {
     console.log("I am in handle change");
     const isDark = e.target.checked;
     // classList.toogle("class", condition). If the condition is true, add the class. If the condition is false, remove the class.
@@ -81,7 +81,7 @@ function DarkModeToggle() {
         type="checkbox"
         id="dark-mode"
         className="toggle-input"
-        onChange={handleChange}
+        onChange={handleDarkModeChange}
       />
       <label htmlFor="dark-mode" className="toggle-label"></label>
       <span className="toggle-text"> Dark Mode</span>

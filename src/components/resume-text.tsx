@@ -64,7 +64,7 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
     });
   };
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleAnnotationClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const userSelection = window.getSelection();
 
     //if the associated document has no browsing context
@@ -93,7 +93,7 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
     <div
       className="resumeText"
       onMouseUp={handleSelection}
-      onClick={handleClick}
+      onClick={handleAnnotationClick}
     >
       <Header annotationsByTextId={annotationsByTextId} />
       <Contact annotationsByTextId={annotationsByTextId} />
@@ -118,7 +118,7 @@ function Header({ annotationsByTextId }: ResumeSectionProps) {
     segmentList: [nameSegments, emailSegments, locationSegments],
   } = processTextSegments({
     textChunks: headerTextChunk,
-    annotationsById: headerAnnotations,
+    annotationsForTextId: headerAnnotations,
     computeSegmentsFn: computeSegments,
   });
 
@@ -145,7 +145,7 @@ function Contact({ annotationsByTextId }: ResumeSectionProps) {
     segmentList: [githubSegments, linkedinSegments],
   } = processTextSegments({
     textChunks: contactTextChunk,
-    annotationsById: contactAnnotations,
+    annotationsForTextId: contactAnnotations,
     computeSegmentsFn: computeSegments,
   });
 
@@ -183,7 +183,7 @@ function Skills({ annotationsByTextId }: ResumeSectionProps) {
           segmentList: [categorySegments, itemsSegments],
         } = processTextSegments({
           textChunks: skillTextChunk,
-          annotationsById: skillAnnotations,
+          annotationsForTextId: skillAnnotations,
           computeSegmentsFn: computeSegments,
         });
 
@@ -223,7 +223,7 @@ function Experience({ annotationsByTextId }: ResumeSectionProps) {
           segmentList: [expPositionSegments, expDetailSegments],
         } = processTextSegments({
           textChunks: expTitleLineTextChunk,
-          annotationsById: expTitleAnnotations,
+          annotationsForTextId: expTitleAnnotations,
           computeSegmentsFn: computeSegments,
         });
 
@@ -286,7 +286,7 @@ function Projects({ annotationsByTextId }: ResumeSectionProps) {
           segmentList: [nameSegments, stackSegments, timeSegments],
         } = processTextSegments({
           textChunks: proTitleTextChunk,
-          annotationsById: proTitleAnnotations,
+          annotationsForTextId: proTitleAnnotations,
           computeSegmentsFn: computeSegments,
         });
 
@@ -349,7 +349,7 @@ function Education({ annotationsByTextId }: ResumeSectionProps) {
           segmentList: [schoolSegments, graduationSegments],
         } = processTextSegments({
           textChunks: eduHeaderTextChunk,
-          annotationsById: eduHeaderAnnotations,
+          annotationsForTextId: eduHeaderAnnotations,
           computeSegmentsFn: computeSegments,
         });
 

@@ -591,7 +591,7 @@ describe("processTextSegments", () => {
     expect(
       processTextSegments({
         textChunks: singleMockTextChuck,
-        annotationsById: mockAnnotationsById,
+        annotationsForTextId: mockAnnotationsById,
         computeSegmentsFn: fakeComputeFn,
       })
     ).toEqual(expectedProcessedSegments);
@@ -700,7 +700,7 @@ describe("processTextSegments", () => {
     expect(
       processTextSegments({
         textChunks: multipleMockTextChuck,
-        annotationsById: mockAnnotationsById,
+        annotationsForTextId: mockAnnotationsById,
         computeSegmentsFn: fakeComputeFn,
       })
     ).toEqual(expectedProcessedSegments);

@@ -93,18 +93,18 @@ const deleteAnnotation = (annotationList, currentAnnotationId) => {
 const groupAnnotationsByTextId = (annotationList) => {
   /** @type {import("./types").GroupedAnnotationsByTextId} */
 
-  const grouped = {};
+  const annotationsByTextId = {};
 
   Object.entries(annotationList).forEach(([annotationId, annotation]) => {
     const textId = annotation.selectionPosition.textPosition;
 
-    if (!grouped[textId]) {
-      grouped[textId] = {};
+    if (!annotationsByTextId[textId]) {
+      annotationsByTextId[textId] = {};
     }
-    grouped[textId][annotationId] = annotation.selectionPosition.range;
+    annotationsByTextId[textId][annotationId] = annotation.selectionPosition.range;
   });
 
-  return grouped;
+  return annotationsByTextId;
 };
 
 const getHighlightLevel = (count) => {
@@ -113,7 +113,9 @@ const getHighlightLevel = (count) => {
   if (count === 2) return 2;
   return 3; // count >= 3
 };
-const computeSegments = (text, annotationsById, extraBoundaries = []) => {
+
+//not statified with the second parameter name, not clear express it is one textID annotations
+const computeSegments = (text, annotationsForTextId, extraBoundaries = []) => {
   if (typeof text !== "string" || text.trim().length === 0) {
     //to-do: add log
     throw new TypeError("computeSegments: text must be a non-empty string.");
@@ -129,26 +131,26 @@ const computeSegments = (text, annotationsById, extraBoundaries = []) => {
       "computeSegments: extraBoundaries must not contain values greater than text.length."
     );
   }
-  const entries = Object.entries(annotationsById ?? {});
+  const annotationEntries = Object.entries(annotationsForTextId ?? {});
 
-  const points = new Set([0, text.length, ...extraBoundaries]);
+  const boundaryPoints = new Set([0, text.length, ...extraBoundaries]);
 
-  entries.forEach(([, [start, end]]) => {
-    points.add(start);
-    points.add(end);
+  annotationEntries.forEach(([, [start, end]]) => {
+    boundaryPoints.add(start);
+    boundaryPoints.add(end);
   });
 
-  const sorted = [...points].sort((a, b) => a - b);
+  const sortedBoundaryPoints = [...boundaryPoints].sort((a, b) => a - b);
 
   const segments = [];
 
-  for (let i = 0; i < sorted.length - 1; i++) {
-    const segStart = sorted[i];
-    const segEnd = sorted[i + 1];
+  for (let i = 0; i < sortedBoundaryPoints.length - 1; i++) {
+    const segStart = sortedBoundaryPoints[i];
+    const segEnd = sortedBoundaryPoints[i + 1];
 
     if (segStart === segEnd) continue;
 
-    const coveringIds = entries
+    const coveringIds = annotationEntries
       .filter(([, [start, end]]) => start <= segStart && end >= segEnd)
       .map(([id]) => id);
 
@@ -192,7 +194,7 @@ const renderSegments = (fullText, segs) => {
 
 const processTextSegments = ({
   textChunks,
-  annotationsById,
+  annotationsForTextId,
   computeSegmentsFn,
 }) => {
   // 1. 严格拦截 textChunks
@@ -203,7 +205,7 @@ const processTextSegments = ({
   const fullText = textChunks.join("");
 
   // 🌟 核心优化：提前判断没有标注的情况（包含忘了传、传入 null、传入 undefined）
-  if (!annotationsById) {
+  if (!annotationsForTextId) {
     // 根本不需要做任何复杂计算，直接把每个 chunk 映射成一个完整的 segment 即可
 
     let currentStart = 0;
@@ -230,7 +232,7 @@ const processTextSegments = ({
 
   // 2. 以下是有标注时，才去跑的原本的复杂运算（保持你原有的逻辑不变）
   if (textChunks.length === 1) {
-    const allSegments = computeSegmentsFn(fullText, annotationsById);
+    const allSegments = computeSegmentsFn(fullText, annotationsForTextId);
     return { fullText, segmentList: [allSegments] };
   }
 
@@ -243,7 +245,7 @@ const processTextSegments = ({
     }
   }
 
-  const allSegments = computeSegmentsFn(fullText, annotationsById, boundaries);
+  const allSegments = computeSegmentsFn(fullText, annotationsForTextId, boundaries);
   const allBoundaries = [...boundaries, fullText.length];
   const segmentList = [];
   let prevBoundary = 0;
