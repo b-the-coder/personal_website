@@ -1,9 +1,9 @@
 import React from "react";
 import { useRef } from "react";
-import { getUpdatedAnnotationList, deleteAnnotation } from "../utils";
+import { upsertAnnotation, deleteAnnotation } from "../utils";
 import type { AnnotationStateContext } from "../types";
 
-function AnnoFeature({
+function AnnotationFeature({
   session,
   setSession,
   annotationList,
@@ -79,24 +79,24 @@ function AnnotationInput({
     return null;
   }
 
-  const onPostClick = () => {
+  const handlePostClick = () => {
     //拿到用户输入的标注内容
 
-    const annoContent = annotationRef.current?.value;
+    const annotationContent = annotationRef.current?.value;
 
     // 声明要传进createAnnotation里的新annodata
-    const newAnno = {
+    const newAnnotation = {
       annotatedText: session.selectedText,
-      annotationContent: annoContent,
+      annotationContent: annotationContent,
       selectionPosition: session.selectionPosition,
     };
     //返回更新后的annotationlist
-    const updated = getUpdatedAnnotationList(
+    const updatedAnnotationList = upsertAnnotation(
       annotationList,
       session.currentAnnotationId,
-      newAnno
+      newAnnotation
     );
-    setAnnotationList(updated);
+    setAnnotationList(updatedAnnotationList);
 
     // 状态回到 “idle”
     setSession({
@@ -108,7 +108,7 @@ function AnnotationInput({
 
     //todo： 加一个alert告诉用户annotating被储存
   };
-  const onCancelClick = () => {
+  const handleCancelClick = () => {
     // setMode("idle");
     setSession({
       kind: "idle",
@@ -118,14 +118,6 @@ function AnnotationInput({
     });
   };
 
-  // const isEditing = session.currentAnnotationId !== undefined;
-
-  // const displayText = isEditing
-  //   ? annotationList[session.currentAnnotationId].annotatedText
-  //   : session.selectedText;
-  // const placeholderText = isEditing
-  //   ? annotationList[session.currentAnnotationId].annotationContent
-  //   : "Write your annotation...";
 
   let displayText, placeholderText;
   if (!session.currentAnnotationId) {
@@ -152,12 +144,12 @@ function AnnotationInput({
       />
 
       <div className="annotation-input__actions">
-        <button onClick={onPostClick} className="annotation-input__post-btn">
+        <button onClick={handlePostClick} className="annotation-input__post-btn">
           Post
         </button>
         <button
           className="annotation-input__cancel-btn"
-          onClick={onCancelClick}
+          onClick={handleCancelClick}
         >
           Cancel
         </button>
@@ -205,26 +197,26 @@ function AnnotationDisplay({
     });
   };
 
-  return displayAnnotationIds.map((annoId) => (
-    <div className="annotation-display" key={annoId}>
+  return displayAnnotationIds.map((annotationId) => (
+    <div className="annotation-display" key={annotationId}>
       <p className="annotation-display__selected-text">
         <strong>
           <em>On:</em>
         </strong>{" "}
-        <em>{annotationList[annoId].annotatedText}</em>
+        <em>{annotationList[annotationId].annotatedText}</em>
       </p>
       <p className="annotation-display__content">
         <strong>
           <em>You annotated:</em>
         </strong>{" "}
-        {annotationList[annoId].annotationContent}
+        {annotationList[annotationId].annotationContent}
       </p>
 
       <div className="annotation-display__actions">
         <button
           className="annotation-display__edit-btn"
           onClick={() => {
-            handleEditClick(annoId);
+            handleEditClick(annotationId);
           }}
         >
           Edit
@@ -232,7 +224,7 @@ function AnnotationDisplay({
         <button
           className="annotation-display__delete-btn"
           onClick={() => {
-            handleDeleteClick(annoId);
+            handleDeleteClick(annotationId);
           }}
         >
           Delete
@@ -243,9 +235,8 @@ function AnnotationDisplay({
 }
 
 export {
-  AnnoFeature,
+  AnnotationFeature,
   AnnotationOfferer,
   AnnotationInput,
   AnnotationDisplay,
-  getUpdatedAnnotationList,
 };

@@ -9,7 +9,7 @@ import {
   AnnotationOfferer,
   AnnotationInput,
   AnnotationDisplay,
-  AnnoFeature,
+  AnnotationFeature,
 } from "../../components/anno-feature";
 
 import * as utils from "../../utils";
@@ -82,7 +82,7 @@ const mockAnnotationList = {
   "anno-4": mockAnnotation4,
 };
 
-const mockAnnotationListafterDeletion = {
+const mockAnnotationListAfterDeletion = {
   "anno-2": mockAnnotation2,
   "anno-3": mockAnnotation3,
 };
@@ -464,7 +464,7 @@ describe("AnnotationDisplay", () => {
       const setSession = vi.fn();
 
       vi.spyOn(utils, "deleteAnnotation").mockReturnValue(
-        mockAnnotationListafterDeletion
+        mockAnnotationListAfterDeletion
       );
       render(
         <AnnotationDisplay
@@ -486,7 +486,7 @@ describe("AnnotationDisplay", () => {
         "anno-1"
       );
       expect(setAnnotationList).toHaveBeenCalledWith(
-        mockAnnotationListafterDeletion
+        mockAnnotationListAfterDeletion
       );
       expect(setSession).toHaveBeenCalledWith({
         kind: "idle",
@@ -502,7 +502,7 @@ describe("AnnotationDisplay", () => {
         "anno-4"
       );
       expect(setAnnotationList).toHaveBeenCalledWith(
-        mockAnnotationListafterDeletion
+        mockAnnotationListAfterDeletion
       );
       expect(setSession).toHaveBeenCalledWith({
         kind: "idle",
@@ -514,10 +514,10 @@ describe("AnnotationDisplay", () => {
   });
 });
 
-test("AnnoFeature", () => {
-  const result = AnnoFeature({});
+test("AnnotationFeature", () => {
+  const annotationFeatureElement = AnnotationFeature({});
 
-  const children = result.props.children;
+  const children = annotationFeatureElement.props.children;
 
   expect(children[0].type).toBe(AnnotationOfferer);
   expect(children[1].type).toBe(AnnotationInput);

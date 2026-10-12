@@ -58,8 +58,8 @@ test.describe("initialized and reload page correct ", () => {
   test("initialized and reload page with existing annotaitonList", async ({
     page,
   }) => {
-    await page.addInitScript((data) => {
-      window.localStorage.setItem("annotationList", JSON.stringify(data));
+    await page.addInitScript((presetAnnotationList) => {
+      window.localStorage.setItem("annotationList", JSON.stringify(presetAnnotationList));
     }, annotationListData);
     await page.goto("./");
     // find all the element have "highlight highlight-" in its className

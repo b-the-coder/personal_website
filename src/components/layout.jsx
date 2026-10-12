@@ -12,7 +12,7 @@ function Nav() {
   );
 }
 
-function Header() {
+function SiteHeader() {
   return (
     <header>
       <h1>{person.name}</h1>
@@ -46,8 +46,8 @@ function ExperienceList() {
 
 // Dark mode
 function DarkModeToggle() {
-  const toggleinputRef = useRef(null);
-  const handleChange = (e) => {
+  const toggleInputRef = useRef(null);
+  const handleDarkModeChange = (e) => {
     console.log("I am in handle change");
     const isDark = e.target.checked;
     // classList.toogle("class", condition). If the condition is true, add the class. If the condition is false, remove the class.
@@ -60,16 +60,16 @@ function DarkModeToggle() {
 
     if (darkModeChosen === "true") {
       // User has explicitly chosen dark mode before
-      toggleinputRef.current.checked = true;
+      toggleInputRef.current.checked = true;
       document.body.classList.add("dark-mode");
     } else if (darkModeChosen === null) {
       // First visit — no saved preference, mirror OS/browser setting
 
-      const prefersDark = window.matchMedia(
+      const isDarkModePreferred = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
-      document.body.classList.toggle("dark-mode", prefersDark);
-      toggleinputRef.current.checked = prefersDark;
+      document.body.classList.toggle("dark-mode", isDarkModePreferred);
+      toggleInputRef.current.checked = isDarkModePreferred;
       // Note: darkModeChosen === "false" is intentionally unhandled — light mode is the default
     }
   }, []);
@@ -77,11 +77,11 @@ function DarkModeToggle() {
   return (
     <div id="preference">
       <input
-        ref={toggleinputRef}
+        ref={toggleInputRef}
         type="checkbox"
         id="dark-mode"
         className="toggle-input"
-        onChange={handleChange}
+        onChange={handleDarkModeChange}
       />
       <label htmlFor="dark-mode" className="toggle-label"></label>
       <span className="toggle-text"> Dark Mode</span>
@@ -99,11 +99,11 @@ function ContactInfo() {
         "https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js";
       document.head.appendChild(moduleScript);
 
-      const nomoduleScript = document.createElement("script");
-      nomoduleScript.setAttribute("nomodule", "");
-      nomoduleScript.src =
+      const noModuleScript = document.createElement("script");
+      noModuleScript.setAttribute("nomodule", "");
+      noModuleScript.src =
         "https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js";
-      document.head.appendChild(nomoduleScript);
+      document.head.appendChild(noModuleScript);
     }
   }, []);
 
@@ -256,7 +256,7 @@ function ContactForm() {
 
 export {
   Nav,
-  Header,
+  SiteHeader,
   AboutMe,
   ExperienceList,
   DarkModeToggle,

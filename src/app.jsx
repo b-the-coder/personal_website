@@ -1,8 +1,8 @@
 import React from "react";
-import ResumeAnno from "./components/resume-anno";
+import ResumeAnnotation from "./components/resume-anno";
 import {
   Nav,
-  Header,
+  SiteHeader,
   AboutMe,
   ExperienceList,
   DarkModeToggle,
@@ -15,11 +15,11 @@ function App() {
     <div className="app-container">
       <DarkModeToggle />
       <Nav />
-      <Header />
+      <SiteHeader />
       <AboutMe />
       <ExperienceList />
 
-      <ResumeAnno />
+      <ResumeAnnotation />
       <ContactInfo />
       <ContactForm />
     </div>

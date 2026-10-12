@@ -4,10 +4,10 @@ import { JSDOM } from "jsdom";
 import "@testing-library/jest-dom/vitest";
 
 import {
-  annotationListinit,
+  initializeAnnotationList,
   getRelativeOffsets,
   getNextModeOnSelection,
-  getUpdatedAnnotationList,
+  upsertAnnotation,
   deleteAnnotation,
   groupAnnotationsByTextId,
   renderSegments,
@@ -27,7 +27,7 @@ const expectedGroupedAnnotation = {
 };
 const mockResumeTextIdSection = "namelocationemail";
 
-const segment = (start, end, ids = []) => ({
+const createSegment = (start, end, ids = []) => ({
   start,
   end,
   count: ids.length,
@@ -72,9 +72,9 @@ const mockAnnotationList = {
   "anno-2": mockAnnotation2,
   "anno-3": mockAnnotation3,
 };
-const paragraphoneAnnotations = { "anno-1": [0, 1], "anno-2": [0, 1] };
+const paragraphOneAnnotations = { "anno-1": [0, 1], "anno-2": [0, 1] };
 
-const mockNewAnnoData = {
+const mockNewAnnotationData = {
   annotatedText: "newly selected text",
   annotationContent: "new note",
   selectionPosition: {
@@ -165,58 +165,58 @@ describe("getNextModeOnSelection", () => {
 
 describe("deleteAnnotation", () => {
   test("deleteAnnotation removes the annotation with the given id", () => {
-    const result = deleteAnnotation(
+    const afterDeleteAnnotationList = deleteAnnotation(
       mockAnnotationList,
       mockCurrentAnnotationId
     );
-    expect(Object.keys(result)).toHaveLength(
+    expect(Object.keys(afterDeleteAnnotationList)).toHaveLength(
       Object.keys(mockAnnotationList).length - 1
     );
-    expect(result[mockCurrentAnnotationId]).toBeUndefined();
+    expect(afterDeleteAnnotationList[mockCurrentAnnotationId]).toBeUndefined();
   });
 });
 
-describe("getUpdatedAnnotationList", () => {
-  test("creates a new annotation", () => {
+describe("upsertAnnotation", () => {
+  test("insert a new annotation", () => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue("mock-id");
     const currentAnnotationId = undefined;
-    const result = getUpdatedAnnotationList(
+    const updatedAnnotationList = upsertAnnotation(
       mockAnnotationList,
       currentAnnotationId,
-      mockNewAnnoData
+      mockNewAnnotationData
     );
 
-    expect(result).toEqual({
+    expect(updatedAnnotationList).toEqual({
       ...mockAnnotationList,
       "mock-id": expect.objectContaining({
-        annotatedText: mockNewAnnoData.annotatedText,
-        annotationContent: mockNewAnnoData.annotationContent,
-        selectionPosition: mockNewAnnoData.selectionPosition,
+        annotatedText: mockNewAnnotationData.annotatedText,
+        annotationContent: mockNewAnnotationData.annotationContent,
+        selectionPosition: mockNewAnnotationData.selectionPosition,
       }),
     });
-    expect(Object.keys(result)).toHaveLength(
+    expect(Object.keys(updatedAnnotationList)).toHaveLength(
       Object.keys(mockAnnotationList).length + 1
     );
   });
   test("updates an existing annotation", () => {
-    const result = getUpdatedAnnotationList(
+    const updatedAnnotationList = upsertAnnotation(
       mockAnnotationList,
       mockCurrentAnnotationId,
-      mockNewAnnoData
+      mockNewAnnotationData
     );
-    expect(Object.keys(result)).toHaveLength(
+    expect(Object.keys(updatedAnnotationList)).toHaveLength(
       Object.keys(mockAnnotationList).length
     );
-    expect(result[mockCurrentAnnotationId].annotationContent).toEqual(
-      mockNewAnnoData.annotationContent
-    );
-    expect(result[mockCurrentAnnotationId].annotatedText).toEqual(
-      mockAnnotationList[mockCurrentAnnotationId].annotatedText
-    );
-    expect(result[mockCurrentAnnotationId].annotationPosition).toEqual(
-      mockAnnotationList[mockCurrentAnnotationId].annotationPosition
-    );
-    expect(result[mockCurrentAnnotationId].timestamp).toEqual(
+    expect(
+      updatedAnnotationList[mockCurrentAnnotationId].annotationContent
+    ).toEqual(mockNewAnnotationData.annotationContent);
+    expect(
+      updatedAnnotationList[mockCurrentAnnotationId].annotatedText
+    ).toEqual(mockAnnotationList[mockCurrentAnnotationId].annotatedText);
+    expect(
+      updatedAnnotationList[mockCurrentAnnotationId].annotationPosition
+    ).toEqual(mockAnnotationList[mockCurrentAnnotationId].annotationPosition);
+    expect(updatedAnnotationList[mockCurrentAnnotationId].timestamp).toEqual(
       mockAnnotationList[mockCurrentAnnotationId].timestamp
     );
   });
@@ -269,47 +269,47 @@ describe("computeSegments", () => {
         "with a boundary inside the overlapping area",
         [6],
         [
-          segment(0, 2),
-          segment(2, 5, ["a"]),
-          segment(5, 6, ["a", "b"]),
-          segment(6, 8, ["a", "b"]),
-          segment(8, 12, ["b"]),
-          segment(12, 17),
+          createSegment(0, 2),
+          createSegment(2, 5, ["a"]),
+          createSegment(5, 6, ["a", "b"]),
+          createSegment(6, 8, ["a", "b"]),
+          createSegment(8, 12, ["b"]),
+          createSegment(12, 17),
         ],
       ],
       [
         "with a boundary inside one range but outside the overlapping area",
         [4],
         [
-          segment(0, 2),
-          segment(2, 4, ["a"]),
-          segment(4, 5, ["a"]),
-          segment(5, 8, ["a", "b"]),
-          segment(8, 12, ["b"]),
-          segment(12, 17),
+          createSegment(0, 2),
+          createSegment(2, 4, ["a"]),
+          createSegment(4, 5, ["a"]),
+          createSegment(5, 8, ["a", "b"]),
+          createSegment(8, 12, ["b"]),
+          createSegment(12, 17),
         ],
       ],
       [
         "with a boundary outside both ranges",
         [15],
         [
-          segment(0, 2),
-          segment(2, 5, ["a"]),
-          segment(5, 8, ["a", "b"]),
-          segment(8, 12, ["b"]),
-          segment(12, 15),
-          segment(15, 17),
+          createSegment(0, 2),
+          createSegment(2, 5, ["a"]),
+          createSegment(5, 8, ["a", "b"]),
+          createSegment(8, 12, ["b"]),
+          createSegment(12, 15),
+          createSegment(15, 17),
         ],
       ],
       [
         "without extra boundaries",
         [],
         [
-          segment(0, 2),
-          segment(2, 5, ["a"]),
-          segment(5, 8, ["a", "b"]),
-          segment(8, 12, ["b"]),
-          segment(12, 17),
+          createSegment(0, 2),
+          createSegment(2, 5, ["a"]),
+          createSegment(5, 8, ["a", "b"]),
+          createSegment(8, 12, ["b"]),
+          createSegment(12, 17),
         ],
       ],
     ])("%s", (_, extraBoundaries, expected) => {
@@ -333,47 +333,47 @@ describe("computeSegments", () => {
         "without extra boundaries",
         [],
         [
-          segment(0, 2),
-          segment(2, 5, ["big"]),
-          segment(5, 8, ["big", "small"]),
-          segment(8, 12, ["big"]),
-          segment(12, 17),
+          createSegment(0, 2),
+          createSegment(2, 5, ["big"]),
+          createSegment(5, 8, ["big", "small"]),
+          createSegment(8, 12, ["big"]),
+          createSegment(12, 17),
         ],
       ],
       [
         "with a boundary inside the smaller range",
         [6],
         [
-          segment(0, 2),
-          segment(2, 5, ["big"]),
-          segment(5, 6, ["big", "small"]),
-          segment(6, 8, ["big", "small"]),
-          segment(8, 12, ["big"]),
-          segment(12, 17),
+          createSegment(0, 2),
+          createSegment(2, 5, ["big"]),
+          createSegment(5, 6, ["big", "small"]),
+          createSegment(6, 8, ["big", "small"]),
+          createSegment(8, 12, ["big"]),
+          createSegment(12, 17),
         ],
       ],
       [
         "with a boundary inside the bigger range but outside the smaller range",
         [10],
         [
-          segment(0, 2),
-          segment(2, 5, ["big"]),
-          segment(5, 8, ["big", "small"]),
-          segment(8, 10, ["big"]),
-          segment(10, 12, ["big"]),
-          segment(12, 17),
+          createSegment(0, 2),
+          createSegment(2, 5, ["big"]),
+          createSegment(5, 8, ["big", "small"]),
+          createSegment(8, 10, ["big"]),
+          createSegment(10, 12, ["big"]),
+          createSegment(12, 17),
         ],
       ],
       [
         "with a boundary outside the bigger range",
         [15],
         [
-          segment(0, 2),
-          segment(2, 5, ["big"]),
-          segment(5, 8, ["big", "small"]),
-          segment(8, 12, ["big"]),
-          segment(12, 15),
-          segment(15, 17),
+          createSegment(0, 2),
+          createSegment(2, 5, ["big"]),
+          createSegment(5, 8, ["big", "small"]),
+          createSegment(8, 12, ["big"]),
+          createSegment(12, 15),
+          createSegment(15, 17),
         ],
       ],
     ])("%s", (_, extraBoundaries, expected) => {
@@ -395,26 +395,30 @@ describe("computeSegments", () => {
       [
         "without extra boundaries",
         [],
-        [segment(0, 2), segment(2, 12, ["a"]), segment(12, 17)],
+        [
+          createSegment(0, 2),
+          createSegment(2, 12, ["a"]),
+          createSegment(12, 17),
+        ],
       ],
       [
         "with a boundary inside the range",
         [6],
         [
-          segment(0, 2),
-          segment(2, 6, ["a"]),
-          segment(6, 12, ["a"]),
-          segment(12, 17),
+          createSegment(0, 2),
+          createSegment(2, 6, ["a"]),
+          createSegment(6, 12, ["a"]),
+          createSegment(12, 17),
         ],
       ],
       [
         "with a boundary outside the range",
         [15],
         [
-          segment(0, 2),
-          segment(2, 12, ["a"]),
-          segment(12, 15),
-          segment(15, 17),
+          createSegment(0, 2),
+          createSegment(2, 12, ["a"]),
+          createSegment(12, 15),
+          createSegment(15, 17),
         ],
       ],
     ])("%s", (_, extraBoundaries, expected) => {
@@ -454,17 +458,17 @@ describe("renderSegments", () => {
     }
   );
   test("render text correctly with valid segments", () => {
-    const overlappingAnnotationsWithoutBoundrySegments = [
-      segment(0, 2),
-      segment(2, 5, ["a"]),
-      segment(5, 8, ["a", "b"]),
-      segment(8, 12, ["b"]),
-      segment(12, 17),
+    const overlappingAnnotationsWithoutBoundarySegments = [
+      createSegment(0, 2),
+      createSegment(2, 5, ["a"]),
+      createSegment(5, 8, ["a", "b"]),
+      createSegment(8, 12, ["b"]),
+      createSegment(12, 17),
     ];
     render(
       renderSegments(
         mockResumeTextIdSection,
-        overlappingAnnotationsWithoutBoundrySegments
+        overlappingAnnotationsWithoutBoundarySegments
       )
     );
     // "na" should render without highlight
@@ -496,20 +500,20 @@ describe("renderSegments", () => {
   });
 });
 
-describe("annotationListinit", () => {
+describe("initializeAnnotationList", () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
   test("return annotatonList if it's exists", () => {
     localStorage.setItem("annotationList", JSON.stringify(mockAnnotationList));
-    const result = annotationListinit();
-    expect(result).toEqual(mockAnnotationList);
+    const initializedAnnotationList = initializeAnnotationList();
+    expect(initializedAnnotationList).toEqual(mockAnnotationList);
   });
 
   test("return '{}' if annotaitonList not exists ", () => {
-    const result = annotationListinit();
-    expect(result).toEqual({});
+    const initializedAnnotationList = initializeAnnotationList();
+    expect(initializedAnnotationList).toEqual({});
   });
 });
 
@@ -520,7 +524,7 @@ describe("processTextSegments", () => {
       expect(() => {
         processTextSegments({
           textChunks: invalidTextChunk,
-          annotationsById: paragraphoneAnnotations,
+          annotationsById: paragraphOneAnnotations,
           computeSegmentsFn: vi.fn(() => {}),
         });
       }).toThrow("Can not process empty text or undefined.");
@@ -571,7 +575,7 @@ describe("processTextSegments", () => {
       ];
     });
 
-    const result = {
+    const expectedProcessedSegments = {
       fullText: "mockTextChunk1,",
       segmentList: [
         [
@@ -587,10 +591,10 @@ describe("processTextSegments", () => {
     expect(
       processTextSegments({
         textChunks: singleMockTextChuck,
-        annotationsById: mockAnnotationsById,
+        annotationsForTextId: mockAnnotationsById,
         computeSegmentsFn: fakeComputeFn,
       })
-    ).toEqual(result);
+    ).toEqual(expectedProcessedSegments);
     expect(fakeComputeFn).toHaveBeenCalledWith(
       "mockTextChunk1,",
       mockAnnotationsById
@@ -649,7 +653,7 @@ describe("processTextSegments", () => {
       ];
     });
 
-    const result = {
+    const expectedProcessedSegments = {
       fullText: "mockTextChunk1,mockTextChunk2mockTextChunk3",
       segmentList: [
         [
@@ -696,10 +700,10 @@ describe("processTextSegments", () => {
     expect(
       processTextSegments({
         textChunks: multipleMockTextChuck,
-        annotationsById: mockAnnotationsById,
+        annotationsForTextId: mockAnnotationsById,
         computeSegmentsFn: fakeComputeFn,
       })
-    ).toEqual(result);
+    ).toEqual(expectedProcessedSegments);
 
     expect(fakeComputeFn).toHaveBeenCalledWith(
       "mockTextChunk1,mockTextChunk2mockTextChunk3",
