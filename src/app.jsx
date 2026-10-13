@@ -18,7 +18,6 @@ function App() {
       <SiteHeader />
       <AboutMe />
       <ExperienceList />
-
       <ResumeAnnotation />
       <ContactInfo />
       <ContactForm />

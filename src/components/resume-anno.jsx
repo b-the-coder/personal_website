@@ -6,7 +6,9 @@ import { AnnotationFeature } from "./anno-feature";
 import { initializeAnnotationList } from "../utils";
 
 function ResumeAnnotation() {
-  const [annotationList, setAnnotationList] = useState(initializeAnnotationList());
+  const [annotationList, setAnnotationList] = useState(
+    initializeAnnotationList()
+  );
   const [session, setSession] = useState({
     kind: "idle",
     selectedText: "",
