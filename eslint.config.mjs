@@ -11,14 +11,13 @@ export default defineConfig([
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
-  // 3. Project Configuration & Overrides
   {
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx}"],
     plugins: { js },
     languageOptions: { 
       globals: {
         ...globals.browser,
-        ...globals.node, // Keeps Playwright 'process' error fixed
+        ...globals.node,
       }
     },
   },

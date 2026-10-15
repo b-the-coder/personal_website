@@ -10,7 +10,7 @@
 - [ ] Documentation
 - [ ] Project Tooling & Workflow Setup
 
-## Test
+## Testing
 
 <!-- How to test your code/change -->
 

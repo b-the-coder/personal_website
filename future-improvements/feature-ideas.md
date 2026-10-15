@@ -22,6 +22,13 @@
 
 - **Resume annotation** — 
   Allow users to leave comments/suggestions for my resume. *(React fundamentals)*
+- [ ] **Add deployment and persistence documentation**
+  Add a short section to `README.md` or `DEV-GUIDE.md` covering:
+
+  - Docker publishing requires the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets.
+  - Local development uses port `5173`, while the Docker build is served on port `3000`.
+  - Annotation data is stored only in the browser's `localStorage` and is not persisted on a server.
+
 ---
 
 ## Future — technically valuable

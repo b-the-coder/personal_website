@@ -8,6 +8,9 @@
 Project Root
 ├─ .github
 │  ├─ workflows
+│  │  ├─ docker-publish.yml
+│  │  ├─ node.js.yml
+│  │  └─ playwright.yml
 │  └─ pull_request_template.md
 ├─ future-improvements
 │  ├─ feature-ideas.md
@@ -27,6 +30,8 @@ Project Root
 │  │  │  ├─ annotation-initialization-and-persistence.test.js
 │  │  │  ├─ annotation-lifecycle.test.js
 │  │  │  └─ invalid-selection-behavior.test.js
+│  │  ├─ fixtures
+│  │  │  └─ annotation-fixtures.js
 │  │  └─ unit-tests
 │  │     ├─ anno-feature.test.jsx
 │  │     ├─ resume-text.test.jsx
@@ -53,7 +58,7 @@ Project Root
 
 ## Data Flow
 
-Resume components load resume content from `src/portfolio-data.json` and render the resume based on the required layout and user annotations.
+Resume components load resume content from `src/portfolio-data.json` and render the resume based on the required layout and formatting, along with user annotations.
 
 User annotations are managed through the `annotationList` state. Any annotation changes update the state and are persisted to `localStorage`, allowing annotation data to be restored across sessions.
 
@@ -63,19 +68,19 @@ User annotations are managed through the `annotationList` state. Any annotation 
 
 ```ts
 {
-  annotationId: {
-    annotatedText: String,
-    annotationContent: String,
+  [annotationId: string]: {
+    annotatedText: string;
+    annotationContent: string;
     selectionPosition: {
       viewportPosition: {
-        x: Number,
-        y: Number
-      },
-      textPosition: String,
-      range: [startIndex, endIndex]
-    },
-    timestamp: Number
-  }
+        x: number;
+        y: number;
+      };
+      textPosition: string;
+      range: [startOffset: number, endOffset: number];
+    };
+    timestamp: number;
+  };
 }
 ```
 
@@ -107,7 +112,7 @@ User annotations are managed through the `annotationList` state. Any annotation 
 
 #### Behavior
 
-When an annotation is added to a piece of text, that text is highlighted. The highlight color darkens through up to three levels as the annotation count increases.
+When an annotation is added to a piece of text, that text is highlighted. The highlight color darkens through up to three levels as users add more annotations to the same or overlapping text.
 
 #### Workflow
 
@@ -115,22 +120,20 @@ When an annotation is added to a piece of text, that text is highlighted. The hi
 
 2. Each text unit in `portfolio-data.json` is assigned a unique `textId`.
 
-3. When an annotation is created, the selected range is stored relative to the text content of the corresponding `textId`.
+3. When an annotation is created, the selected range offset is calculated and stored relative to the text content of the corresponding `textId`.
 
-4. Whenever `annotationList` changes, the Resume component re-renders and calls `computeSegments()`.
+4. Whenever `annotationList` changes, the `ResumeText` component re-renders. It groups annotations by `textId` using `groupAnnotationsByTextId()` and, depending on the formatting and styling needs of each resume section, calls either `computeSegments()` and `renderSegments()` or `processTextSegments()` and `renderSegments()`.
 
-5. `computeSegments()` generates a list of segments describing how the text within a `textId` is divided by annotations and any style boundaries.
+5. `computeSegments()` generates a array of segments describing how the text within a `textId` is divided by annotations and any style boundaries.
 
 6. Each segment contains:
-   - The text range
+   - The text range(relative offsets)
    - Annotation count
    - Associated annotation ID(s)
 
-7. If boundaries exist, the segments are filtered so that different styles can be applied correctly within the same `textId`.
+7. For text blocks containing multiple differently styled chunks, `processTextSegments()` combines the chunks into `fullText`, computes their segments while preserving chunk boundaries, and groups the resulting segments into one segment list per original text chunk. It returns both `fullText` and the grouped `segmentList`.
 
-8. Finally, `renderSegments()` renders the text and applies the appropriate highlight style to either:
-   - the entire `textId`, or
-   - only specific segments within it.
+8. `renderSegments()` uses `fullText` and a segment list to render the corresponding text as React elements. Segments covered by annotations receive the appropriate highlight class and annotation IDs.
 
 ## Boundary Case Handling
 

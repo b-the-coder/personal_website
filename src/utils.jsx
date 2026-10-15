@@ -112,8 +112,7 @@ const getHighlightLevel = (count) => {
 
 /**
  * Splits fullText at annotation and chunk boundaries.
- * Annotation ranges and chunk boundaries must use offsets in the same
- * text coordinate space as fullText.
+ * Annotation offset ranges and chunk boundaries are calculate base on the correspinding full text.
  */
 const computeSegments = (fullText, annotationRanges, chunkBoundaries = []) => {
   if (typeof fullText !== "string" || fullText.trim().length === 0) {
@@ -163,9 +162,8 @@ const computeSegments = (fullText, annotationRanges, chunkBoundaries = []) => {
 };
 
 /**
- * Slices fullText using the supplied segment offsets and adds highlight
- * styles and annotation IDs to annotated segments. The segments must be
- * computed against the same fullText passed here.
+ * Render fullText with correct highlight level and annotation IDs using the supplied segments from computeSegment.
+ *  The segments must be computed against the same fullText passed here.
  */
 const renderSegments = (fullText, segs) => {
   if (typeof fullText !== "string" || fullText.trim().length === 0) {
@@ -194,10 +192,8 @@ const renderSegments = (fullText, segs) => {
 };
 
 /**
- * Joins text chunks into the full text coordinate space used by a
- * data-text-id block, computes annotation segments, and groups the segments
+ * Joins text chunks with same textId into the full text, computes annotation segments, and groups the segments
  * back by chunk so each chunk can retain its markup.
- *
  * The joined chunks must match the block's textContent in content and order,
  * because annotation ranges are measured against that complete text block.
  */

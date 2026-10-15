@@ -9,13 +9,14 @@ import {
   processTextSegments,
 } from "../utils";
 
-import type { AnnotationStateContext, GroupedAnnotationsByTextId } from "../types";
+import type {
+  AnnotationStateContext,
+  GroupedAnnotationsByTextId,
+} from "../types";
 
 type ResumeSectionProps = { annotationsByTextId: GroupedAnnotationsByTextId };
 
-
 function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
-  
   const annotationsByTextId = groupAnnotationsByTextId(annotationList);
 
   const handleSelection = () => {
@@ -65,9 +66,7 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
   };
 
   const handleAnnotationClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    
     const userSelection = window.getSelection();
-
 
     // Guard against a null Selection object when no browsing context.
     if (userSelection === null) return;
@@ -82,7 +81,6 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
       annotationIdsString = (e.target as HTMLElement).dataset.annotationIds;
     }
 
-   
     if (annotationIdsString) {
       setSession({
         kind: "anno_display",
@@ -110,12 +108,8 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
 }
 
 function Header({ annotationsByTextId }: ResumeSectionProps) {
-
-
-  
   const headerAnnotations = annotationsByTextId["resume-header"];
 
-  
   const name = resumeData.name;
   const email = resumeData.contact.email;
   const location = resumeData.contact.location;
@@ -133,7 +127,7 @@ function Header({ annotationsByTextId }: ResumeSectionProps) {
 
   return (
     <div className="resumeHeader" data-text-id="resume-header">
- {/*  Render each segment with its annotation highlight styling. */}
+      {/* Render each text chunk from its segments with highlights and annotationIds. */}
       <h2>{renderSegments(fullText, nameSegments)}</h2>
       <div>
         <p>{renderSegments(fullText, emailSegments)}</p>
@@ -183,10 +177,13 @@ function Skills({ annotationsByTextId }: ResumeSectionProps) {
         const formattedCategory =
           category.charAt(0).toUpperCase() + category.slice(1) + ": ";
         const itemsText = items.join(", ");
+
+        // Give each skill row its own text ID so its annotations share that row's coordinate system.
         const textId = `skl-${index}`;
 
         const skillAnnotations = annotationsByTextId[textId];
 
+        // Keep the category and items as separate chunks because they use different HTML styles.
         const skillTextChunk = [formattedCategory, itemsText];
         const {
           fullText,
@@ -257,7 +254,7 @@ function Experience({ annotationsByTextId }: ResumeSectionProps) {
                 // Give each bullet its own text ID and annotation segments.
                 const expBulletTextId = `exp-${index}-bullet-${bulletIndex}`;
                 const expBulletAnnotations =
-                annotationsByTextId[expBulletTextId];
+                  annotationsByTextId[expBulletTextId];
                 const expBulletSegments = computeSegments(
                   bullet,
                   expBulletAnnotations
@@ -373,7 +370,7 @@ function Education({ annotationsByTextId }: ResumeSectionProps) {
         const academicsTextId = `edu-${index}-degree-gpa`;
         const academicsAnnotations = annotationsByTextId[academicsTextId];
 
-        // degree 和 GPA 没有不同 HTML 格式，可以一起渲染
+        
         const academicsText = `${edu.degree} | GPA: ${edu.gpa}`;
 
         const academicsSegments = computeSegments(
