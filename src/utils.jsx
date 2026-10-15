@@ -8,10 +8,11 @@ const initializeAnnotationList = () => {
     return JSON.parse(storedAnnotationListJson);
   }
 };
+
 /**
- * @param {Range} range - The browser DOM Range object
- * @param {Element} textPositionNode - The browser DOM Element Node
- * @returns {RangeOffsets} An array of offset numbers (or whatever your specific array type is)
+ * @param {Range} range
+ * @param {Element} textPositionNode
+ * @returns {import("./types").RangeOffsets}
  */
 const getRelativeOffsets = (range, textPositionNode) => {
   const preCaretRange = range.cloneRange();
@@ -52,24 +53,18 @@ const createAnnotation = ({
   selectionPosition,
   timestamp: Date.now(),
 });
-// const createAnnotation = (newAnnoData) => ({
-//   annotatedText: newAnnoData.annotatedText,
-//   annotationContent: newAnnoData.annotationContent,
-//   annotationPosition: newAnnoData.annotationPosition,
-//   timestamp: Date.now(),
-// });
-
-//createAnnotation简写
 
 const upsertAnnotation = (
   annotationList,
   currentAnnotationId,
   newAnnotation
 ) => {
-  // newAnnoData: { selectedText, annoContent, textPosition }
   if (currentAnnotationId === undefined) {
     const annotationId = crypto.randomUUID();
-    return { ...annotationList, [annotationId]: createAnnotation(newAnnotation) };
+    return {
+      ...annotationList,
+      [annotationId]: createAnnotation(newAnnotation),
+    };
   } else {
     const updatedAnnotationList = { ...annotationList };
     updatedAnnotationList[currentAnnotationId] = {
@@ -101,7 +96,8 @@ const groupAnnotationsByTextId = (annotationList) => {
     if (!annotationsByTextId[textId]) {
       annotationsByTextId[textId] = {};
     }
-    annotationsByTextId[textId][annotationId] = annotation.selectionPosition.range;
+    annotationsByTextId[textId][annotationId] =
+      annotation.selectionPosition.range;
   });
 
   return annotationsByTextId;
@@ -111,29 +107,30 @@ const getHighlightLevel = (count) => {
   if (count === 0) return 0;
   if (count === 1) return 1;
   if (count === 2) return 2;
-  return 3; // count >= 3
+  return 3;
 };
 
-//not statified with the second parameter name, not clear express it is one textID annotations
-const computeSegments = (text, annotationsForTextId, extraBoundaries = []) => {
-  if (typeof text !== "string" || text.trim().length === 0) {
-    //to-do: add log
+/**
+ * Splits fullText at annotation and chunk boundaries.
+ * Annotation ranges and chunk boundaries must use offsets in the same
+ * text coordinate space as fullText.
+ */
+const computeSegments = (fullText, annotationRanges, chunkBoundaries = []) => {
+  if (typeof fullText !== "string" || fullText.trim().length === 0) {
     throw new TypeError("computeSegments: text must be a non-empty string.");
   }
-  if (!Array.isArray(extraBoundaries)) {
-    //to-do: add log
-    throw new TypeError("computeSegments: extraBoundaries must be an array.");
+  if (!Array.isArray(chunkBoundaries)) {
+    throw new TypeError("computeSegments: chunkBoundaries must be an array.");
   }
 
-  if (extraBoundaries.some((boundary) => boundary > text.length)) {
-    //to-do: add log
+  if (chunkBoundaries.some((boundary) => boundary > fullText.length)) {
     throw new RangeError(
-      "computeSegments: extraBoundaries must not contain values greater than text.length."
+      "computeSegments: chunkBoundaries must not contain values greater than text.length."
     );
   }
-  const annotationEntries = Object.entries(annotationsForTextId ?? {});
+  const annotationEntries = Object.entries(annotationRanges ?? {});
 
-  const boundaryPoints = new Set([0, text.length, ...extraBoundaries]);
+  const boundaryPoints = new Set([0, fullText.length, ...chunkBoundaries]);
 
   annotationEntries.forEach(([, [start, end]]) => {
     boundaryPoints.add(start);
@@ -165,12 +162,16 @@ const computeSegments = (text, annotationsForTextId, extraBoundaries = []) => {
   return segments;
 };
 
+/**
+ * Slices fullText using the supplied segment offsets and adds highlight
+ * styles and annotation IDs to annotated segments. The segments must be
+ * computed against the same fullText passed here.
+ */
 const renderSegments = (fullText, segs) => {
   if (typeof fullText !== "string" || fullText.trim().length === 0) {
     throw new TypeError("Can not render empty text or undefined.");
   }
   if (!Array.isArray(segs) || segs.length === 0) {
-    //to-do: deep dive for react key
     return <span key="empty-segs">{fullText}</span>;
   }
 
@@ -192,22 +193,28 @@ const renderSegments = (fullText, segs) => {
   });
 };
 
+/**
+ * Joins text chunks into the full text coordinate space used by a
+ * data-text-id block, computes annotation segments, and groups the segments
+ * back by chunk so each chunk can retain its markup.
+ *
+ * The joined chunks must match the block's textContent in content and order,
+ * because annotation ranges are measured against that complete text block.
+ */
 const processTextSegments = ({
   textChunks,
   annotationsForTextId,
   computeSegmentsFn,
 }) => {
-  // 1. 严格拦截 textChunks
   if (!Array.isArray(textChunks) || textChunks.length === 0) {
     throw new TypeError("Can not process empty text or undefined.");
   }
 
   const fullText = textChunks.join("");
 
-  // 🌟 核心优化：提前判断没有标注的情况（包含忘了传、传入 null、传入 undefined）
+  // Preserve one globally positioned segment per non-empty chunk when no
+  // annotations need to be computed.
   if (!annotationsForTextId) {
-    // 根本不需要做任何复杂计算，直接把每个 chunk 映射成一个完整的 segment 即可
-
     let currentStart = 0;
     const segmentList = textChunks.map((chunk) => {
       const segEnd = currentStart + chunk.length;
@@ -230,12 +237,13 @@ const processTextSegments = ({
     return { fullText, segmentList };
   }
 
-  // 2. 以下是有标注时，才去跑的原本的复杂运算（保持你原有的逻辑不变）
+  // A single chunk needs no additional boundary to preserve its markup.
   if (textChunks.length === 1) {
     const allSegments = computeSegmentsFn(fullText, annotationsForTextId);
     return { fullText, segmentList: [allSegments] };
   }
 
+  // Add chunk boundaries so annotation segments never cross markup changes.
   const boundaries = [];
   let currentLength = 0;
   for (let i = 0; i < textChunks.length; i++) {
@@ -245,11 +253,16 @@ const processTextSegments = ({
     }
   }
 
-  const allSegments = computeSegmentsFn(fullText, annotationsForTextId, boundaries);
+  const allSegments = computeSegmentsFn(
+    fullText,
+    annotationsForTextId,
+    boundaries
+  );
   const allBoundaries = [...boundaries, fullText.length];
   const segmentList = [];
   let prevBoundary = 0;
 
+  // Restore one segment list per original chunk while keeping global offsets.
   for (let i = 0; i < allBoundaries.length; i++) {
     const currentBoundary = allBoundaries[i];
     const currentSegments = allSegments.filter(

@@ -22,13 +22,11 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
     const userSelection = window.getSelection();
 
     // Guard against a null Selection object when no browsing context.
-
     if (userSelection === null) return;
 
     const selectedString = userSelection.toString();
 
     const nextMode = getNextModeOnSelection(userSelection);
-
     if (nextMode === "idle") {
       setSession({
         kind: nextMode,
