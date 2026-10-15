@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
 
-// Allowed modes
 
 export type Mode = "idle" | "text_selected" | "annotating" | "anno_display";
 
@@ -8,7 +7,6 @@ export interface ViewportPosition {
   x: number;
   y: number;
 }
-
 export type RangeOffsets = [startOffset: number, endOffset: number];
 export interface SelectionPosition {
   viewportPosition: ViewportPosition;
@@ -16,16 +14,15 @@ export interface SelectionPosition {
   range: RangeOffsets;
 }
 
-// Type definitions for AnnotationSession
+
 export interface AnnotationSession {
   kind: Mode;
-
   currentAnnotationId: string | undefined;
   selectedText: string;
   selectionPosition: SelectionPosition | null;
 }
 
-// Data structure for a single Annotation item
+
 export interface AnnotationItem {
   annotatedText: string;
   annotationContent: string;
@@ -33,12 +30,13 @@ export interface AnnotationItem {
   timestamp: number;
 }
 
-// annotationList is a key-value map using UUID strings as keys
+// Keys are annotation IDs generated with crypto.randomUUID().
 export type AnnotationList = Record<string, AnnotationItem>;
 
-export type AnnotationRange = SelectionPosition["range"];
 
-//grouped annotationList type
+
+
+export type AnnotationRange = SelectionPosition["range"];
 export type GroupedAnnotationsByTextId = Record<
   string,
   { [uuid: string]: AnnotationRange }

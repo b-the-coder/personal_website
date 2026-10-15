@@ -55,7 +55,7 @@ Run the tests and generate a coverage report:
 npm run test:coverage
 ```
 
-Run integration test
+Run the end-to-end tests:
 
 ```bash
 npm run test:e2e
@@ -76,7 +76,7 @@ npm run test:e2e
 ![Selecting text for annotation](screenshots/select-text.png)
 ![Adding an annotation](screenshots/post-annotation.png)
 
-### Different level of highlight and View/Edit Annotations
+### Different Highlight Levels and Viewing/Editing Annotations
 
 ![Viewing existing annotations](screenshots/highlight-color-display.png)
 

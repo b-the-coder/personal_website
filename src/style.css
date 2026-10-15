@@ -2,7 +2,6 @@
    BASE & TYPOGRAPHY
    Global resets, font styles, and text elements
    ========================================================================== */
-
 html {
   scroll-behavior: smooth;
 }
@@ -48,7 +47,6 @@ ion-icon {
      LAYOUT & STRUCTURE
      Page sections, navigation, and structural components
      ========================================================================== */
-
 #preference {
   display: flex;
   justify-content: flex-end;
@@ -145,7 +143,6 @@ body.dark-mode h1 {
   color: #afa9ec;
 }
 
-/* 链接 */
 body.dark-mode a {
   color: #534ab7;
 }
@@ -153,12 +150,10 @@ body.dark-mode a:hover {
   color: #afa9ec;
 }
 
-/* toggle 文字 */
 body.dark-mode .toggle-text {
   color: #534ab7;
 }
 
-/* toggle track */
 body.dark-mode .toggle-label {
   background: #534ab7;
 }
@@ -186,30 +181,27 @@ body.dark-mode .contact-links {
 /* ==========================================================================
    RESUME SECTION
    ========================================================================== */
-   .resume {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* h2 和下面这一行都靠左 */
-  }
-  
-  .resumeAnno {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start; /* 两个组件顶部对齐，而不是被拉伸到同高 */
-    gap: 5px;
-  }
+.resume {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.resumeAnno {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 5px;
+}
 .resumeText {
-  background-color: #f7f7f5; /* 比页面背景稍微深一点/偏暖一点 */
+  background-color: #f7f7f5;
   border-radius: 12px;
-  /* “纸张浮起来”的关键 */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  /* 可选：让它更像纸 */
   border: 1px solid rgba(0, 0, 0, 0.06);
 
   margin-left: 40px;
   padding: 24px;
   width: 70%;
-  /* include padding and border in the element's total width, so width 65% is dynamic */
   box-sizing: border-box;
 }
 
@@ -240,7 +232,7 @@ body.dark-mode .contact-links {
 /* ==========================================================================
    ANNOTATION COMPONENTS
    ========================================================================== */
-/* AnnotationOfferer */
+  
 .annotation-offerer {
   font-size: 12px;
   color: #555555;
@@ -257,7 +249,6 @@ body.dark-mode .contact-links {
   white-space: nowrap;
 }
 
-/* AnnotationInput */
 .annotation-input {
   background: rgba(180, 140, 255, 0.15);
   border: 0.5px solid var(--color-border-secondary);
@@ -323,7 +314,6 @@ body.dark-mode .contact-links {
   border: none;
 }
 
-/* AnnotationDisplay */
 .annotation-display {
   background: rgba(180, 140, 255, 0.15);
   border: 0.5px solid var(--color-border-secondary);
@@ -378,8 +368,6 @@ body.dark-mode .contact-links {
   highlights
    ========================================================================== */
 
-
-
 .highlight {
   cursor: pointer;
 }
@@ -397,23 +385,23 @@ body.dark-mode .contact-links {
   Contact Form
    ========================================================================== */
 
-   .contactForm {
-    max-width: 300px;   
-  }
-   .contactForm > div {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  
-  .contactForm label {
-    width: 80px;        /* 固定宽度,按最长的词 "Message" 来定 */
-    flex-shrink: 0;
-    text-align: right;  /* 可选,右对齐更整齐 */
-    margin-right: 10px;
-  }
-  
-  #submitbutton {
-    display: flex;
-    justify-content: flex-end;
-  }
+.contactForm {
+  max-width: 300px;
+}
+.contactForm > div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.contactForm label {
+  width: 80px;
+  flex-shrink: 0;
+  text-align: right;
+  margin-right: 10px;
+}
+
+#submitbutton {
+  display: flex;
+  justify-content: flex-end;
+}

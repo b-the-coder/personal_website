@@ -62,7 +62,6 @@ test.describe("initialized and reload page correct ", () => {
       window.localStorage.setItem("annotationList", JSON.stringify(presetAnnotationList));
     }, annotationListData);
     await page.goto("./");
-    // find all the element have "highlight highlight-" in its className
     await expect(
       page.locator(".resumeText").locator('[class^="highlight highlight-"]')
     ).toHaveCount(5);
@@ -79,17 +78,15 @@ test.describe("initialized and reload page correct ", () => {
     page,
   }) => {
     await page.goto("./");
-
     await expect(
       page.locator(".resumeText").locator('[class^="highlight highlight-"]')
     ).toHaveCount(0);
     await expect(page.locator(".annotation-offerer")).toBeHidden();
-
-    // Verify localStorage is initialzied correctly
     const initialAnnotations = await page.evaluate(() => {
       return JSON.parse(window.localStorage.getItem("annotationList"));
     });
     expect(initialAnnotations).toEqual({});
+
 
     await page.reload();
     await expect(

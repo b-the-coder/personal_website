@@ -13,6 +13,11 @@ import {
 } from "../../components/anno-feature";
 
 import * as utils from "../../utils";
+import {
+  mockAnnotation1,
+  mockAnnotation2,
+  mockAnnotation3,
+} from "../fixtures/annotation-fixtures";
 
 afterEach(() => {
   cleanup();
@@ -29,39 +34,6 @@ const mockPosition = {
   viewportPosition: { x: 100, y: 100 },
   textPosition: "paragraph one",
   range: [0, 1],
-};
-
-const mockAnnotation1 = {
-  annotatedText: "name and contact",
-  annotationContent: "this is a note1 for name and contact",
-  selectionPosition: {
-    viewportPosition: { x: 100, y: 200 },
-    textPosition: "paragraph one",
-    range: [0, 1],
-  },
-  timestamp: 1234567890,
-};
-
-const mockAnnotation2 = {
-  annotatedText: "links",
-  annotationContent: "this is a note for resume header",
-  selectionPosition: {
-    viewportPosition: { x: 300, y: 400 },
-    textPosition: "paragraph one",
-    range: [0, 1],
-  },
-  timestamp: 1234567890,
-};
-
-const mockAnnotation3 = {
-  annotatedText: "location",
-  annotationContent: "this is a note for resume header",
-  selectionPosition: {
-    viewportPosition: { x: 500, y: 600 },
-    textPosition: "paragraph two",
-    range: [0, 1],
-  },
-  timestamp: 1234567890,
 };
 
 const mockAnnotation4 = {
@@ -91,7 +63,7 @@ const mockCurrentAnnotationId = "anno-1";
 const mockAnnotationIdString = "anno-1,anno-4";
 
 describe("AnnotationOfferer", () => {
-  test("renders AnnotationOfferer at selected view port position when mode is text_selected", () => {
+  test("renders AnnotationOfferer at the selected viewport position when mode is text_selected", () => {
     const session = { kind: "text_selected", selectionPosition: mockPosition };
     render(<AnnotationOfferer session={session} />);
     expect(screen.queryByText("Add annotation")).toBeInTheDocument();
@@ -102,20 +74,18 @@ describe("AnnotationOfferer", () => {
     });
   });
 
-  test("does not renders when mode is not text_selected", () => {
+  test("does not render when mode is not text_selected", () => {
     const session = { kind: "random_mode" };
     render(<AnnotationOfferer session={session} />);
     expect(screen.queryByText("Add annotation")).toBeNull();
   });
+
   test("changes mode to annotating when clicked", async () => {
     const session = { kind: "text_selected", selectionPosition: mockPosition };
     const user = userEvent.setup();
     const setSession = vi.fn();
-
     render(<AnnotationOfferer session={session} setSession={setSession} />);
-
     await user.click(screen.getByText("Add annotation"));
-
     expect(setSession).toHaveBeenCalledWith({
       ...session,
       kind: "annotating",
@@ -132,7 +102,6 @@ describe("AnnotationInput", () => {
         selectedText: mockSelectedString.validSelection,
       };
       render(<AnnotationInput session={session} annotationList={{}} />);
-
       expect(screen.queryByText(/On:/)).toBeInTheDocument();
     });
 
@@ -142,9 +111,7 @@ describe("AnnotationInput", () => {
         currentAnnotationId: undefined,
         selectedText: mockSelectedString.validSelection,
       };
-
       render(<AnnotationInput session={session} annotationList={{}} />);
-
       expect(screen.queryByText(/On:/)).toBeNull();
     });
   });
@@ -156,13 +123,10 @@ describe("AnnotationInput", () => {
         currentAnnotationId: undefined,
         selectedText: mockSelectedString.validSelection,
       };
-
       render(<AnnotationInput session={session} annotationList={{}} />);
-
       expect(
         screen.getByText(mockSelectedString.validSelection)
       ).toBeInTheDocument();
-
       expect(
         screen.getByPlaceholderText("Write your annotation...")
       ).toBeInTheDocument();
@@ -175,20 +139,17 @@ describe("AnnotationInput", () => {
         selectedText: "",
         selectionPosition: null,
       };
-
       render(
         <AnnotationInput
           session={session}
           annotationList={mockAnnotationList}
         />
       );
-
       expect(
         screen.getByText(
           mockAnnotationList[mockCurrentAnnotationId].annotatedText
         )
       ).toBeInTheDocument();
-
       expect(
         screen.getByPlaceholderText(
           "You annotated:" +
@@ -198,7 +159,7 @@ describe("AnnotationInput", () => {
     });
   });
 
-  describe("input controls", () => {
+  describe("annotation input actions", () => {
     let user;
     let setSession;
     let setAnnotationList;
@@ -209,7 +170,7 @@ describe("AnnotationInput", () => {
       setAnnotationList = vi.fn();
     });
 
-    test("Add new annotation and resets mode when Post been clicked", async () => {
+    test("updates annotationList and resets mode when Post is clicked while adding a new annotation", async () => {
       vi.spyOn(crypto, "randomUUID").mockReturnValue("mock-id");
       const session = {
         kind: "annotating",
@@ -228,13 +189,11 @@ describe("AnnotationInput", () => {
       );
 
       await user.type(screen.getByRole("textbox"), "mock annotation content");
-
       await user.click(
         screen.getByRole("button", {
           name: /post/i,
         })
       );
-
       expect(setSession).toHaveBeenCalledWith({
         kind: "idle",
         selectedText: "",
@@ -242,9 +201,7 @@ describe("AnnotationInput", () => {
         currentAnnotationId: undefined,
       });
       expect(setAnnotationList).toHaveBeenCalledOnce();
-
       const updatedAnnotationList = setAnnotationList.mock.calls[0][0];
-
       expect(updatedAnnotationList["mock-id"]).toMatchObject({
         annotatedText: mockSelectedString.validSelection,
         annotationContent: "mock annotation content",
@@ -252,11 +209,11 @@ describe("AnnotationInput", () => {
       });
     });
 
-    test("Edit existing annotation and resets mode when Post been clicked", async () => {
+    test("updates annotationList and resets mode when Post is clicked while editing an existing annotation", async () => {
       const session = {
         kind: "annotating",
-        selectedText: mockSelectedString.validSelection,
-        selectionPosition: mockPosition,
+        selectedText: "",
+        selectionPosition: null,
         currentAnnotationId: mockCurrentAnnotationId,
       };
       render(
@@ -267,18 +224,15 @@ describe("AnnotationInput", () => {
           setAnnotationList={setAnnotationList}
         />
       );
-
       await user.type(
         screen.getByRole("textbox"),
         "mock edited annotation content"
       );
-
       await user.click(
         screen.getByRole("button", {
           name: /post/i,
         })
       );
-
       expect(setSession).toHaveBeenCalledWith({
         kind: "idle",
         selectedText: "",
@@ -294,8 +248,7 @@ describe("AnnotationInput", () => {
         annotationContent: "mock edited annotation content",
       });
     });
-    test("discard change and resets mode when Cancel been clicked", async () => {
-      //if anno input is opened from edit existing annotation
+    test("resets mode when Cancel is clicked while editing an existing annotation", async () => {
       const session = {
         kind: "annotating",
         selectedText: "",
@@ -315,7 +268,6 @@ describe("AnnotationInput", () => {
           name: /cancel/i,
         })
       );
-
       expect(setSession).toHaveBeenCalledWith({
         kind: "idle",
         selectedText: "",
@@ -327,7 +279,7 @@ describe("AnnotationInput", () => {
 });
 
 describe("AnnotationDisplay", () => {
-  describe("render based on mode", () => {
+  describe("rendering based on mode", () => {
     const session = {
       kind: "anno_display",
       selectedText: "",
@@ -352,7 +304,7 @@ describe("AnnotationDisplay", () => {
         )
       ).toBeInTheDocument();
     });
-    test("does not renders when mode is not anno_display", () => {
+    test("does not render when mode is not anno_display", () => {
       const session = {
         kind: "random_mode",
         selectedText: "",
@@ -379,9 +331,9 @@ describe("AnnotationDisplay", () => {
       expect(screen.queryByText("You annotated:")).toBeNull();
     });
   });
-  //to-do: update test to verify multiple annotations display
+
   describe("displayed content", () => {
-    test("Show the right annotated text and annotation content when render", () => {
+    test("shows the correct annotated text and annotation content when rendered", () => {
       const session = {
         kind: "anno_display",
         selectedText: "",
@@ -407,7 +359,7 @@ describe("AnnotationDisplay", () => {
     });
   });
 
-  describe("Edit and Delete behavior", () => {
+  describe("edit and delete behavior", () => {
     let user;
     let setSession;
 
@@ -452,7 +404,7 @@ describe("AnnotationDisplay", () => {
       });
     });
 
-    test("Delete correct annotation and switchs mode when Delete been clicked", async () => {
+    test("deletes the correct annotation and resets mode when Delete is clicked", async () => {
       const setAnnotationList = vi.fn();
 
       const session = {
@@ -480,7 +432,6 @@ describe("AnnotationDisplay", () => {
       });
 
       await user.click(deleteButtons[0]);
-
       expect(utils.deleteAnnotation).toHaveBeenCalledWith(
         mockAnnotationList,
         "anno-1"
@@ -496,7 +447,6 @@ describe("AnnotationDisplay", () => {
       });
 
       await user.click(deleteButtons[1]);
-
       expect(utils.deleteAnnotation).toHaveBeenCalledWith(
         mockAnnotationList,
         "anno-4"
@@ -514,7 +464,7 @@ describe("AnnotationDisplay", () => {
   });
 });
 
-test("AnnotationFeature", () => {
+test("composes AnnotationOfferer, AnnotationInput, and AnnotationDisplay", () => {
   const annotationFeatureElement = AnnotationFeature({});
 
   const children = annotationFeatureElement.props.children;

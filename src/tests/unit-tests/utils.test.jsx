@@ -15,17 +15,22 @@ import {
   processTextSegments,
   getHighlightLevel,
 } from "../../utils";
+import {
+  mockAnnotation1,
+  mockAnnotation2,
+  mockAnnotation3,
+} from "../fixtures/annotation-fixtures";
 
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
 
-const expectedGroupedAnnotation = {
+const expectedAnnotationsByTextId = {
   "paragraph one": { "anno-1": [0, 1], "anno-2": [0, 1] },
   "paragraph two": { "anno-3": [0, 1] },
 };
-const mockResumeTextIdSection = "namelocationemail";
+const mockResumeHeaderSectionText = "namelocationemail";
 
 const createSegment = (start, end, ids = []) => ({
   start,
@@ -34,45 +39,15 @@ const createSegment = (start, end, ids = []) => ({
   ids,
 });
 
-const mockAnnotation1 = {
-  annotatedText: "name and contact",
-  annotationContent: "this is a note for resume header",
-  selectionPosition: {
-    viewportPosition: { x: 100, y: 200 },
-    textPosition: "paragraph one",
-    range: [0, 1],
-  },
-  timestamp: 1234567890,
-};
-
-const mockAnnotation2 = {
-  annotatedText: "links",
-  annotationContent: "this is a note for resume header",
-  selectionPosition: {
-    viewportPosition: { x: 300, y: 400 },
-    textPosition: "paragraph one",
-    range: [0, 1],
-  },
-  timestamp: 1234567890,
-};
-
-const mockAnnotation3 = {
-  annotatedText: "location",
-  annotationContent: "this is a note for resume header",
-  selectionPosition: {
-    viewportPosition: { x: 500, y: 600 },
-    textPosition: "paragraph two",
-    range: [0, 1],
-  },
-  timestamp: 1234567890,
-};
-
 const mockAnnotationList = {
   "anno-1": mockAnnotation1,
   "anno-2": mockAnnotation2,
   "anno-3": mockAnnotation3,
 };
-const paragraphOneAnnotations = { "anno-1": [0, 1], "anno-2": [0, 1] };
+const mockAnnotationRangesForTextId = {
+  "anno-1": [0, 1],
+  "anno-2": [0, 1],
+};
 
 const mockNewAnnotationData = {
   annotatedText: "newly selected text",
@@ -87,7 +62,7 @@ const mockNewAnnotationData = {
 const mockCurrentAnnotationId = "anno-1";
 
 describe("getRelativeOffsets", () => {
-  test("should calculate correct relative offsets for ranges", () => {
+  test("calculates the correct relative offsets for ranges", () => {
     const dom = new JSDOM(
       `<div className="resumeHeader" data-text-id="resume-header"><h2>abcdefg</h2><div><p>hijklmn</p><p>opqrst</p></div></div>`
     );
@@ -126,15 +101,15 @@ describe("getRelativeOffsets", () => {
 });
 
 describe("groupAnnotationsByTextId", () => {
-  test("group annotations by textId and keep only their ranges", () => {
+  test("groups annotations by textId and keeps only their ranges", () => {
     expect(groupAnnotationsByTextId(mockAnnotationList)).toEqual(
-      expectedGroupedAnnotation
+      expectedAnnotationsByTextId
     );
   });
 });
 
 describe("getNextModeOnSelection", () => {
-  test("should return text_selected when text is selected", () => {
+  test("returns text_selected for a valid selection", () => {
     const userSelection = {
       isCollapsed: false,
       toString: () => "React",
@@ -143,7 +118,7 @@ describe("getNextModeOnSelection", () => {
     expect(getNextModeOnSelection(userSelection)).toBe("text_selected");
   });
 
-  test("should return idle when selection contains only newline character", () => {
+  test("returns idle when the selection contains only a newline", () => {
     const userSelection = {
       isCollapsed: false,
       toString: () => "\n",
@@ -152,8 +127,8 @@ describe("getNextModeOnSelection", () => {
     expect(getNextModeOnSelection(userSelection)).toBe("idle");
   });
 
-  test("should return idle when selection is empty", () => {
-    //click on white space or drag on white space
+  test("returns idle when the selection is empty", () => {
+
     const userSelection = {
       isCollapsed: true,
       toString: () => "",
@@ -164,7 +139,7 @@ describe("getNextModeOnSelection", () => {
 });
 
 describe("deleteAnnotation", () => {
-  test("deleteAnnotation removes the annotation with the given id", () => {
+  test("removes the annotation with the given ID", () => {
     const afterDeleteAnnotationList = deleteAnnotation(
       mockAnnotationList,
       mockCurrentAnnotationId
@@ -177,7 +152,7 @@ describe("deleteAnnotation", () => {
 });
 
 describe("upsertAnnotation", () => {
-  test("insert a new annotation", () => {
+  test("inserts a new annotation", () => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue("mock-id");
     const currentAnnotationId = undefined;
     const updatedAnnotationList = upsertAnnotation(
@@ -240,20 +215,20 @@ describe("computeSegments", () => {
       ["null", null],
       ["an object", {}],
       ["a string", "string"],
-    ])("throws when extra boundary is not an array", (_, extraBoundaries) => {
+    ])("throws when extra boundary is not an array", (_, chunkBoundaries) => {
       expect(() => {
-        computeSegments(mockResumeTextIdSection, {}, extraBoundaries);
+        computeSegments(mockResumeHeaderSectionText, {}, chunkBoundaries);
       }).toThrow(
-        new TypeError("computeSegments: extraBoundaries must be an array.")
+        new TypeError("computeSegments: chunkBoundaries must be an array.")
       );
     });
     test("throws when any extra boundary exceeds text.length", () => {
-      const extraBoundaries = [3, 18];
+      const chunkBoundaries = [3, 18];
       expect(() => {
-        computeSegments(mockResumeTextIdSection, {}, extraBoundaries);
+        computeSegments(mockResumeHeaderSectionText, {}, chunkBoundaries);
       }).toThrow(
         new RangeError(
-          "computeSegments: extraBoundaries must not contain values greater than text.length."
+          "computeSegments: chunkBoundaries must not contain values greater than text.length."
         )
       );
     });
@@ -312,12 +287,12 @@ describe("computeSegments", () => {
           createSegment(12, 17),
         ],
       ],
-    ])("%s", (_, extraBoundaries, expected) => {
+    ])("%s", (_, chunkBoundaries, expected) => {
       expect(
         computeSegments(
-          mockResumeTextIdSection,
+          mockResumeHeaderSectionText,
           overlappingAnnotations,
-          extraBoundaries
+          chunkBoundaries
         )
       ).toEqual(expected);
     });
@@ -376,12 +351,12 @@ describe("computeSegments", () => {
           createSegment(15, 17),
         ],
       ],
-    ])("%s", (_, extraBoundaries, expected) => {
+    ])("%s", (_, chunkBoundaries, expected) => {
       expect(
         computeSegments(
-          mockResumeTextIdSection,
+          mockResumeHeaderSectionText,
           nestedAnnotations,
-          extraBoundaries
+          chunkBoundaries
         )
       ).toEqual(expected);
     });
@@ -421,12 +396,12 @@ describe("computeSegments", () => {
           createSegment(15, 17),
         ],
       ],
-    ])("%s", (_, extraBoundaries, expected) => {
+    ])("%s", (_, chunkBoundaries, expected) => {
       expect(
         computeSegments(
-          mockResumeTextIdSection,
+          mockResumeHeaderSectionText,
           singleAnnotation,
-          extraBoundaries
+          chunkBoundaries
         )
       ).toEqual(expected);
     });
@@ -452,9 +427,9 @@ describe("renderSegments", () => {
   ])(
     "render full text when segments are undefined, null, or empty",
     (_, segs) => {
-      render(renderSegments(mockResumeTextIdSection, segs));
+      render(renderSegments(mockResumeHeaderSectionText, segs));
 
-      expect(screen.getByText(mockResumeTextIdSection)).toBeInTheDocument();
+      expect(screen.getByText(mockResumeHeaderSectionText)).toBeInTheDocument();
     }
   );
   test("render text correctly with valid segments", () => {
@@ -467,7 +442,7 @@ describe("renderSegments", () => {
     ];
     render(
       renderSegments(
-        mockResumeTextIdSection,
+        mockResumeHeaderSectionText,
         overlappingAnnotationsWithoutBoundarySegments
       )
     );
@@ -505,13 +480,13 @@ describe("initializeAnnotationList", () => {
     localStorage.clear();
   });
 
-  test("return annotatonList if it's exists", () => {
+  test("returns the stored annotationList when it exists", () => {
     localStorage.setItem("annotationList", JSON.stringify(mockAnnotationList));
     const initializedAnnotationList = initializeAnnotationList();
     expect(initializedAnnotationList).toEqual(mockAnnotationList);
   });
 
-  test("return '{}' if annotaitonList not exists ", () => {
+  test("returns an empty object when annotationList does not exist", () => {
     const initializedAnnotationList = initializeAnnotationList();
     expect(initializedAnnotationList).toEqual({});
   });
@@ -524,7 +499,7 @@ describe("processTextSegments", () => {
       expect(() => {
         processTextSegments({
           textChunks: invalidTextChunk,
-          annotationsById: paragraphOneAnnotations,
+          annotationsById: mockAnnotationRangesForTextId,
           computeSegmentsFn: vi.fn(() => {}),
         });
       }).toThrow("Can not process empty text or undefined.");
@@ -713,8 +688,8 @@ describe("processTextSegments", () => {
   });
 });
 
-test("getHighlightLevel", () => {
-  //generate a interger between 3-1000
+test("getHighlightLevel-calculate correct highlight level accoridng to count", () => {
+ 
   const randomCount = Math.floor(Math.random() * (1000 - 3 + 1)) + 3;
   expect(getHighlightLevel(0)).toEqual(0);
   expect(getHighlightLevel(1)).toEqual(1);

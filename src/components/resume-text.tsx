@@ -9,7 +9,10 @@ import {
   processTextSegments,
 } from "../utils";
 
-import type { AnnotationStateContext, GroupedAnnotationsByTextId } from "../types";
+import type {
+  AnnotationStateContext,
+  GroupedAnnotationsByTextId,
+} from "../types";
 
 type ResumeSectionProps = { annotationsByTextId: GroupedAnnotationsByTextId };
 
@@ -19,13 +22,12 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
   const handleSelection = () => {
     const userSelection = window.getSelection();
 
-    //if the associated document has no browsing context
+    // Guard against a null Selection object when no browsing context.
     if (userSelection === null) return;
 
     const selectedString = userSelection.toString();
 
     const nextMode = getNextModeOnSelection(userSelection);
-
     if (nextMode === "idle") {
       setSession({
         kind: nextMode,
@@ -36,14 +38,13 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
       return;
     }
 
+    // Convert the selected range into offsets relative to its text block.
     const range = userSelection.getRangeAt(0);
-
     const textPositionNode =
       range.startContainer.parentElement?.closest("[data-text-id]");
-
     const textId = textPositionNode?.getAttribute("data-text-id");
+    // Ignore selections that do not start inside a valid annotatable text block.
     if (!textPositionNode || !textId) return;
-
     const offsetsRelativeToTextPositionNode = getRelativeOffsets(
       range,
       textPositionNode
@@ -67,11 +68,12 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
   const handleAnnotationClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const userSelection = window.getSelection();
 
-    //if the associated document has no browsing context
+    // Guard against a null Selection object when no browsing context.
     if (userSelection === null) return;
 
     let annotationIdsString;
 
+    // Read annotation IDs only when the user is not making an active text selection.
     if (
       userSelection.isCollapsed === true ||
       !userSelection.toString().trim()
@@ -113,6 +115,7 @@ function Header({ annotationsByTextId }: ResumeSectionProps) {
   const location = resumeData.contact.location;
   const headerTextChunk = [name, email, location];
 
+  // Build the full header text and the annotated segments for each field.
   const {
     fullText,
     segmentList: [nameSegments, emailSegments, locationSegments],
@@ -124,6 +127,7 @@ function Header({ annotationsByTextId }: ResumeSectionProps) {
 
   return (
     <div className="resumeHeader" data-text-id="resume-header">
+      {/* Render each text chunk from its segments with highlights and annotationIds. */}
       <h2>{renderSegments(fullText, nameSegments)}</h2>
       <div>
         <p>{renderSegments(fullText, emailSegments)}</p>
@@ -173,10 +177,13 @@ function Skills({ annotationsByTextId }: ResumeSectionProps) {
         const formattedCategory =
           category.charAt(0).toUpperCase() + category.slice(1) + ": ";
         const itemsText = items.join(", ");
+
+        // Give each skill row its own text ID so its annotations share that row's coordinate system.
         const textId = `skl-${index}`;
 
         const skillAnnotations = annotationsByTextId[textId];
 
+        // Keep the category and items as separate chunks because they use different HTML styles.
         const skillTextChunk = [formattedCategory, itemsText];
         const {
           fullText,
@@ -199,6 +206,7 @@ function Skills({ annotationsByTextId }: ResumeSectionProps) {
 }
 
 function Experience({ annotationsByTextId }: ResumeSectionProps) {
+  // Build the Experience section title and apply any annotations attached to it.
   const sectionTitle = "Experience";
   const sectionAnnotations = annotationsByTextId["exp"];
 
@@ -210,14 +218,18 @@ function Experience({ annotationsByTextId }: ResumeSectionProps) {
         {renderSegments(sectionTitle, titleSegments)}
       </h2>
 
+      {/* Render each experience entry from the resume data. */}
       {resumeData.experience.map((exp, index) => {
+        // Use one text ID for the complete title line so its annotations share a coordinate system.
         const titleTextId = `exp-${index}-title`;
         const expPosition = exp.title;
         const expDetail = ` - ${exp.project} (${exp.type}) | ${exp.startDate} - ${exp.endDate}`;
 
+        // Keep the position and details as separate chunks because they use different HTML styles.
         const expTitleLineTextChunk = [expPosition, expDetail];
         const expTitleAnnotations = annotationsByTextId[titleTextId];
 
+        // Build the full title line and calculate the annotated segments for each chunk.
         const {
           fullText: expTitleLineText,
           segmentList: [expPositionSegments, expDetailSegments],
@@ -229,6 +241,7 @@ function Experience({ annotationsByTextId }: ResumeSectionProps) {
 
         return (
           <div key={index}>
+            {/* Render the position in bold and the remaining details in regular text. */}
             <p data-text-id={titleTextId}>
               <strong>
                 {renderSegments(expTitleLineText, expPositionSegments)}
@@ -238,9 +251,10 @@ function Experience({ annotationsByTextId }: ResumeSectionProps) {
 
             <ul>
               {exp.bullets.map((bullet, bulletIndex) => {
+                // Give each bullet its own text ID and annotation segments.
                 const expBulletTextId = `exp-${index}-bullet-${bulletIndex}`;
                 const expBulletAnnotations =
-                annotationsByTextId[expBulletTextId];
+                  annotationsByTextId[expBulletTextId];
                 const expBulletSegments = computeSegments(
                   bullet,
                   expBulletAnnotations
@@ -356,7 +370,7 @@ function Education({ annotationsByTextId }: ResumeSectionProps) {
         const academicsTextId = `edu-${index}-degree-gpa`;
         const academicsAnnotations = annotationsByTextId[academicsTextId];
 
-        // degree 和 GPA 没有不同 HTML 格式，可以一起渲染
+        
         const academicsText = `${edu.degree} | GPA: ${edu.gpa}`;
 
         const academicsSegments = computeSegments(

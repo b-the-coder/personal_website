@@ -44,27 +44,23 @@ function ExperienceList() {
   );
 }
 
-// Dark mode
 function DarkModeToggle() {
   const toggleInputRef = useRef(null);
+
   const handleDarkModeChange = (e) => {
-    console.log("I am in handle change");
     const isDark = e.target.checked;
-    // classList.toogle("class", condition). If the condition is true, add the class. If the condition is false, remove the class.
+
+    // Pass the boolean explicitly so the dark-mode body class always matches the checkbox
     document.body.classList.toggle("dark-mode", isDark);
     localStorage.setItem("darkMode", isDark);
   };
 
   useEffect(() => {
     const darkModeChosen = localStorage.getItem("darkMode");
-
     if (darkModeChosen === "true") {
-      // User has explicitly chosen dark mode before
       toggleInputRef.current.checked = true;
       document.body.classList.add("dark-mode");
     } else if (darkModeChosen === null) {
-      // First visit — no saved preference, mirror OS/browser setting
-
       const isDarkModePreferred = window.matchMedia(
         "(prefers-color-scheme: dark)"
       ).matches;
@@ -91,14 +87,13 @@ function DarkModeToggle() {
 
 function ContactInfo() {
   useEffect(() => {
-    // 确保 ionicons 脚本已加载(也可以直接放在 index.html 的 <head> 里)
     if (!document.querySelector('script[src*="ionicons"]')) {
       const moduleScript = document.createElement("script");
       moduleScript.type = "module";
       moduleScript.src =
         "https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js";
       document.head.appendChild(moduleScript);
-
+      // Load the nomodule build as a fallback for browsers without ES module support.
       const noModuleScript = document.createElement("script");
       noModuleScript.setAttribute("nomodule", "");
       noModuleScript.src =
@@ -125,16 +120,12 @@ function ContactInfo() {
   );
 }
 
-//form submit
 function validateForm(values) {
-  // all fields non-empty
   const allFilled = Object.values(values).every((val) => val.trim() !== "");
 
-  // simple email check
   const validEmail = values.email.includes("@");
 
   if (allFilled && validEmail) {
-    // return a copy of the object for payload
     return { ...values };
   } else {
     if (!allFilled) {
@@ -147,39 +138,40 @@ function validateForm(values) {
 }
 
 function ContactForm() {
-  // Initialize with empty strings to avoid undefined errors during early validation
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
 
-  // Validate input and set states
   const handleChange = (e) => {
-    console.log("I am in form input change")
+    console.log("I am in form input change");
     const { name, value } = e.target;
     const latestFormData = {
       ...formData,
       [name]: value,
     };
-    // Kept your inline validation logic if needed for extension later
-    // const validatedInput = validateForm(latestFormData);
+
     setFormData(latestFormData);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent default browser page reload
+    // Suggested: Prevent native form submission from reloading the page.
 
     // Run the validation gate one final time to check the completed formData
+    // Suggested: Validate the complete form before submission.
     const payload = validateForm(formData);
 
     // If payload is a string, it means validation failed and returned an error message
+    // Suggested: Stop submission when validation returns an error message.
     if (typeof payload === "string") {
       alert(payload);
       return;
     }
 
     // Validation passed (payload is now the safe object data ready for backend)
+    // Suggested: Validation passed; send the form payload to the backend.
     if (payload) {
       fetch("http://localhost:3000/test", {
         method: "POST",
@@ -192,6 +184,7 @@ function ContactForm() {
           if (!res.ok) {
             return res.json().then((data) => {
               throw data; // Throw backend errors to catch block
+              // Suggested: Forward the parsed backend error to the catch handler.
             });
           }
           return res.json();
@@ -200,6 +193,7 @@ function ContactForm() {
           console.log("SUCCESS:", data);
           alert("Data saved successfully!");
           // Optional: reset form state here if needed
+          // Suggested: Remove this optional note unless resetting the form is a planned requirement.
         })
         .catch((err) => {
           console.error("FETCH ERROR:", err);
@@ -212,6 +206,7 @@ function ContactForm() {
 
   return (
     /* FIXED: Bind onSubmit to the form element directly */
+    /* Suggested: Remove this historical note; the onSubmit binding is clear from the form element. */
     <form className="contactForm" onSubmit={handleSubmit}>
       <h2>Send me a message!</h2>
       <div>

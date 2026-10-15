@@ -34,12 +34,15 @@ function AnnotationOfferer({
   if (session.kind != "text_selected") {
     return null;
   }
+
   const handleClick = () => {
     setSession({
       ...session,
       kind: "annotating",
     });
   };
+
+  // Defensive guard for an invariant violation; text_selected sessions always have a selection position.
   if (!session.selectionPosition) {
     return;
   }
@@ -72,44 +75,38 @@ function AnnotationInput({
   session,
   setSession,
 }: AnnotationStateContext) {
-  //hook只能在组件顶层调用，所有hook必须在任何可能提前return的条件判断之前。
+  // Keep hooks before the conditional return so every render uses the same hook order.
   const annotationRef = useRef<HTMLTextAreaElement>(null);
+
+  if (session.kind !== "annotating") return null;
 
   if (session.kind != "annotating") {
     return null;
   }
 
   const handlePostClick = () => {
-    //拿到用户输入的标注内容
-
     const annotationContent = annotationRef.current?.value;
-
-    // 声明要传进createAnnotation里的新annodata
     const newAnnotation = {
       annotatedText: session.selectedText,
       annotationContent: annotationContent,
       selectionPosition: session.selectionPosition,
     };
-    //返回更新后的annotationlist
     const updatedAnnotationList = upsertAnnotation(
       annotationList,
       session.currentAnnotationId,
       newAnnotation
     );
+
     setAnnotationList(updatedAnnotationList);
-
-    // 状态回到 “idle”
     setSession({
       kind: "idle",
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: undefined,
     });
-
-    //todo： 加一个alert告诉用户annotating被储存
   };
+
   const handleCancelClick = () => {
-    // setMode("idle");
     setSession({
       kind: "idle",
       selectedText: "",
@@ -117,15 +114,12 @@ function AnnotationInput({
       currentAnnotationId: undefined,
     });
   };
-
 
   let displayText, placeholderText;
   if (!session.currentAnnotationId) {
-    //new annotation
     displayText = session.selectedText;
     placeholderText = "Write your annotation...";
   } else {
-    //existing annotation
     displayText = annotationList[session.currentAnnotationId].annotatedText;
     placeholderText =
       "You annotated:" +
@@ -144,7 +138,10 @@ function AnnotationInput({
       />
 
       <div className="annotation-input__actions">
-        <button onClick={handlePostClick} className="annotation-input__post-btn">
+        <button
+          onClick={handlePostClick}
+          className="annotation-input__post-btn"
+        >
           Post
         </button>
         <button
@@ -167,6 +164,8 @@ function AnnotationDisplay({
   if (session.kind != "anno_display") {
     return null;
   }
+
+  // Defensive guard for an invariant violation; anno_display sessions always have a currentAnnotationId.
   if (!session.currentAnnotationId) {
     console.error(
       "currentAnnotationId is invalid, value is:",
@@ -174,12 +173,12 @@ function AnnotationDisplay({
     );
     return null;
   }
+
   const displayAnnotationIds = session.currentAnnotationId.split(",");
 
   const handleDeleteClick = (annoId: string) => {
     const updatedAnnotationList = deleteAnnotation(annotationList, annoId);
     setAnnotationList(updatedAnnotationList);
-
     setSession({
       kind: "idle",
       selectedText: "",
@@ -187,10 +186,10 @@ function AnnotationDisplay({
       currentAnnotationId: undefined,
     });
   };
+
   const handleEditClick = (annoId: string) => {
     setSession({
       kind: "annotating",
-
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: annoId,
