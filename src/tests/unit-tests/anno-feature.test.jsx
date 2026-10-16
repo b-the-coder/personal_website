@@ -17,6 +17,7 @@ import {
   mockAnnotation1,
   mockAnnotation2,
   mockAnnotation3,
+ 
 } from "../fixtures/annotation-fixtures";
 
 afterEach(() => {
@@ -37,10 +38,10 @@ const mockPosition = {
 };
 
 const mockAnnotation4 = {
-  annotatedText: "name and contact",
-  annotationContent: "this is a note2 for name and contact",
+  annotatedText: "email",
+  annotationContent: "this is a note for email",
   selectionPosition: {
-    viewportPosition: { x: 100, y: 200 },
+    viewportPosition: { x: 700, y:800 },
     textPosition: "paragraph one",
     range: [0, 1],
   },
@@ -59,7 +60,8 @@ const mockAnnotationListAfterDeletion = {
   "anno-3": mockAnnotation3,
 };
 
-const mockCurrentAnnotationId = "anno-1";
+const mockCurrentAnnotationId1 = "anno-1";
+const mockCurrentAnnotationId2 ="anno-4";
 const mockAnnotationIdString = "anno-1,anno-4";
 
 describe("AnnotationOfferer", () => {
@@ -135,7 +137,7 @@ describe("AnnotationInput", () => {
     test("shows the correct annotated text and placeholder when editing an existing annotation", () => {
       const session = {
         kind: "annotating",
-        currentAnnotationId: mockCurrentAnnotationId,
+        currentAnnotationId: mockCurrentAnnotationId1,
         selectedText: "",
         selectionPosition: null,
       };
@@ -147,13 +149,13 @@ describe("AnnotationInput", () => {
       );
       expect(
         screen.getByText(
-          mockAnnotationList[mockCurrentAnnotationId].annotatedText
+          mockAnnotationList[mockCurrentAnnotationId1].annotatedText
         )
       ).toBeInTheDocument();
       expect(
         screen.getByPlaceholderText(
           "You annotated:" +
-            mockAnnotationList[mockCurrentAnnotationId].annotationContent
+            mockAnnotationList[mockCurrentAnnotationId1].annotationContent
         )
       ).toBeInTheDocument();
     });
@@ -214,7 +216,7 @@ describe("AnnotationInput", () => {
         kind: "annotating",
         selectedText: "",
         selectionPosition: null,
-        currentAnnotationId: mockCurrentAnnotationId,
+        currentAnnotationId: mockCurrentAnnotationId1,
       };
       render(
         <AnnotationInput
@@ -243,8 +245,8 @@ describe("AnnotationInput", () => {
 
       const updatedAnnotationList = setAnnotationList.mock.calls[0][0];
 
-      expect(updatedAnnotationList[mockCurrentAnnotationId]).toMatchObject({
-        ...mockAnnotationList[mockCurrentAnnotationId],
+      expect(updatedAnnotationList[mockCurrentAnnotationId1]).toMatchObject({
+        ...mockAnnotationList[mockCurrentAnnotationId1],
         annotationContent: "mock edited annotation content",
       });
     });
@@ -253,7 +255,7 @@ describe("AnnotationInput", () => {
         kind: "annotating",
         selectedText: "",
         selectionPosition: null,
-        currentAnnotationId: mockCurrentAnnotationId,
+        currentAnnotationId: mockCurrentAnnotationId1,
       };
       render(
         <AnnotationInput
@@ -284,7 +286,7 @@ describe("AnnotationDisplay", () => {
       kind: "anno_display",
       selectedText: "",
       selectionPosition: null,
-      currentAnnotationId: mockCurrentAnnotationId,
+      currentAnnotationId: mockCurrentAnnotationId1,
     };
     test("renders when mode is anno_display", () => {
       render(
@@ -295,12 +297,12 @@ describe("AnnotationDisplay", () => {
       );
       expect(
         screen.queryByText(
-          mockAnnotationList[mockCurrentAnnotationId].annotatedText
+          mockAnnotationList[mockCurrentAnnotationId1].annotatedText
         )
       ).toBeInTheDocument();
       expect(
         screen.queryByText(
-          mockAnnotationList[mockCurrentAnnotationId].annotationContent
+          mockAnnotationList[mockCurrentAnnotationId1].annotationContent
         )
       ).toBeInTheDocument();
     });
@@ -319,12 +321,12 @@ describe("AnnotationDisplay", () => {
       );
       expect(
         screen.queryByText(
-          mockAnnotationList[mockCurrentAnnotationId].annotatedText
+          mockAnnotationList[mockCurrentAnnotationId1].annotatedText
         )
       ).toBeNull();
       expect(
         screen.queryByText(
-          mockAnnotationList[mockCurrentAnnotationId].annotationContent
+          mockAnnotationList[mockCurrentAnnotationId1].annotationContent
         )
       ).toBeNull();
       expect(screen.queryByText("On:")).toBeNull();
@@ -338,7 +340,7 @@ describe("AnnotationDisplay", () => {
         kind: "anno_display",
         selectedText: "",
         selectionPosition: null,
-        currentAnnotationId: mockCurrentAnnotationId,
+        currentAnnotationId: mockAnnotationIdString,
       };
       render(
         <AnnotationDisplay
@@ -348,12 +350,22 @@ describe("AnnotationDisplay", () => {
       );
       expect(
         screen.queryByText(
-          `${mockAnnotationList[mockCurrentAnnotationId].annotatedText}`
+          `${mockAnnotationList[mockCurrentAnnotationId1].annotatedText}`
         )
       ).toBeInTheDocument();
       expect(
         screen.queryByText(
-          mockAnnotationList[mockCurrentAnnotationId].annotationContent
+          mockAnnotationList[mockCurrentAnnotationId1].annotationContent
+        )
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          `${mockAnnotationList[mockCurrentAnnotationId2].annotatedText}`
+        )
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText(
+          mockAnnotationList[mockCurrentAnnotationId2].annotationContent
         )
       ).toBeInTheDocument();
     });
