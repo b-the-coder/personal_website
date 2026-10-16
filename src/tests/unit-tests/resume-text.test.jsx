@@ -85,7 +85,7 @@ describe("resumeText", () => {
     vi.restoreAllMocks();
   });
 
-  test("handleSelection setup session with valid selection", () => {
+  test("resumeText setup session with valid selection", () => {
     const { container } = render(<ResumeText {...mockProps} />);
     const textPositionNode = container.querySelector(".resumeHeader");
     const textNode = textPositionNode.querySelector("h2").firstChild;
@@ -106,15 +106,21 @@ describe("resumeText", () => {
     // Mock getSelection to return the range
     const selectedString = textNode.textContent.slice(0, 3);
     vi.spyOn(window, "getSelection").mockReturnValue({
+      // 新增：明确表示当前是有效的非折叠 Selection。
+      isCollapsed: false,
       toString: () => selectedString,
       getRangeAt: () => range,
     });
 
     const resumeTextContainer = container.querySelector(".resumeText");
     fireEvent.mouseUp(resumeTextContainer);
+    // 新增：模拟有效选中结束后浏览器继续触发 click。
+    fireEvent.click(resumeTextContainer);
 
-    
-    expect(mockProps.setSession).toHaveBeenCalledWith({
+    // 新增：确保后续 click 没有造成第二次 session 更新。
+    expect(mockProps.setSession).toHaveBeenCalledTimes(1);
+    // 修改：确认唯一一次调用就是 handleSelection 设置的 text_selected。
+    expect(mockProps.setSession).toHaveBeenNthCalledWith(1, {
       kind: "text_selected",
       selectedText: selectedString,
       selectionPosition: expect.objectContaining({
@@ -152,9 +158,24 @@ describe("resumeText", () => {
       annotationNode.dataset.annotationIds = "fakeannotationIDs";
       resumeText.appendChild(annotationNode);
 
+      // 新增：明确模拟普通点击时的折叠 Selection。
+      vi.spyOn(window, "getSelection").mockReturnValue({
+        isCollapsed: true,
+        toString: () => "",
+      });
+
+      // 新增：模拟真实点击中先发生 mouseup、再发生 click 的顺序。
+      fireEvent.mouseUp(annotationNode);
       fireEvent.click(annotationNode);
 
-      expect(mockProps.setSession).toHaveBeenCalledWith({
+      // 新增：确认这次普通点击没有被识别为有效文本选中。
+      expect(mockProps.setSession).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          kind: "text_selected",
+        })
+      );
+      // 修改：确认事件序列结束后的最后一次 session 更新是 anno_display。
+      expect(mockProps.setSession).toHaveBeenLastCalledWith({
         kind: "anno_display",
         selectedText: "",
         selectionPosition: null,
