@@ -1,6 +1,6 @@
 export const mockAnnotation1 = {
   annotatedText: "name and contact",
-  annotationContent: "this is a note1 for name and contact",
+  annotationContent: "this is a note for name and contact",
   selectionPosition: {
     viewportPosition: { x: 100, y: 200 },
     textPosition: "paragraph one",
@@ -30,3 +30,5 @@ export const mockAnnotation3 = {
   },
   timestamp: 1234567890,
 };
+
+

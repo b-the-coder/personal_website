@@ -85,7 +85,7 @@ describe("resumeText", () => {
     vi.restoreAllMocks();
   });
 
-  test("resumeText setup session with valid selection", () => {
+  test("sets session to text_selected when selecting unannotated text", () => {
     const { container } = render(<ResumeText {...mockProps} />);
     const textPositionNode = container.querySelector(".resumeHeader");
     const textNode = textPositionNode.querySelector("h2").firstChild;
@@ -106,20 +106,17 @@ describe("resumeText", () => {
     // Mock getSelection to return the range
     const selectedString = textNode.textContent.slice(0, 3);
     vi.spyOn(window, "getSelection").mockReturnValue({
-      // 新增：明确表示当前是有效的非折叠 Selection。
       isCollapsed: false,
       toString: () => selectedString,
       getRangeAt: () => range,
     });
 
     const resumeTextContainer = container.querySelector(".resumeText");
+    // Dispatch mouseup before click in interaction tests to match browser event order.
     fireEvent.mouseUp(resumeTextContainer);
-    // 新增：模拟有效选中结束后浏览器继续触发 click。
     fireEvent.click(resumeTextContainer);
 
-    // 新增：确保后续 click 没有造成第二次 session 更新。
     expect(mockProps.setSession).toHaveBeenCalledTimes(1);
-    // 修改：确认唯一一次调用就是 handleSelection 设置的 text_selected。
     expect(mockProps.setSession).toHaveBeenNthCalledWith(1, {
       kind: "text_selected",
       selectedText: selectedString,
@@ -131,9 +128,62 @@ describe("resumeText", () => {
     });
   });
 
+  test("sets session to text_selected when selecting annotated text", () => {
+    const annotationId = "fakeAnnotationId";
+    const annotationList = {
+      [annotationId]: {
+        annotatedText: "Bin",
+        annotationContent: "fake annotation content",
+        selectionPosition: {
+          viewportPosition: { x: 0, y: 0 },
+          textPosition: "resume-header",
+          range: [0, 3],
+        },
+        timestamp: 0,
+      },
+    };
+    const { container } = render(
+      <ResumeText {...mockProps} annotationList={annotationList} />
+    );
+    const annotationNode = container.querySelector(
+      `[data-annotation-ids="${annotationId}"]`
+    );
+    const textNode = annotationNode.firstChild;
+    const range = document.createRange();
+    range.setStart(textNode, 0);
+    range.setEnd(textNode, 3);
+    range.getBoundingClientRect = vi.fn().mockReturnValue({
+      top: 0,
+      left: 0,
+      bottom: 10,
+      right: 10,
+      width: 10,
+      height: 10,
+    });
 
-  test("sets the session to idle when getNextModeOnSelection returns idle", () => {
+    vi.spyOn(window, "getSelection").mockReturnValue({
+      isCollapsed: false,
+      toString: () => "Bin",
+      getRangeAt: () => range,
+    });
 
+    fireEvent.mouseUp(annotationNode);
+    fireEvent.click(annotationNode);
+
+    expect(mockProps.setSession).toHaveBeenCalledTimes(1);
+    expect(mockProps.setSession).toHaveBeenNthCalledWith(1, {
+      kind: "text_selected",
+      selectedText: "Bin",
+      selectionPosition: expect.objectContaining({
+        textPosition: "resume-header",
+        range: [0, 3],
+      }),
+      currentAnnotationId: undefined,
+    });
+  });
+
+  test("sets session to idle when selection is invalid", () => {
+    // Simulate an invalid selection by making getNextModeOnSelection return idle.
     vi.spyOn(utils, "getNextModeOnSelection").mockReturnValue("idle");
 
     const { container } = render(<ResumeText {...mockProps} />);
@@ -149,8 +199,8 @@ describe("resumeText", () => {
     });
   });
 
-  describe("handleClick setup states with click behavior", () => {
-    test("setup session when click annotations", () => {
+  describe("click behavior", () => {
+    test("sets session to anno_display when clicking annotated text", () => {
       const { container } = render(<ResumeText {...mockProps} />);
       const resumeText = container.querySelector(".resumeText");
       const annotationNode = document.createElement("span");
@@ -158,23 +208,19 @@ describe("resumeText", () => {
       annotationNode.dataset.annotationIds = "fakeannotationIDs";
       resumeText.appendChild(annotationNode);
 
-      // 新增：明确模拟普通点击时的折叠 Selection。
       vi.spyOn(window, "getSelection").mockReturnValue({
         isCollapsed: true,
         toString: () => "",
       });
 
-      // 新增：模拟真实点击中先发生 mouseup、再发生 click 的顺序。
       fireEvent.mouseUp(annotationNode);
       fireEvent.click(annotationNode);
 
-      // 新增：确认这次普通点击没有被识别为有效文本选中。
       expect(mockProps.setSession).not.toHaveBeenCalledWith(
         expect.objectContaining({
           kind: "text_selected",
         })
       );
-      // 修改：确认事件序列结束后的最后一次 session 更新是 anno_display。
       expect(mockProps.setSession).toHaveBeenLastCalledWith({
         kind: "anno_display",
         selectedText: "",
@@ -183,16 +229,28 @@ describe("resumeText", () => {
       });
     });
 
-    test("setup session when click no annotations text content", () => {
+    test("sets session to idle when clicking unannotated text", () => {
       const { container } = render(<ResumeText {...mockProps} />);
       const resumeText = container.querySelector(".resumeText");
       const noAnnotationNode = document.createElement("span");
 
       resumeText.appendChild(noAnnotationNode);
 
+      vi.spyOn(window, "getSelection").mockReturnValue({
+        isCollapsed: true,
+        toString: () => "",
+      });
+
+      fireEvent.mouseUp(noAnnotationNode);
       fireEvent.click(noAnnotationNode);
 
-      expect(mockProps.setSession).not.toHaveBeenCalled();
+      expect(mockProps.setSession).toHaveBeenCalledTimes(1);
+      expect(mockProps.setSession).toHaveBeenNthCalledWith(1, {
+        kind: "idle",
+        selectedText: "",
+        selectionPosition: null,
+        currentAnnotationId: undefined,
+      });
     });
   });
 });
