@@ -1,11 +1,24 @@
 import { test, expect } from "@playwright/test";
 
+const presetAnnotationList = {
+  "c85f6bcb-db68-4a0d-9151-85530d786d61": {
+    annotatedText: "Designed",
+    annotationContent: "e2e test mock annotation content",
+    selectionPosition: {
+      viewportPosition: {
+        x: 209.046875,
+        y: 260.5,
+      },
+      textPosition: "exp-0-bullet-0",
+      range: [0, 9],
+    },
+    timestamp: 1788286246196,
+  },
+};
+
 test.describe("annotation feature workflow", () => {
   test("single annotation creation", async ({ page }) => {
     await page.goto("/");
-
-    // Initialize annotation storage
-    await page.localStorage.setItem("annotationList", JSON.stringify({}));
 
     // Select a random "React" occurrence
     const locator = page.getByText("React");
@@ -90,29 +103,14 @@ test.describe("annotation feature workflow", () => {
   });
 
   test("edit annotation", async ({ page }) => {
-    await page.goto("/");
-
     // Initialize annotation storage with an existing annotation
-    const annotationList = {
-      "c85f6bcb-db68-4a0d-9151-85530d786d61": {
-        annotatedText: "Designed",
-        annotationContent: "e2e test mock annotation content",
-        selectionPosition: {
-          viewportPosition: {
-            x: 209.046875,
-            y: 260.5,
-          },
-          textPosition: "exp-0-bullet-0",
-          range: [0, 9],
-        },
-        timestamp: 1788286246196,
-      },
-    };
-    await page.localStorage.setItem(
-      "annotationList",
-      JSON.stringify(annotationList)
-    );
-    await page.reload();
+    await page.addInitScript((annotationList) => {
+      window.localStorage.setItem(
+        "annotationList",
+        JSON.stringify(annotationList)
+      );
+    }, presetAnnotationList);
+    await page.goto("/");
 
     // Open the existing annotation and verify its content
     const annotation = await page.locator(
@@ -123,12 +121,12 @@ test.describe("annotation feature workflow", () => {
     await expect(page.locator(".annotation-display")).toBeVisible();
     await expect(
       page.getByText(
-        `On: ${annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotatedText}`
+        `On: ${presetAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotatedText}`
       )
     ).toBeVisible();
     await expect(
       page.getByText(
-        `You annotated: ${annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent}`
+        `You annotated: ${presetAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent}`
       )
     ).toBeVisible();
 
@@ -140,7 +138,7 @@ test.describe("annotation feature workflow", () => {
     await expect(page.locator(".annotation-input")).toBeVisible();
     await expect(
       page.getByText(
-        `On: ${annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotatedText}`
+        `On: ${presetAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotatedText}`
       )
     ).toBeVisible();
     const annotationTextarea = page.locator(".annotation-input__textarea");
@@ -148,13 +146,15 @@ test.describe("annotation feature workflow", () => {
 
     await expect(annotationTextarea).toHaveAttribute(
       "placeholder",
-     "You annotated:"+  annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent
+      "You annotated:" +
+        presetAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent
     );
 
     // Submit the updated annotation
     const editedAnnotationContent =
       "edited" +
-      annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent;
+      presetAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"]
+        .annotationContent;
     await page
       .locator(".annotation-input__textarea")
       .fill(editedAnnotationContent);
@@ -181,29 +181,14 @@ test.describe("annotation feature workflow", () => {
   });
 
   test("Delete annotation", async ({ page }) => {
-    await page.goto("/");
-
     // Initialize annotation storage with an existing annotation
-    const annotationList = {
-      "c85f6bcb-db68-4a0d-9151-85530d786d61": {
-        annotatedText: "Designed",
-        annotationContent: "e2e test mock annotation content",
-        selectionPosition: {
-          viewportPosition: {
-            x: 209.046875,
-            y: 260.5,
-          },
-          textPosition: "exp-0-bullet-0",
-          range: [0, 9],
-        },
-        timestamp: 1788286246196,
-      },
-    };
-    await page.localStorage.setItem(
-      "annotationList",
-      JSON.stringify(annotationList)
-    );
-    await page.reload();
+    await page.addInitScript((annotationList) => {
+      window.localStorage.setItem(
+        "annotationList",
+        JSON.stringify(annotationList)
+      );
+    }, presetAnnotationList);
+    await page.goto("/");
 
     // Open the existing annotation and verify its content
     const annotation = await page.locator(
@@ -214,12 +199,12 @@ test.describe("annotation feature workflow", () => {
     await expect(page.locator(".annotation-display")).toBeVisible();
     await expect(
       page.getByText(
-        `On: ${annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotatedText}`
+        `On: ${presetAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotatedText}`
       )
     ).toBeVisible();
     await expect(
       page.getByText(
-        `You annotated: ${annotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent}`
+        `You annotated: ${presetAnnotationList["c85f6bcb-db68-4a0d-9151-85530d786d61"].annotationContent}`
       )
     ).toBeVisible();
 
