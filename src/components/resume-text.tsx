@@ -30,8 +30,8 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
     const nextMode = getNextModeOnSelection(userSelection);
     if (nextMode === "idle") {
       setSession({
-        kind: nextMode,
-        selectedText: selectedString,
+        mode: "idle",
+        selectedText: "",
         selectionPosition: null,
         currentAnnotationId: undefined,
       });
@@ -58,7 +58,7 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
     };
 
     setSession({
-      kind: nextMode,
+      mode: nextMode,
       selectedText: selectedString,
       selectionPosition: selectionPosition,
       currentAnnotationId: undefined,
@@ -83,7 +83,7 @@ function ResumeText({ annotationList, setSession }: AnnotationStateContext) {
 
     if (annotationIdsString) {
       setSession({
-        kind: "anno_display",
+        mode: "anno_display",
         selectedText: "",
         selectionPosition: null,
         currentAnnotationId: annotationIdsString,

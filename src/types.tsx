@@ -1,8 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
 
-
-export type Mode = "idle" | "text_selected" | "annotating" | "anno_display";
-
 export interface ViewportPosition {
   x: number;
   y: number;
@@ -15,12 +12,37 @@ export interface SelectionPosition {
 }
 
 
-export interface AnnotationSession {
-  kind: Mode;
-  currentAnnotationId: string | undefined;
-  selectedText: string;
-  selectionPosition: SelectionPosition | null;
-}
+export type AnnotationSession =
+  | {
+      mode: "idle";
+      currentAnnotationId: undefined;
+      selectedText: "";
+      selectionPosition: null;
+    }
+  | {
+      mode: "text_selected";
+      currentAnnotationId: undefined;
+      selectedText: string;
+      selectionPosition: SelectionPosition;
+    }
+  | {
+      mode: "annotating";
+      currentAnnotationId: undefined;
+      selectedText: string;
+      selectionPosition: SelectionPosition;
+    }
+  | {
+      mode: "annotating";
+      currentAnnotationId: string;
+      selectedText: "";
+      selectionPosition: null;
+    }
+  | {
+      mode: "anno_display";
+      currentAnnotationId: string;
+      selectedText: "";
+      selectionPosition: null;
+    };
 
 
 export interface AnnotationItem {

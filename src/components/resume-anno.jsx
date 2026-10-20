@@ -10,7 +10,7 @@ function ResumeAnnotation() {
     initializeAnnotationList()
   );
   const [session, setSession] = useState({
-    kind: "idle",
+    mode: "idle",
     selectedText: "",
     selectionPosition: null,
     currentAnnotationId: undefined,

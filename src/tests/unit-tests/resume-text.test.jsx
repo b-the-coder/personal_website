@@ -118,7 +118,7 @@ describe("resumeText", () => {
 
     expect(mockProps.setSession).toHaveBeenCalledTimes(1);
     expect(mockProps.setSession).toHaveBeenNthCalledWith(1, {
-      kind: "text_selected",
+      mode: "text_selected",
       selectedText: selectedString,
       selectionPosition: expect.objectContaining({
         textPosition: "resume-header",
@@ -172,7 +172,7 @@ describe("resumeText", () => {
 
     expect(mockProps.setSession).toHaveBeenCalledTimes(1);
     expect(mockProps.setSession).toHaveBeenNthCalledWith(1, {
-      kind: "text_selected",
+      mode: "text_selected",
       selectedText: "Bin",
       selectionPosition: expect.objectContaining({
         textPosition: "resume-header",
@@ -192,7 +192,7 @@ describe("resumeText", () => {
     fireEvent.mouseUp(resumeTextContainer);
 
     expect(mockProps.setSession).toHaveBeenCalledWith({
-      kind: "idle",
+      mode: "idle",
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: undefined,
@@ -218,11 +218,11 @@ describe("resumeText", () => {
 
       expect(mockProps.setSession).not.toHaveBeenCalledWith(
         expect.objectContaining({
-          kind: "text_selected",
+          mode: "text_selected",
         })
       );
       expect(mockProps.setSession).toHaveBeenLastCalledWith({
-        kind: "anno_display",
+        mode: "anno_display",
         selectedText: "",
         selectionPosition: null,
         currentAnnotationId: "fakeannotationIDs",
@@ -246,7 +246,7 @@ describe("resumeText", () => {
 
       expect(mockProps.setSession).toHaveBeenCalledTimes(1);
       expect(mockProps.setSession).toHaveBeenNthCalledWith(1, {
-        kind: "idle",
+        mode: "idle",
         selectedText: "",
         selectionPosition: null,
         currentAnnotationId: undefined,
