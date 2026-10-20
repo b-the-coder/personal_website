@@ -41,6 +41,12 @@ Before running this project locally, make sure you have:
    http://localhost:5173
    ```
 
+## Deployment and Persistence
+
+- Docker publishing through GitHub Actions requires the repository secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`.
+- Local development (`npm run dev`) uses port `5173`, while the Docker build is served on port `3000` inside the container. Map that port to the host when running the container (for example, `-p 3000:3000`).
+- Annotation data is stored only in the browser's `localStorage` and is not persisted on a server. Clearing browser storage removes saved annotations, and annotations are not shared across browsers, devices, or origins (including different ports).
+
 ## Testing
 
 Run the test suite:

@@ -6,9 +6,11 @@
 
 - [ ] Bug fix
 - [ ] New feature
+- [ ] Tests
 - [ ] Refactor / Cleanup
 - [ ] Documentation
 - [ ] Project Tooling & Workflow Setup
+
 
 ## Testing
 
