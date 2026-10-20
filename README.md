@@ -5,7 +5,7 @@ This repo is for a webpage that you can showcase your personal info and professi
 Before running this project locally, make sure you have:
 
 - [Git](https://git-scm.com/) — required to clone the repository
-- [Node.js](https://nodejs.org/) 22.12.0 or later
+- [Node.js](https://nodejs.org/) 24.16.0 (specified in `.nvmrc`; with nvm installed, run `nvm install` and `nvm use`)
 - npm — included with Node.js
 - A modern web browser
 
