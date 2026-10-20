@@ -31,14 +31,14 @@ function AnnotationOfferer({
   session,
   setSession,
 }: Pick<AnnotationStateContext, "session" | "setSession">) {
-  if (session.kind != "text_selected") {
+  if (session.mode != "text_selected") {
     return null;
   }
 
   const handleClick = () => {
     setSession({
       ...session,
-      kind: "annotating",
+      mode: "annotating",
     });
   };
 
@@ -78,9 +78,9 @@ function AnnotationInput({
   // Keep hooks before the conditional return so every render uses the same hook order.
   const annotationRef = useRef<HTMLTextAreaElement>(null);
 
-  if (session.kind !== "annotating") return null;
+  if (session.mode !== "annotating") return null;
 
-  if (session.kind != "annotating") {
+  if (session.mode != "annotating") {
     return null;
   }
 
@@ -99,7 +99,7 @@ function AnnotationInput({
 
     setAnnotationList(updatedAnnotationList);
     setSession({
-      kind: "idle",
+      mode: "idle",
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: undefined,
@@ -108,7 +108,7 @@ function AnnotationInput({
 
   const handleCancelClick = () => {
     setSession({
-      kind: "idle",
+      mode: "idle",
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: undefined,
@@ -161,7 +161,7 @@ function AnnotationDisplay({
   session,
   setSession,
 }: AnnotationStateContext) {
-  if (session.kind != "anno_display") {
+  if (session.mode != "anno_display") {
     return null;
   }
 
@@ -180,7 +180,7 @@ function AnnotationDisplay({
     const updatedAnnotationList = deleteAnnotation(annotationList, annoId);
     setAnnotationList(updatedAnnotationList);
     setSession({
-      kind: "idle",
+      mode: "idle",
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: undefined,
@@ -189,7 +189,7 @@ function AnnotationDisplay({
 
   const handleEditClick = (annoId: string) => {
     setSession({
-      kind: "annotating",
+      mode: "annotating",
       selectedText: "",
       selectionPosition: null,
       currentAnnotationId: annoId,
