@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import { ResumeText } from "./resume-text";
 import { AnnotationFeature } from "./anno-feature";
 import { initializeAnnotationList } from "../utils";
+import type { AnnotationSession } from "../types";
 
 function ResumeAnnotation() {
   const [annotationList, setAnnotationList] = useState(
     initializeAnnotationList()
   );
-  const [session, setSession] = useState({
+  const [session, setSession] = useState<AnnotationSession>({
     mode: "idle",
     selectedText: "",
     selectionPosition: null,
