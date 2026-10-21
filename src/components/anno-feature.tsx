@@ -31,7 +31,7 @@ function AnnotationOfferer({
   session,
   setSession,
 }: Pick<AnnotationStateContext, "session" | "setSession">) {
-  if (session.mode != "text_selected") {
+  if (session.mode !== "text_selected") {
     return null;
   }
 
@@ -42,10 +42,6 @@ function AnnotationOfferer({
     });
   };
 
-  // Defensive guard for an invariant violation; text_selected sessions always have a selection position.
-  if (!session.selectionPosition) {
-    return;
-  }
   return (
     <span
       onClick={handleClick}
@@ -79,10 +75,6 @@ function AnnotationInput({
   const annotationRef = useRef<HTMLTextAreaElement>(null);
 
   if (session.mode !== "annotating") return null;
-
-  if (session.mode != "annotating") {
-    return null;
-  }
 
   const handlePostClick = () => {
     const annotationContent = annotationRef.current?.value;
@@ -161,16 +153,7 @@ function AnnotationDisplay({
   session,
   setSession,
 }: AnnotationStateContext) {
-  if (session.mode != "anno_display") {
-    return null;
-  }
-
-  // Defensive guard for an invariant violation; anno_display sessions always have a currentAnnotationId.
-  if (!session.currentAnnotationId) {
-    console.error(
-      "currentAnnotationId is invalid, value is:",
-      session.currentAnnotationId
-    );
+  if (session.mode !== "anno_display") {
     return null;
   }
 
