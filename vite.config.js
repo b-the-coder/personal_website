@@ -5,12 +5,14 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "jsdom",
-    exclude: ["src/tests/e2e-tests/**", "node_modules/**"],
+    exclude: ["src/tests/e2e-tests/**", "**/node_modules/**", "**/.git/**", "backend/**"],
     coverage: {
       provider: "v8",
       all: true,
       include: ["**/*.{js,jsx}"],
       exclude: [
+        "backend/**",
+        "**/node_modules/**",
         "**/*.test.*",
         "**/*.config.*",
         "dist/**",
