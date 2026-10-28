@@ -1,5 +1,5 @@
 # Dependencies
-/node_modules/
+node_modules/
 
 # Build output
 /dist/
@@ -14,3 +14,7 @@
 
 # macOS
 .DS_Store
+
+.env
+.env.*
+!.env.example
