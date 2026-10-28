@@ -4,8 +4,12 @@ name: Vitest (Build)
 
 on:
   push:
+    paths-ignore:
+      - 'backend/**'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'backend/**'
 
 jobs:
   build:
